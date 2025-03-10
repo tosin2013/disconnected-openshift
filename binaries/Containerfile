@@ -25,8 +25,8 @@ RUN python3 -m pip install ansible jmespath nmstate \
  && ansible-galaxy collection install community.crypto
 
 # Install OpenShift binaries - some have multi-arch support, some do not
-RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then OS=linux && ARCH=x86_64 && IARCH=amd64 && OI=openshift-install-linux && OC=openshift-client-linux; elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then OS=linux && ARCH=arm64 && IARCH=aarch64 && OI=openshift-install-linux-arm64 && OC=openshift-client-linux-arm64; else OS=linux ARCH=x86_64 && IARCH=amd64 && echo "${TARGETPLATFORM} - Building for ARCH: $ARCH | IARCH: $IARCH | OS: $OS not supported" && exit 1; fi \
- && echo "${TARGETPLATFORM} - Building for ARCH: $ARCH | IARCH: $IARCH | OS: $OS" \
+RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then OS=linux && ARCH=x86_64 && IARCH=amd64 && OI=openshift-install-linux && OC=openshift-client-linux; elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then OS=linux && ARCH=arm64 && IARCH=aarch64 && OI=openshift-install-linux-arm64 && OC=openshift-client-linux-arm64; else OS=linux && ARCH=x86_64 && IARCH=amd64 && echo "$TARGETPLATFORM - Building for ARCH: $ARCH | IARCH: $IARCH | OS: $OS not supported" && exit 1; fi \
+ && echo "$TARGETPLATFORM - Building for ARCH: $ARCH | IARCH: $IARCH | OS: $OS" \
  && mkdir -p /tmp/bintmp \
  && cd /tmp/bintmp \
  && wget https://mirror.openshift.com/pub/openshift-v4/clients/butane/latest/butane-${IARCH} \
