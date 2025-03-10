@@ -1,0 +1,32 @@
+---
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  generateName: build-ocp-tools-
+  labels:
+    tekton.dev/pipeline: build-ocp-tools
+spec:
+  pipelineRef:
+    name: build-ocp-tools
+  taskRunTemplate:
+    serviceAccountName: pipeline
+  timeouts:
+    pipeline: 1h0m0s
+  workspaces:
+    - name: build
+      persistentVolumeClaim:
+        claimName: ocp-tools-build
+
+# Optional in case you're pulling from a private repository and/or need to use a proxy
+#    - configMap:
+#        items:
+#          - key: registries.conf
+#            path: registries.conf
+#        name: mirror-registry-config
+#      name: containerconfig
+#    - configMap:
+#        items:
+#          - key: ca-bundle.crt
+#            path: ca-bundle.crt
+#        name: root-ca-certs
+#      name: root-ca-certs
