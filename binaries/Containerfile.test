@@ -1,0 +1,6 @@
+# Dummy test containerfile
+FROM registry.access.redhat.com/ubi9/ubi:9.5-1736404036
+
+USER 0
+
+WORKDIR /data
