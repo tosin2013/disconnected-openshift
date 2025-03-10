@@ -36,7 +36,7 @@ RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then OS=linux && ARCH=x86_64 && IA
     wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/oc-mirror.rhel9.tar.gz \
  && wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/opm-linux-rhel9.tar.gz \
  && wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/ccoctl-linux.tar.gz \
- && mv opm-rhel9 opm \
+ && mv opm-rhel9 opm; \
  fi \
  && tar zxvf *.tar.gz \
  && mv butane-amd64 butane \
