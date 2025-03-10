@@ -25,26 +25,31 @@ RUN python3 -m pip install ansible jmespath nmstate \
  && ansible-galaxy collection install community.crypto
 
 # Install OpenShift binaries - some have multi-arch support, some do not
-RUN if [ -z "$TARGETPLATFORM" ]; then ARCH=$(arch) && OS=$(uname -o | sed 's|GNU/L|l|') && TARGETPLATFORM="$OS/$ARCH"; fi \
- && if [ "$TARGETPLATFORM" = "linux/amd64" ] || [ "$TARGETPLATFORM" = "linux/x86_64" ]; then ARCH=x86_64 && IARCH=amd64 && OI=openshift-install-linux && OC=openshift-client-linux; elif [ "$TARGETPLATFORM" = "linux/arm64" ] || [ "$TARGETPLATFORM" = "linux/aarch64" ]; then ARCH=arm64 && IARCH=aarch64 && OI=openshift-install-linux-arm64 && OC=openshift-client-linux-arm64; else echo "$TARGETPLATFORM - Building for unsupported platform" && exit 1; fi \
- && echo "$TARGETPLATFORM - Building for ARCH: $ARCH | IARCH: $IARCH | OS: $OS" \
- && mkdir -p /tmp/bintmp \
- && cd /tmp/bintmp \
- && wget https://mirror.openshift.com/pub/openshift-v4/clients/butane/latest/butane-${IARCH} \
- && wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/${OI}.tar.gz \
- && wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/${OC}.tar.gz \
- && if [ "$ARCH" = "x86_64" ]; then \
-    wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/oc-mirror.rhel9.tar.gz \
- && wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/opm-linux-rhel9.tar.gz \
- && wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/ccoctl-linux.tar.gz; \
- fi \
- && for t in *.tar.gz; do tar zxvf $t && rm -f $t && rm -f README.md; done \
- && mv butane-${IARCH} butane \
- && chmod a+x oc kubectl openshift-install butane \
- && mv oc kubectl openshift-install butane /usr/local/bin/ \
- && if [ "$ARCH" = "x86_64" ]; then mv opm-rhel9 opm && chmod a+x oc-mirror opm ccoctl && mv oc-mirror opm ccoctl /usr/local/bin/; fi \
- && cd / \
- && rm -rf /tmp/bintmp
+#RUN if [ -z "$TARGETPLATFORM" ]; then ARCH=$(arch) && OS=$(uname -o | sed 's|GNU/L|l|') && TARGETPLATFORM="$OS/$ARCH"; fi \
+# && if [ "$TARGETPLATFORM" = "linux/amd64" ] || [ "$TARGETPLATFORM" = "linux/x86_64" ]; then ARCH=x86_64 && IARCH=amd64 && OI=openshift-install-linux && OC=openshift-client-linux; elif [ "$TARGETPLATFORM" = "linux/arm64" ] || [ "$TARGETPLATFORM" = "linux/aarch64" ]; then ARCH=arm64 && IARCH=aarch64 && OI=openshift-install-linux-arm64 && OC=openshift-client-linux-arm64; else echo "$TARGETPLATFORM - Building for unsupported platform" && exit 1; fi \
+# && echo "$TARGETPLATFORM - Building for ARCH: $ARCH | IARCH: $IARCH | OS: $OS" \
+# && mkdir -p /tmp/bintmp \
+# && cd /tmp/bintmp \
+# && wget https://mirror.openshift.com/pub/openshift-v4/clients/butane/latest/butane-${IARCH} \
+# && wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/${OI}.tar.gz \
+# && wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/${OC}.tar.gz \
+# && if [ "$ARCH" = "x86_64" ]; then \
+#    wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/oc-mirror.rhel9.tar.gz \
+# && wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/opm-linux-rhel9.tar.gz \
+# && wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/ccoctl-linux.tar.gz; \
+# fi \
+# && for t in *.tar.gz; do tar zxvf $t && rm -f $t && rm -f README.md; done \
+# && mv butane-${IARCH} butane \
+# && chmod a+x oc kubectl openshift-install butane \
+# && mv oc kubectl openshift-install butane /usr/local/bin/ \
+# && if [ "$ARCH" = "x86_64" ]; then mv opm-rhel9 opm && chmod a+x oc-mirror opm ccoctl && mv oc-mirror opm ccoctl /usr/local/bin/; fi \
+# && cd / \
+# && rm -rf /tmp/bintmp
+
+COPY download-ocp-binaries.sh /tmp/download-ocp-binaries.sh
+
+RUN DEST_MODE="system" /tmp/download-ocp-binaries.sh \
+ && rm -f /tmp/download-ocp-binaries.sh
 
 # Install other optional tools such as Helm, Kustomize, etc.
 RUN curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash \
