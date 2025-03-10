@@ -3,6 +3,7 @@ kind: ConfigMap
 apiVersion: v1
 metadata:
   name: root-ca-certs
+  namespace: ocp-bin-tools
 data:
   ca-bundle.crt: |
     -----BEGIN CERTIFICATE-----

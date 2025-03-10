@@ -6,11 +6,8 @@ metadata:
   namespace: openshift
 subjects:
   - kind: ServiceAccount
-    name: pipeline
-    namespace: devspaces
-  - kind: ServiceAccount
     name: pipeline-internal-reg
-    namespace: devspaces
+    namespace: ocp-bin-tools
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole

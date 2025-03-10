@@ -2,12 +2,13 @@
 apiVersion: tekton.dev/v1
 kind: PipelineRun
 metadata:
-  generateName: build-ocp-tools-
+  generateName: ocp-bin-tools-
+  namespace: ocp-bin-tools
   labels:
-    tekton.dev/pipeline: build-ocp-tools
+    tekton.dev/pipeline: ocp-bin-tools
 spec:
   pipelineRef:
-    name: build-ocp-tools
+    name: ocp-bin-tools
   taskRunTemplate:
     serviceAccountName: pipeline-internal-reg
   timeouts:
@@ -15,9 +16,8 @@ spec:
   workspaces:
     - name: build
       persistentVolumeClaim:
-        claimName: ocp-tools-build
+        claimName: ocp-bin-tools
 
-# Optional in case you're pulling from a private repository and/or need to use a proxy
     - name: authsecret
       secret:
         items:
@@ -25,6 +25,7 @@ spec:
             path: auth.json
         secretName: pipeline-internal-reg
 
+# Optional in case you're pulling from a private repository and/or need to use a proxy
     - configMap:
         items:
           - key: registries.conf

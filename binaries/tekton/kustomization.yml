@@ -1,0 +1,13 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - tasks/buildah-disconnected.yml
+  - supporting/namespace.yml
+  - supporting/serviceaccount-pipeline.yml
+  - supporting/rbac-internal-registry.yml
+  - supporting/imagestream-binaries-ocp-tools.yml
+  - supporting/configmap-registries.yml
+  - supporting/configmap-root-ca.yml
+  - pipelines/ocp-bin-tools.yml

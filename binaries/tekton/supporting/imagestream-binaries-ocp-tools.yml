@@ -2,5 +2,5 @@
 apiVersion: image.openshift.io/v1
 kind: ImageStream
 metadata:
-  name: ocp-tools
+  name: ocp-bin-tools
   namespace: openshift
