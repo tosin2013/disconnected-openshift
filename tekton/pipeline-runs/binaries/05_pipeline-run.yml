@@ -9,7 +9,7 @@ spec:
   pipelineRef:
     name: build-ocp-tools
   taskRunTemplate:
-    serviceAccountName: pipeline
+    serviceAccountName: pipeline-internal-reg
   timeouts:
     pipeline: 1h0m0s
   workspaces:
@@ -18,15 +18,22 @@ spec:
         claimName: ocp-tools-build
 
 # Optional in case you're pulling from a private repository and/or need to use a proxy
-#    - configMap:
-#        items:
-#          - key: registries.conf
-#            path: registries.conf
-#        name: mirror-registry-config
-#      name: containerconfig
-#    - configMap:
-#        items:
-#          - key: ca-bundle.crt
-#            path: ca-bundle.crt
-#        name: root-ca-certs
-#      name: root-ca-certs
+    - name: authsecret
+      secret:
+        items:
+          - key: .dockercfg
+            path: auth.json
+        secretName: pipeline-internal-reg
+
+    - configMap:
+        items:
+          - key: registries.conf
+            path: registries.conf
+        name: mirror-registry-config
+      name: containerconfig
+    - configMap:
+        items:
+          - key: ca-bundle.crt
+            path: ca-bundle.crt
+        name: root-ca-certs
+      name: root-ca-certs
