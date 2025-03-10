@@ -3,6 +3,7 @@ name: Binaries - Build OCP Install Tools Container
 env:
   REGISTRY_HOSTNAME: quay.io
   REGISTRY_IMAGE: quay.io/kenmoini/ocp-install-utils
+  BUILD_CONTEXT_PATH: binaries/
 
 on:
   push:
@@ -68,7 +69,7 @@ jobs:
           platforms: ${{ matrix.platform }}
           tags: ${{ env.REGISTRY_IMAGE }}
           outputs: type=image,push-by-digest=true,name-canonical=true,push=true
-          context: .
+          context: ${{ env.BUILD_CONTEXT_PATH }}
           file: binaries/Containerfile
           labels: ${{ steps.meta.outputs.labels }}
           #push: true
