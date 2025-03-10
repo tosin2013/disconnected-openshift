@@ -3,7 +3,9 @@
 
 ARG TARGETPLATFORM
 
-FROM registry.access.redhat.com/ubi9/ubi:9.5-1736404036
+# For Arm64 you need to use CentOS Stream 9
+#FROM registry.access.redhat.com/ubi9/ubi:9.5-1736404036
+FROM quay.io/centos/centos:stream9
 
 USER 0
 
