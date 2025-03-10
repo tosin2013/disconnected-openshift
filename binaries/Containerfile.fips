@@ -1,8 +1,13 @@
-# Needs to be built on an entitled RHEL 9 system
+# This will build an image with all the needed things to use the FIPS-enabed OpenShift installer and client.
+# This Containerfile is kept simple and only installs the necessary tools to run the OpenShift installer and client.
+# This is because I don't know what impact the FIPS mode requirement has on other things.
+ARG TARGETPLATFORM
+
 FROM registry.access.redhat.com/ubi9/ubi:9.5-1736404036
 
 USER 0
 
+# Update system packages and install needed tools via dnf and pip
 RUN dnf update -y \
  && dnf copr enable nmstate/nmstate-git -y \
  && dnf install -y git wget nmstate tar jq python3-pip python3-devel nano \
@@ -12,6 +17,7 @@ RUN dnf update -y \
  && dnf clean all \
  && rm -rf /var/cache/yum
 
+# Install OpenShift binaries
 RUN mkdir -p /tmp/bintmp \
  && cd /tmp/bintmp \
  && wget https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable/openshift-install-rhel9-amd64.tar.gz \
@@ -23,3 +29,5 @@ RUN mkdir -p /tmp/bintmp \
  && cp /usr/local/bin/openshift-install-fips /usr/local/bin/openshift-install \
  && cd / \
  && rm -rf /tmp/bintmp
+
+WORKDIR /data

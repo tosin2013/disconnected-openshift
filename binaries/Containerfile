@@ -1,19 +1,24 @@
+# This will build an image with all the needed things to use the OpenShift installer and client.
+# There are also a few other goodies in here.
+
 ARG TARGETPLATFORM
 
 FROM registry.access.redhat.com/ubi9/ubi:9.5-1736404036
 
 USER 0
 
+# Update system packages and install needed tools via dnf and pip
 RUN dnf update -y \
-&& dnf copr enable nmstate/nmstate-git -y \
-&& dnf install -y git wget nmstate tar jq python3-pip python3-devel nano \
-&& python3 -m pip install ansible jmespath nmstate \
-&& ansible-galaxy collection install community.general \
-&& ansible-galaxy collection install community.crypto \
-&& dnf clean all \
-&& rm -rf /var/cache/yum
+ && dnf copr enable nmstate/nmstate-git -y \
+ && dnf install -y git wget nmstate tar jq python3-pip python3-devel nano \
+ && python3 -m pip install ansible jmespath nmstate \
+ && ansible-galaxy collection install community.general \
+ && ansible-galaxy collection install community.crypto \
+ && dnf clean all \
+ && rm -rf /var/cache/yum
 
-RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then ARCH=x86_64 && IARCH=amd64; elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then ARCH=arm64 && IARCH=aarch64; else ARCH=x86_64 && IARCH=amd64 && && echo "Distribution/Architecture not supported!" exit 1; fi \
+# Install OpenShift binaries
+RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then ARCH=x86_64 && IARCH=amd64; elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then ARCH=arm64 && IARCH=aarch64; else ARCH=x86_64 && IARCH=amd64 && echo "Distribution/Architecture not supported" && exit 1; fi \
  && mkdir -p /tmp/bintmp \
  && cd /tmp/bintmp \
  && wget https://mirror.openshift.com/pub/openshift-v4/${ARCH}/clients/ocp/stable/openshift-install-linux.tar.gz \
@@ -33,3 +38,10 @@ RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then ARCH=x86_64 && IARCH=amd64; e
  && mv oc kubectl openshift-install oc-mirror opm butane ccoctl /usr/local/bin/ \
  && cd / \
  && rm -rf /tmp/bintmp
+
+# Install other optional tools such as Helm, Kustomize, etc.
+RUN curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash \
+ && curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash \
+ && mv kustomize /usr/local/bin/
+
+WORKDIR /data
