@@ -3,21 +3,27 @@
 
 ARG TARGETPLATFORM
 
-# For Arm64 you need to use CentOS Stream 10
+# For Arm64 you need to use CentOS Stream
 #FROM registry.access.redhat.com/ubi9/ubi:9.5-1736404036
-FROM quay.io/centos/centos:stream10
+FROM quay.io/centos/centos:stream9
 
 USER 0
 
 # Update system packages and install needed tools via dnf and pip
+#&& dnf copr enable nmstate/nmstate-git -y \
 RUN dnf update -y \
- && dnf copr enable nmstate/nmstate-git -y \
- && dnf install -y git wget nmstate tar jq python3-pip python3-pip-wheel python3-devel nano \
- && python3 -m pip install ansible jmespath nmstate \
- && ansible-galaxy collection install community.general \
- && ansible-galaxy collection install community.crypto \
  && dnf clean all \
  && rm -rf /var/cache/yum
+
+RUN dnf group install "Development Tools" -y \
+ && dnf install -y git wget nmstate tar jq python3-pip python3-pip-wheel python3-devel nano cmake cairo-devel python3-gobject \
+ && dnf clean all \
+ && rm -rf /var/cache/yum
+
+# If you're managing much more than this, you should probably use an EE version of the image
+RUN python3 -m pip install ansible jmespath nmstate \
+ && ansible-galaxy collection install community.general \
+ && ansible-galaxy collection install community.crypto
 
 # Install OpenShift binaries - some have multi-arch support, some do not
 RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then OS=linux && ARCH=x86_64 && IARCH=amd64 && OI=openshift-install-linux && OC=openshift-client-linux; elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then OS=linux && ARCH=arm64 && IARCH=aarch64 && OI=openshift-install-linux-arm64 && OC=openshift-client-linux-arm64; else OS=linux ARCH=x86_64 && IARCH=amd64 && echo "${TARGETPLATFORM} - Building for ARCH: $ARCH | IARCH: $IARCH | OS: $OS not supported" && exit 1; fi \
