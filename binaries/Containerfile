@@ -19,6 +19,7 @@ RUN dnf update -y \
 
 # Install OpenShift binaries
 RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then ARCH=x86_64 && IARCH=amd64; elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then ARCH=arm64 && IARCH=aarch64; else ARCH=x86_64 && IARCH=amd64 && echo "Distribution/Architecture not supported" && exit 1; fi \
+ && echo "${TARGETPLATFORM} - Building for ARCH: $ARCH | IARCH: $IARCH" \
  && mkdir -p /tmp/bintmp \
  && cd /tmp/bintmp \
  && wget https://mirror.openshift.com/pub/openshift-v4/${ARCH}/clients/ocp/stable/openshift-install-linux.tar.gz \
