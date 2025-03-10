@@ -67,6 +67,6 @@ To support the lifecycle of needing to download newer binaries, there are a few 
 - **GitHub Actions**: [Regular](../.github/workflows/binaries-build-container.yml) - [FIPS](../.github/workflows/binaries-build-fips-container.yml) | Will build/push the container images with OCP binaries
 - **[Azure DevOps Pipeline](./azure-pipelines.yml)**: Will build/push the container images with OCP binaries
 - **[Tekton](./tekton/pipelines/binaries.yml)**: Will build/push the container images with OCP binaries
-- **Ansible Execution Environment** - Example for building an EE with OCP binaries added
+- **[Ansible Execution Environment](./execution-environment/)** - Example for building an EE with OCP binaries added.  If you want ADO/GHA Pipelines to build EEs, [look here](https://github.com/kenmoini/ansible-ee-builder/tree/main).
 
 By default, these pipelines support building the normal and FIPS-enabled images and just pull the latest file.  In production environments when you want to tie things to versions more closely, you'd duplicate the pipeline, add an argument for passing along a specific version, and make sure the image tags it pushes point to those versions.
