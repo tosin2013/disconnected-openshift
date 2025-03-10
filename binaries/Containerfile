@@ -39,10 +39,10 @@ RUN if [ -z "$TARGETPLATFORM" ]; then ARCH=$(arch) && OS=$(uname -o | sed 's|GNU
  && wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/ccoctl-linux.tar.gz; \
  fi \
  && for t in *.tar.gz; do tar zxvf $t && rm -f $t && rm -f README.md; done \
- && mv butane-amd64 butane \
+ && mv butane-${IARCH} butane \
  && chmod a+x oc kubectl openshift-install butane \
  && mv oc kubectl openshift-install butane /usr/local/bin/ \
- && if [ "$ARCH" = "x86_64" ]; then chmod a+x oc-mirror opm-rhel9 ccoctl && mv oc-mirror opm-rhel9 ccoctl /usr/local/bin/; fi \
+ && if [ "$ARCH" = "x86_64" ]; then mv opm-rhel9 opm && chmod a+x oc-mirror opm ccoctl && mv oc-mirror opm ccoctl /usr/local/bin/; fi \
  && cd / \
  && rm -rf /tmp/bintmp
 
