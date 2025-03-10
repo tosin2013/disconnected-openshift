@@ -1,11 +1,11 @@
-name: Binaries - Build OCP Install Tools Container
+name: Binaries - Build OCP FIPS Install Tools Container
 on:
   push:
     branches:
       - main
     paths:
-      - binaries/Containerfile
-      - .github/workflows/binaries-build-container.yml
+      - binaries/Containerfile.fips
+      - .github/workflows/binaries-build-fips-container.yml
 
   # Schedule workflow run at 00:00 on Sunday
   schedule:
@@ -43,11 +43,11 @@ jobs:
         # generate Docker tags based on the following events/attributes
         tags: |
           type=schedule
-          type=ref,event=branch
-          type=ref,event=tag
-          type=sha,prefix=,suffix=,format=short
-          type=sha,prefix=,suffix=,format=long
-          type=raw,value=latest
+          type=ref,event=branch,suffix=-fips
+          type=ref,event=tag,suffix=-fips
+          type=sha,prefix=,suffix=-fips,format=short
+          type=sha,prefix=,suffix=-fips,format=long
+          type=raw,value=latest-fips
 
     - name: Login to Quay Container Registry
       uses: docker/login-action@v3
@@ -60,7 +60,7 @@ jobs:
       uses: docker/build-push-action@v6
       with:
         context: .
-        file: binaries/Containerfile
+        file: binaries/Containerfile.fips
         labels: ${{ steps.meta.outputs.labels }}
         tags: ${{ steps.meta.outputs.tags }}
         push: true
