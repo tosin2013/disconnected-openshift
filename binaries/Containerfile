@@ -37,7 +37,7 @@ RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then OS=linux && ARCH=x86_64 && IA
  && wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/opm-linux-rhel9.tar.gz \
  && wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/ccoctl-linux.tar.gz; \
  fi \
- && tar zxvf *.tar.gz \
+ && for t in *.tar.gz; do tar zxvf $t && rm -f $t && rm -f README.md; done \
  && mv butane-amd64 butane \
  && chmod a+x oc kubectl openshift-install butane \
  && mv oc kubectl openshift-install butane /usr/local/bin/ \
