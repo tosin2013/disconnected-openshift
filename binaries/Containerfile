@@ -33,7 +33,7 @@ RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then OS=linux && ARCH=x86_64 && IA
  fi \
  && tar zxvf *.tar.gz \
  && mv butane-amd64 butane \
- && chmod a+x oc kubectl openshift-install butane
+ && chmod a+x oc kubectl openshift-install butane \
  && mv oc kubectl openshift-install butane /usr/local/bin/ \
  && if [ "$ARCH" = "x86_64" ]; then chmod a+x oc-mirror opm ccoctl && mv oc-mirror opm ccoctl /usr/local/bin/; fi \
  && cd / \
