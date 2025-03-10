@@ -14,7 +14,7 @@ metadata:
     artifacthub.io/maintainers: |
       - name: Ken Moini?
         email: ken@kenmoini.com
-  name: buildah-adv
+  name: buildah-disconnected
   namespace: openshift-pipelines
   labels:
     app.kubernetes.io/version: 0.0.1
@@ -22,7 +22,7 @@ metadata:
 spec:
   description: |
     Buildah task builds source into a container image and
-    then pushes it to a container registry.
+    then pushes it to a container registry. Excels in disconnected environments.
   params:
     - default: ''
       description: HTTP proxy server (non-TLS requests).
