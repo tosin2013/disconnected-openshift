@@ -23,9 +23,7 @@ In this repository you can find a helper script that will go and download the la
 
 # Check out the files downloaded
 ls ./bin/
-kubectl
-oc
-openshift-install
+butane kubectl oc openshift-install
 ```
 
 ## Container Image
@@ -36,9 +34,9 @@ There are also situations where you may need to deploy OpenShift into a FIPS-ena
 
 ```bash
 # Build the container image with all our handy binaries
-podman build -t ocp-tools -f binaries/Containerfile .
+podman build -t ocp-tools -f binaries/Containerfile binaries/
 # Or for FIPS goodness...
-podman build -t ocp-tools -f binaries/Containerfile.fips .
+podman build -t ocp-tools -f binaries/Containerfile.fips binaries/
 
 # Tag the image
 podman tag ocp-tools registry.example.com/library/ocp-tools:latest
@@ -56,7 +54,7 @@ mkdir ocp-things
 # Run the container
 podman run --rm -it \
  -v ./ocp-things:/data:Z \
- registry.example.com/library/ocp-tools:latest \
+ quay.io/kenmoini/ocp-install-utils:latest \
  /bin/bash
 ```
 
