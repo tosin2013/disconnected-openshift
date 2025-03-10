@@ -17,26 +17,25 @@ RUN dnf update -y \
  && dnf clean all \
  && rm -rf /var/cache/yum
 
-# Install OpenShift binaries
-RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then ARCH=x86_64 && IARCH=amd64; elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then ARCH=arm64 && IARCH=aarch64; else ARCH=x86_64 && IARCH=amd64 && echo "Distribution/Architecture not supported" && exit 1; fi \
- && echo "${TARGETPLATFORM} - Building for ARCH: $ARCH | IARCH: $IARCH" \
+# Install OpenShift binaries - some have multi-arch support, some do not
+RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then OS=linux && ARCH=x86_64 && IARCH=amd64 && OI=openshift-install-linux && OC=openshift-client-linux; elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then OS=linux && ARCH=arm64 && IARCH=aarch64 && OI=openshift-install-linux-arm64 && OC=openshift-client-linux-arm64; else OS=linux ARCH=x86_64 && IARCH=amd64 && echo "Distribution/Architecture not supported" && exit 1; fi \
+ && echo "${TARGETPLATFORM} - Building for ARCH: $ARCH | IARCH: $IARCH | OS: $OS" \
  && mkdir -p /tmp/bintmp \
  && cd /tmp/bintmp \
- && wget https://mirror.openshift.com/pub/openshift-v4/${ARCH}/clients/ocp/stable/openshift-install-linux.tar.gz \
- && wget https://mirror.openshift.com/pub/openshift-v4/${ARCH}/clients/ocp/stable/openshift-client-linux.tar.gz \
- && wget https://mirror.openshift.com/pub/openshift-v4/${ARCH}/clients/ocp/latest/oc-mirror.rhel9.tar.gz \
- && wget https://mirror.openshift.com/pub/openshift-v4/${ARCH}/clients/ocp/stable/opm-linux-rhel9.tar.gz \
- && wget https://mirror.openshift.com/pub/openshift-v4/clients/butane/latest/butane-amd64 \
- && wget https://mirror.openshift.com/pub/openshift-v4/${ARCH}/clients/ocp/stable/ccoctl-linux.tar.gz \
- && tar zxvf openshift-install-linux.tar.gz \
- && tar zxvf openshift-client-linux.tar.gz \
- && tar zxvf oc-mirror.rhel9.tar.gz \
- && tar zxvf opm-linux-rhel9.tar.gz \
- && tar zxvf ccoctl-linux.tar.gz \
+ && wget https://mirror.openshift.com/pub/openshift-v4/clients/butane/latest/butane-${IARCH} \
+ && wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/${OI}.tar.gz \
+ && wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/${OC}.tar.gz \
+ && if [ "$ARCH" = "x86_64" ]; then \
+    wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/oc-mirror.rhel9.tar.gz \
+ && wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/opm-linux-rhel9.tar.gz \
+ && wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/ccoctl-linux.tar.gz \
  && mv opm-rhel9 opm \
+ fi \
+ && tar zxvf *.tar.gz \
  && mv butane-amd64 butane \
- && chmod a+x oc kubectl openshift-install oc-mirror opm butane ccoctl \
- && mv oc kubectl openshift-install oc-mirror opm butane ccoctl /usr/local/bin/ \
+ && chmod a+x oc kubectl openshift-install butane
+ && mv oc kubectl openshift-install butane /usr/local/bin/ \
+ && if [ "$ARCH" = "x86_64" ]; then chmod a+x oc-mirror opm ccoctl && mv oc-mirror opm ccoctl /usr/local/bin/; fi \
  && cd / \
  && rm -rf /tmp/bintmp
 
