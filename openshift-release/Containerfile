@@ -3,4 +3,6 @@ FROM quay.io/kenmoini/ocp-install-utils:latest
 
 COPY mirror-release.sh /mirror-release.sh
 
+RUN dnf install -y which
+
 CMD ["/mirror-release.sh"]
