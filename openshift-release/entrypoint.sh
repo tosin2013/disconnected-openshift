@@ -30,4 +30,9 @@ fi
 
 if [[ "${WORKSPACES_SAVEPATH_BOUND}" == "true" ]]; then export TARGET_SAVE_PATH="${WORKSPACES_SAVEPATH_PATH}"; fi
 
+echo "Set Env:"
+env
+echo ""
+echo ""
+
 /mirror-release.sh

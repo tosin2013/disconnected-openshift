@@ -54,7 +54,7 @@ if [ "${MIRROR_METHOD}" == "direct" ]; then MIRROR_CMD="${MIRROR_CMD} --to=${OCP
 if [ "${MIRROR_METHOD}" == "file" ]; then
   if [ "${MIRROR_DIRECTION}" == "download" ]; then MIRROR_CMD="${MIRROR_CMD} --to-dir=${TARGET_SAVE_PATH}"; fi
   if [ "${MIRROR_DIRECTION}" == "upload" ]; then
-    MIRROR_CMD="oc image mirror -a ${AUTH_FILE} --from-dir=${TARGET_SAVE_PATH}"
+    MIRROR_CMD="oc image mirror -a ${AUTH_FILE} --skip-missing --from-dir=${TARGET_SAVE_PATH}"
     MIRROR_CMD="${MIRROR_CMD} \"file://openshift/release:${OCP_RELEASE}*\" ${LOCAL_REGISTRY}/${LOCAL_REGISTRY_PATH_OCP_RELEASE}"
   fi
   
