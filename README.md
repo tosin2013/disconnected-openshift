@@ -24,7 +24,7 @@ This repository is meant to make all that easier.  It features:
 
 ## Prerequisites
 
-- **Pull Secrets** - Container Registry Pull Secrets for Red Hat Registries as well as your own.  You can find a handy script in [./hacks/join-auths.sh](./hacks/join-auths.sh) to combine two JSON pull secret files into one.
+- **Pull Secrets** - Container Registry Pull Secrets for Red Hat Registries as well as your own.  You can find a handy script in [./scripts/join-auths.sh](./scripts/join-auths.sh) to combine two JSON pull secret files into one.
 
 ## Walkthrough
 
