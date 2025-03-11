@@ -41,5 +41,6 @@ This repository is meant to make all that easier.  It features:
 
 ## Additional Resources
 
+- [Extras](./extras/) - Small helpful quick references eg deploying an NGINX container on Podman, and a HTTP server that will automatically mirror assets.
 - [Tekton Resources](./tekton/) - Build containers in disconnect environments, run mirroring pipelines
 - [Dev/Test Quay](./quay/) - A quick way to deploy Quay via the Operator on OpenShift for some quick testing, not configured for production.

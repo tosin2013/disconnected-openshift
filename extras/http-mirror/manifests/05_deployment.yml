@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: http-mirror
+spec:
+  selector:
+    matchLabels:
+      app: http-mirror
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: http-mirror
+    spec:
+      volumes:
+        # PVC to store the downloaded assets
+        - name: http-mirror
+          persistentVolumeClaim:
+            claimName: http-mirror
+        # ConfigMap with the mirror configuration
+        - name: mirror-config
+          configMap:
+            name: mirror-config
+        # If you are using custom Root CAs you can mount it with the paired ConfigMap
+        - name: trusted-root-ca-certs
+          configMap:
+            name: trusted-root-ca-certs
+            items:
+              - key: ca-bundle.crt
+                path: tls-ca-bundle.pem
+      containers:
+        - name: http-mirror
+          image: quay.io/kenmoini/go-http-mirror:latest
+          imagePullPolicy: Always
+          # In case you're using an Outbound proxy, uncomment these lines
+          #env:
+          #  - name: HTTP_PROXY
+          #    value: http://proxy.kemo.labs:3129
+          #  - name: http_proxy
+          #    value: http://proxy.kemo.labs:3129
+          #  - name: HTTPS_PROXY
+          #    value: http://proxy.kemo.labs:3129
+          #  - name: https_proxy
+          #    value: http://proxy.kemo.labs:3129
+          #  - name: NO_PROXY
+          #    value: ".kemo.labs,.kemo.network,.local,.svc,localhost,127.0.0.1,192.168.0.0/16,172.16.0.0/12,10.0.0.0/8"
+          #  - name: no_proxy
+          #    value: ".kemo.labs,.kemo.network,.local,.svc,localhost,127.0.0.1,192.168.0.0/16,172.16.0.0/12,10.0.0.0/8"
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "100Mi"
+            limits:
+              cpu: "500m"
+              memory: "500Mi"
+          volumeMounts:
+            # PVC to store the downloaded assets
+            - name: http-mirror
+              mountPath: /tmp/server/pub
+            # ConfigMap with the mirror configuration
+            - name: mirror-config
+              mountPath: /etc/http-mirror
+            # If you are using custom Root CAs you can mount it with the paired ConfigMap
+            - mountPath: /etc/pki/ca-trust/extracted/pem
+              name: trusted-root-ca-certs
+              readOnly: true

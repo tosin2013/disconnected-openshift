@@ -1,0 +1,11 @@
+# In case you have your trusted Root CA certificates configured cluster-wide,
+# this ConfigMap with that special label will inject all the trusted CA certificates
+# into this ConfigMap
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: trusted-root-ca-certs
+  labels:
+    config.openshift.io/inject-trusted-cabundle: 'true'
+data: {}
