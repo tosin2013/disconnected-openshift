@@ -41,11 +41,12 @@ mkdir -p ${TARGET_SAVE_PATH}
 
 # Mirror OpenShift release
 echo "> Mirroring OpenShift Release..."
+echo "> Auth file path: ${AUTH_FILE}"
 echo "> Release Version: ${OCP_RELEASE}"
 echo "> Architecture: ${ARCHITECTURE}"
 echo "> Mirror Method: ${MIRROR_METHOD}"
 if [ "${MIRROR_METHOD}" == "direct" ]; then echo "> Local Registry: ${LOCAL_REGISTRY}"; fi
-if [ "${MIRROR_METHOD}" == "file" ]; then echo "> Save Path: ${TARGET_SAVE_PATH}"; fi
+if [ "${MIRROR_METHOD}" == "file" ]; then echo "> Save Path: ${TARGET_SAVE_PATH}" && echo "> Mirror Direction: ${MIRROR_DIRECTION}"; fi
 echo "> Dry Run: ${DRY_RUN}"
 
 MIRROR_CMD="oc adm release mirror -a ${AUTH_FILE} --print-mirror-instructions=none --from=quay.io/${UPSTREAM_PATH}:${OCP_RELEASE}-${ARCHITECTURE}"
