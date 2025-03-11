@@ -2,5 +2,7 @@
 FROM quay.io/kenmoini/ocp-install-utils:latest
 
 COPY mirror-release.sh /mirror-release.sh
+COPY entrypoint.sh /entrypoint.sh
 
-CMD ["/mirror-release.sh"]
+#CMD ["/mirror-release.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
