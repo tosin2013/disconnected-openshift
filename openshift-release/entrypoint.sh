@@ -13,10 +13,12 @@ if [[ "${WORKSPACES_CONTAINERCONFIG_BOUND}" == "true" ]]; then
     export DOCKER_CONFIG="$HOME/.config/containers/"
 fi
 
+AUTHFILE=""
 AUTHFILE_PARAM=""
 if [[ "${WORKSPACES_AUTHSECRET_BOUND}" == "true" ]]; then
     if [[ -f ${WORKSPACES_AUTHSECRET_PATH}/auth.json ]]; then AUTHFILE="auth.json"; fi
     if [[ -f ${WORKSPACES_AUTHSECRET_PATH}/.dockerconfigjson ]]; then AUTHFILE=".dockerconfigjson"; fi
+    if [[ ! -z "${AUTHFILE}" ]]; then
         echo "> Setting credentials ..."
         cat >> $HOME/.config/containers/auth.json <<EOF
 {"auths": $(cat ${WORKSPACES_AUTHSECRET_PATH}/${AUTHFILE})}
