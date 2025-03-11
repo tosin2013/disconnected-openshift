@@ -1,6 +1,6 @@
 # This image builds upon the binaries image
 FROM quay.io/kenmoini/ocp-install-utils:latest
 
-COPY mirror-release.sh /
+COPY mirror-release.sh /mirror-release.sh
 
 CMD ["/mirror-release.sh"]
