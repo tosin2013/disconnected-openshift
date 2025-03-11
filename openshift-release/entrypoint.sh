@@ -15,10 +15,11 @@ fi
 
 AUTHFILE_PARAM=""
 if [[ "${WORKSPACES_AUTHSECRET_BOUND}" == "true" ]]; then
-    if [[ -f ${WORKSPACES_AUTHSECRET_PATH}/auth.json ]]; then
+    if [[ -f ${WORKSPACES_AUTHSECRET_PATH}/auth.json ]]; then AUTHFILE="auth.json"; fi
+    if [[ -f ${WORKSPACES_AUTHSECRET_PATH}/.dockerconfigjson ]]; then AUTHFILE=".dockerconfigjson"; fi
         echo "> Setting credentials ..."
         cat >> $HOME/.config/containers/auth.json <<EOF
-{"auths": $(cat ${WORKSPACES_AUTHSECRET_PATH}/auth.json)}
+{"auths": $(cat ${WORKSPACES_AUTHSECRET_PATH}/${AUTHFILE})}
 EOF
         cp $HOME/.config/containers/auth.json $TEKTON_HOME/.config/containers/auth.json
         AUTHFILE_PARAM="--authfile $HOME/.config/containers/auth.json"
