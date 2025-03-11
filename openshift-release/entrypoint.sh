@@ -20,9 +20,7 @@ if [[ "${WORKSPACES_AUTHSECRET_BOUND}" == "true" ]]; then
     if [[ -f ${WORKSPACES_AUTHSECRET_PATH}/.dockerconfigjson ]]; then AUTHFILE=".dockerconfigjson"; fi
     if [[ ! -z "${AUTHFILE}" ]]; then
         echo "> Setting credentials ..."
-        cat >> $HOME/.config/containers/auth.json <<EOF
-{"auths": $(cat ${WORKSPACES_AUTHSECRET_PATH}/${AUTHFILE})}
-EOF
+        cp ${WORKSPACES_AUTHSECRET_PATH}/${AUTHFILE} $HOME/.config/containers/auth.json
         cp $HOME/.config/containers/auth.json $TEKTON_HOME/.config/containers/auth.json
         AUTHFILE_PARAM="--authfile $HOME/.config/containers/auth.json"
         REGISTRY_AUTH_FILE="$HOME/.config/containers/auth.json"
