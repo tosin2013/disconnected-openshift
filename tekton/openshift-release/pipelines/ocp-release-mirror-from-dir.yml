@@ -1,0 +1,119 @@
+---
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: ocp-release-mirror-from-dir
+spec:
+  params:
+    - name: AUTH_FILE
+      default: '/tmp/authfile/auth.json'
+      description: Path to authentication file to use for pulling/pushing images
+      type: string
+    - name: OCP_RELEASE
+      default: '4.17.16'
+      description: OpenShift Release version to mirror
+      type: string
+    - name: DRY_RUN
+      description: Perform a dry run test or not
+      default: 'true'
+      type: string
+    - name: MIRROR_METHOD
+      default: 'file'
+      description: Method to mirror - either direct or file
+      type: string
+    - name: MIRROR_DIRECTION
+      default: 'upload'
+      description: Direction to mirror when in file mode
+      type: string
+    - name: LOCAL_REGISTRY
+      default: 'quay-quay.quay.svc'
+      description: Registry to push to
+      type: string
+    - name: LOCAL_REGISTRY_PATH_OCP_RELEASE
+      default: 'quayadmin/ocp-releases'
+      description: Registry path to push to
+      type: string
+    - name: TARGET_SAVE_PATH
+      default: '/tmp/mirror'
+      description: Turns on verbose logging, all commands executed will be printed out.
+      type: string
+
+    - name: HTTP_PROXY
+      default: ''
+      description: HTTP proxy server (non-TLS requests).
+      type: string
+    - name: HTTPS_PROXY
+      default: ''
+      description: HTTPS proxy server (TLS requests).
+      type: string
+    - name: NO_PROXY
+      default: ''
+      description: Opt out of proxying HTTP/HTTPS requests.
+      type: string
+    - name: TLS_VERIFY
+      default: 'true'
+      description: Sets the TLS verification flag, `true` is recommended.
+      type: string
+    - name: VERBOSE
+      default: 'false'
+      description: Turns on verbose logging, all commands executed will be printed out.
+      type: string
+  tasks:
+    - name: ocp-release-mirror-from-dir
+      params:
+        - name: OCP_RELEASE
+          value: "$(params.OCP_RELEASE)"
+        - name: AUTH_FILE
+          value: "$(params.AUTH_FILE)"
+        - name: DRY_RUN
+          value: "$(params.DRY_RUN)"
+        - name: MIRROR_METHOD
+          value: "$(params.MIRROR_METHOD)"
+        - name: MIRROR_DIRECTION
+          value: "$(params.MIRROR_DIRECTION)"
+        - name: LOCAL_REGISTRY
+          value: "$(params.LOCAL_REGISTRY)"
+        - name: LOCAL_REGISTRY_PATH_OCP_RELEASE
+          value: "$(params.LOCAL_REGISTRY_PATH_OCP_RELEASE)"
+        - name: TARGET_SAVE_PATH
+          value: "$(params.TARGET_SAVE_PATH)"
+
+        - name: TLS_VERIFY
+          value: "$(params.TLS_VERIFY)"
+        - name: VERBOSE
+          value: "$(params.VERBOSE)"
+
+        # Optional Proxy Configuration
+        - name: HTTP_PROXY
+          value: "$(params.HTTP_PROXY)"
+        - name: HTTPS_PROXY
+          value: "$(params.HTTPS_PROXY)"
+        - name: NO_PROXY
+          value: "$(params.NO_PROXY)"
+      taskRef:
+        params:
+          - name: kind
+            value: task
+          - name: name
+            value: ocp-release-tools
+          - name: namespace
+            value: openshift-pipelines
+        resolver: cluster
+      workspaces:
+        - name: savepath
+          workspace: savepath
+        - name: authsecret
+          workspace: authsecret
+        - name: containerconfig
+          workspace: containerconfig
+        - name: root-ca-certs
+          workspace: root-ca-certs
+  workspaces:
+    - name: savepath
+      optional: true
+    - name: authsecret
+      optional: true
+    - name: containerconfig
+      optional: true
+    - name: root-ca-certs
+      optional: true

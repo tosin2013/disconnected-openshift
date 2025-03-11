@@ -1,0 +1,60 @@
+---
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  generateName: ocp-release-mirror-from-dir-
+  labels:
+    tekton.dev/pipeline: ocp-release-mirror-from-dir
+spec:
+  params:
+    - name: DRY_RUN
+      value: "false"
+    - name: TARGET_SAVE_PATH
+      value: "/mirror"
+    - name: OCP_RELEASE
+      value: "4.17.12"
+    - name: MIRROR_METHOD
+      value: 'file'
+    - name: MIRROR_DIRECTION
+      value: 'upload'
+    - name: AUTH_FILE
+      value: "/tmp/authsecret/auth.json"
+    - name: HTTP_PROXY
+      value: "http://proxy.kemo.labs:3129"
+    - name: HTTPS_PROXY
+      value: "http://proxy.kemo.labs:3129"
+    - name: NO_PROXY
+      value: ".kemo.labs,.kemo.network,.local,.svc,localhost,127.0.0.1,192.168.0.0/16,172.16.0.0/12,10.0.0.0/8"
+
+  pipelineRef:
+    name: ocp-release-mirror-from-dir
+  taskRunTemplate:
+    serviceAccountName: pipeline
+  timeouts:
+    pipeline: 1h0m0s
+  workspaces:
+
+    - name: savepath
+      persistentVolumeClaim:
+        claimName: ocp-release-mirror
+
+    - name: authsecret
+      secret:
+        items:
+          - key: .dockerconfigjson
+            path: auth.json
+        secretName: container-reg-auth
+
+# Optional in case you're pulling from a private repository and/or need to use a proxy
+    - configMap:
+        items:
+          - key: registries.conf
+            path: registries.conf
+        name: mirror-registry-config
+      name: containerconfig
+    - configMap:
+        items:
+          - key: ca-bundle.crt
+            path: ca-bundle.crt
+        name: root-ca-certs
+      name: root-ca-certs

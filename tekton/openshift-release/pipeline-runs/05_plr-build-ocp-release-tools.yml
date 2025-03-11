@@ -3,7 +3,7 @@ apiVersion: tekton.dev/v1
 kind: PipelineRun
 metadata:
   generateName: ocp-release-tools-
-  namespace: ocp-release-tools
+  #namespace: ocp-release-tools
   labels:
     tekton.dev/pipeline: ocp-release-tools
 spec:

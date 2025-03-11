@@ -2,5 +2,12 @@
 
 In this folder you can find a variety of Tekton manifests that can support different workflows needed to maintain a disconnected OpenShift environment.
 
-- `./binaries/` - Pipeline, PipelineRun, and supporting objects to build a container that houses needed OpenShift binaries (oc, openshift-install, etc), and pushes to a registry.
-- `./openshift-release/` - Pipeline/PipelineRun/etc for building a container with a script used to mirror OpenShift releases.  Another Pipeline/PipelineRun/etc for actually mirroring OpenShift release container images.
+- **Pipeline** - Build/Push OpenShift Binary Tools Container Image
+- **Pipeline** - Build/Push OpenShift Release Tools Container Image
+- **Pipeline** - Mirror OpenShift Release to Registry
+- **Pipeline** - Mirror OpenShift Release to PVC (move with OADP to high-class net maybe)
+- **Pipeline** - Mirror OpenShift Release from PVC
+- **Task** - Disconnected Buildah
+- **Task** - OpenShift Release Tools, a script wrapper really
+
+There are other supporting assets such as PVCs, PipelineRuns, RBAC, and additional configuration to set for disconnected environments.
