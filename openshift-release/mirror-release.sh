@@ -17,6 +17,7 @@ OCP_RELEASE=${OCP_RELEASE:="4.17.16"}
 # Operational flags
 DRY_RUN=${DRY_RUN:="true"}
 MIRROR_METHOD=${MIRROR_METHOD:="direct"} # direct or file
+MIRROR_DIRECTION=${MIRROR_DIRECTION:="download"} # download or upload, only used when MIRROR_METHOD=file
 
 # If this is a direct mirror, set the registry and path
 LOCAL_REGISTRY=${LOCAL_REGISTRY:="disconn-harbor.d70.kemo.labs"}
@@ -49,7 +50,14 @@ echo "> Dry Run: ${DRY_RUN}"
 
 MIRROR_CMD="oc adm release mirror -a ${AUTH_FILE} --print-mirror-instructions=none --from=quay.io/${UPSTREAM_PATH}:${OCP_RELEASE}-${ARCHITECTURE}"
 if [ "${MIRROR_METHOD}" == "direct" ]; then MIRROR_CMD="${MIRROR_CMD} --to=${OCP_BASE_REGISTRY_PATH} --to-release-image=${OCP_BASE_REGISTRY_PATH}:${OCP_RELEASE}-${ARCHITECTURE}"; fi
-if [ "${MIRROR_METHOD}" == "file" ]; then MIRROR_CMD="${MIRROR_CMD} --to-dir=${TARGET_SAVE_PATH}"; fi
+if [ "${MIRROR_METHOD}" == "file" ]; then
+  if [ "${MIRROR_DIRECTION}" == "download" ]; then MIRROR_CMD="${MIRROR_CMD} --to-dir=${TARGET_SAVE_PATH}"; fi
+  if [ "${MIRROR_DIRECTION}" == "upload" ]; then
+    MIRROR_CMD="oc image mirror -a ${AUTH_FILE} --from-dir=${TARGET_SAVE_PATH}"
+    MIRROR_CMD="${MIRROR_CMD} \"file://openshift/release:${OCP_RELEASE}*\" ${LOCAL_REGISTRY}/${LOCAL_REGISTRY_PATH_OCP_RELEASE}"
+  fi
+  
+fi
 if [ "${DRY_RUN}" == "true" ]; then MIRROR_CMD="${MIRROR_CMD} --dry-run"; fi
 
 echo "> Running: ${MIRROR_CMD}"
