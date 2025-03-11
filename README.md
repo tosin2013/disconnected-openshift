@@ -1,0 +1,45 @@
+# Disconnected OpenShift - A Compendium
+
+> This repo is a work in progress as I gather various different sources into this one place and make my garbage scripts less trashy.
+
+To deploy OpenShift in disconnected, semi-connected, and barely-connected environments, you have to figure for a few things
+
+- Binaries
+- OpenShift Release Container Images
+- RHCOS Media
+- Operators
+- OpenShift Update Service and Graph Data
+- etc
+
+This repository is meant to make all that easier.  It features:
+
+- Things for Outbound HTTP Proxies!
+- Custom Root CA helpers for Outbound HTTP Proxies that do SSL MitM!
+- Private image registry pointers!
+- Multi-arch and FIPS examples where available!
+- Disconnected Installation examples!
+- Azure DevOps Pipelines, GitHub Actions, Ansible Automation/EEs, and/or Tekton Pipelines when/where available!
+- RHACM Policy examples for distributing disconnected configuration!
+- Stuff for ACM, DevSpaces, OpenShift AI, Quay, and more!
+
+## Prerequisites
+
+- **Pull Secrets** - Container Registry Pull Secrets for Red Hat Registries as well as your own.  You can find a handy script in [./hacks/join-auth-files.sh](./hacks/join-auth-files.sh) to combine two JSON pull secret files into one.
+
+## Walkthrough
+
+1. [Download/Mirror OpenShift Binaries](./binaries/)
+2. [Mirror OpenShift Release Container Images](./openshift-release/)
+3. Obtain RHCOS assets
+4. Deploy OpenShift - Disconnected Installation Examples
+5. Configure disconnected cluster settings (Root CAs, Proxy, Image mirrors, etc)
+6. Mirroring Operators
+7. Creating an Update Graph Container
+8. Using custom CatalogSources
+9. Deploying the OpenShift Update Service Operator
+10. Automate the steps
+
+## Additional Resources
+
+- [Tekton Resources](./tekton/) - Build containers in disconnect environments, run mirroring pipelines
+- [Dev/Test Quay](./quay/) - A quick way to deploy Quay via the Operator on OpenShift for some quick testing, not configured for production.
