@@ -141,18 +141,22 @@ imageContentSources:
     mirrors:
       # Example for sub-domain pull-through cache
       - quay-ptc.registry.example.com
+  # Used for Red Hat created workloads
   - source: registry.redhat.io
     mirrors:
       - registry-redhat-io-ptc.registry.example.com
+  # Used for certified/marketplace workloads
   - source: registry.connect.redhat.com
     mirrors:
       - registry-connect-redhat-com-ptc.registry.example.com
 
   # Other handy registries to mirror/proxy cache:
+  # Public Red Hat Registry - registry.access.redhat.com
   # GitHub Container Registry - ghcr.io
   # Google Container Registry - gcr.io
   # Kubernetes Container Registry - registry.k8s.io
   # NVIDIA Container Registry - nvcr.io
+  # Docker Hub - docker.io
 ```
 
 ### NTP

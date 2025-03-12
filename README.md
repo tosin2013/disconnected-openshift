@@ -47,3 +47,13 @@ This repository is meant to make all that easier.  It features:
 - [Extras](./extras/) - Small helpful quick references eg deploying an NGINX container on Podman, and a HTTP server that will automatically mirror assets.
 - [Tekton Resources](./tekton/) - Build containers in disconnect environments, run mirroring pipelines
 - [Dev/Test Quay](./quay/) - A quick way to deploy Quay via the Operator on OpenShift for some quick testing, not configured for production.
+
+---
+
+## How to not do any of this
+
+Mirroring OpenShift assets for a disconnected deployment can be daunting.  It can certainly be automated, and you'll find examples of that here - *but what if there were a better way?*
+
+It's common for environments to have some sort of artifact/container repository - something like JFrog Artifactory, Sonatype Nexus, Harbor, etc.  Often used for proxying in developer assets such as dependencies, images, modules, etc.
+
+If you have this already and can use it to do the same sort of proxying of container images from public sources then all this gets much simpler.
