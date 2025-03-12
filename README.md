@@ -25,6 +25,9 @@ This repository is meant to make all that easier.  It features:
 ## Prerequisites
 
 - **Pull Secrets** - Container Registry Pull Secrets for Red Hat Registries as well as your own.  You can find a handy script in [./scripts/join-auths.sh](./scripts/join-auths.sh) to combine two JSON pull secret files into one.
+- **A Container Image Registry** - This can be an existing Harbor, JFrog Artifactory, Sonatype Nexus, Red Hat Quay, etc deployment.  You need some place to mirror container images to.  Examples for deploying different container image registries are provided in this repo.
+- **An HTTP server** - While not always needed, often comes in handy.  Examples for deploying some HTTP servers are provided in this repo.
+- **A Linux Server** - Not always needed by often is.  Any ol' Linux server, physical, virtual, a laptop will even do, ideally RHEL 9 but could be other distros.
 
 ## Walkthrough
 
