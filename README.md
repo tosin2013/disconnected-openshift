@@ -46,7 +46,10 @@ This repository is meant to make all that easier.  It features:
 
 - [Extras](./extras/) - Small helpful quick references eg deploying an NGINX container on Podman, and a HTTP server that will automatically mirror assets.
 - [Tekton Resources](./tekton/) - Build containers in disconnect environments, run mirroring pipelines
-- [Dev/Test Quay](./quay/) - A quick way to deploy Quay via the Operator on OpenShift for some quick testing, not configured for production.
+- [Dev/Test Quay on OpenShift](./quay/) - A quick way to deploy Quay via the Operator on OpenShift for some quick testing, not configured for production.
+- [Dev/Test Harbor on Podman](./docs/deploy-harbor-podman-compose.md) - A easy/quick way to deploy Harbor with little more than a RHEL VM and Podman Compose.
+- [Configure Pull-through Proxy Cache, Harbor](./docs/pullthrough-proxy-cache-harbor.md) - Guide to setup Harbor to act as a Pull-through/Proxy Cache.
+- [Configure Pull-through Proxy Cache, JFrog](./docs/pullthrough-proxy-cache-jfrog.md) - Guide to setup JFrog to act as a Pull-through/Proxy Cache.
 
 ---
 
@@ -56,4 +59,19 @@ Mirroring OpenShift assets for a disconnected deployment can be daunting.  It ca
 
 It's common for environments to have some sort of artifact/container repository - something like JFrog Artifactory, Sonatype Nexus, Harbor, etc.  Often used for proxying in developer assets such as dependencies, images, modules, etc.
 
-If you have this already and can use it to do the same sort of proxying of container images from public sources then all this gets much simpler.
+If you have this already and can use it to do the same sort of proxying for container images from public sources and provide them internally then all this gets much simpler.
+
+All you need to do in this instance is:
+
+- Create the Proxy Repos in whatever Registry you use, point them to Quay and the Red Hat Registry at a minimum, eg `quay.io = quay-ptc.registry.example.com`
+- Combine your private Pull Secret with the Red Hat ones
+- Add that pull secret, any Root CAs, the mirror configuration for the imageMirrorSources.
+
+***And that's it!***
+
+Install from there, no other manual methods for mirroring images, creating Operator Indexes, etc.  Any time a workload on OpenShift calls out to `quay.io` it will be pointed to `quay-ptc.registry.example.com` instead under the covers of everything.  There are some guides on setting things up:
+
+- [Configure Pull-through Proxy Cache, Harbor](./docs/pullthrough-proxy-cache-harbor.md) - Guide to setup Harbor to act as a Pull-through/Proxy Cache.
+- [Configure Pull-through Proxy Cache, JFrog](./docs/pullthrough-proxy-cache-jfrog.md) - Guide to setup JFrog to act as a Pull-through/Proxy Cache.
+
+***There is a caveat*** - that if your cluster can't talk to the Internet, while you can access container images transparently with this Pull-Through Cache/Proxy, the Update Graph data is not in a container.  This is on `api.openshift.com` and if you can't access that you'll still need to curate the Graph and Update Service - but otherwise there are no containers to really mirror this way.  If you can use a container registry acting as a remote pull-through cache/proxy then everything gets so much easier.
