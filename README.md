@@ -34,7 +34,7 @@ This repository is meant to make all that easier.  It features:
 1. [Download/Mirror OpenShift Binaries](./binaries/)
 2. [Mirror OpenShift Release Container Images](./openshift-release/)
 3. [Obtain RHCOS assets](./rhcos/)
-4. Deploy OpenShift - Disconnected Installation Examples
+4. [Deploy OpenShift - Disconnected Installation Examples](./installation-examples/)
 5. Configure disconnected cluster settings (Root CAs, Proxy, Image mirrors, etc)
 6. Mirroring Operators
 7. Creating an Update Graph Container

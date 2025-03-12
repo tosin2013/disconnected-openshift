@@ -35,6 +35,7 @@ Well, if all you have is an allow-list/outbound proxy, then it'll work - but you
 
 - **Bare Metal, default**: https://mirror.openshift.com/pub/openshift-v4/x86_64/dependencies/rhcos/4.17/latest/rhcos-metal.x86_64.raw.gz
 - **Bare Metal, 4K Page Sizes**: https://mirror.openshift.com/pub/openshift-v4/x86_64/dependencies/rhcos/4.17/latest/rhcos-metal4k.x86_64.raw.gz
+- **Bare Metal Bootstrap for IPI/UPI**: https://mirror.openshift.com/pub/openshift-v4/x86_64/dependencies/rhcos/4.17/latest/rhcos-qemu.x86_64.qcow2.gz
 - **Libvirt, QCOW2**: https://mirror.openshift.com/pub/openshift-v4/x86_64/dependencies/rhcos/4.17/latest/rhcos-qemu.x86_64.qcow2.gz
 - **OpenStack, QCOW2**: https://mirror.openshift.com/pub/openshift-v4/x86_64/dependencies/rhcos/4.17/latest/rhcos-openstack.x86_64.qcow2.gz
 - **Nutanix, QCOW2**: https://mirror.openshift.com/pub/openshift-v4/x86_64/dependencies/rhcos/4.17/latest/rhcos-nutanix.x86_64.qcow2
