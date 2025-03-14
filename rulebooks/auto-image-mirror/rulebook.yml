@@ -1,7 +1,7 @@
 ---
 - name: Automatic Remediation from Alert Manager for container images that are not able to pull
   hosts: all
-  execution_strategy: parallel
+  #execution_strategy: parallel
   sources:
     - name: Listen for alerts from Alert Manager
       ansible.eda.alertmanager:
@@ -14,6 +14,11 @@
       action:
         print_event:
           pretty: true
+
+    - name: debug lol
+      condition: true
+      action:
+        debug:
 
     - name: Pod is stuck in image pull back off, try to mirror
       condition: event.alert.labels.alertname == "PodStuckImagePullBackOff" and event.alert.status == "firing"
