@@ -6,25 +6,12 @@
   gather_facts: true
 
   vars:
-    evnt: "{{ ansible_eda.event }}"
     approved_registries:
       - quay.io
       - registry.redhat.io
       - nvcr.io
       - ghcr.io
       - gcr.io
-
-    # Test data
-    #ansible_eda:
-    #  event:
-    #    resource:
-    #      spec:
-    #        containers:
-    #          - image: quay.io/kenmoini/banana-phone:latest
-    #          - image: docker.io/kenmoini/openshift-sonarqube:latest
-    #        initContainers:
-    #          - image: nvcr.io/gpu-operator/gpu-operator:latest
-    #          - image: quay.io/containerdisks/fedora:42
 
   tasks:
 
@@ -48,8 +35,8 @@
         api_key: "{{ k8s_auth_token }}"
         api_version: v1
         kind: Pod
-        namespace: "{{ evnt.alert.labels.namespace }}"
-        name: "{{ evnt.alert.labels.pod }}"
+        namespace: "{{ ansible_eda.event.alert.labels.namespace }}"
+        name: "{{ ansible_eda.event.alert.labels.pod }}"
       register: pod_info
 
     - name: Debug pod info
@@ -59,15 +46,14 @@
     - name: Extract the container images from the Pod definition
       ansible.builtin.set_fact:
         container_images: "{{ container_images | default([]) + [image_item.image] }}"
-      loop: "{{ pod_info.spec.containers }}"
+      loop: "{{ pod_info.resources[0].spec.containers }}"
       loop_control:
         loop_var: image_item
 
     - name: Extract the initContainer images from the Pod definition
       ansible.builtin.set_fact:
         container_images: "{{ container_images | default([]) + [image_item.image] }}"
-      #loop: "{{ ansible_eda.event.resource.spec.initContainers }}"
-      loop: "{{ pod_info.spec.initContainers }}"
+      loop: "{{ pod_info.resources[0].spec.initContainers }}"
       loop_control:
         loop_var: image_item
 
