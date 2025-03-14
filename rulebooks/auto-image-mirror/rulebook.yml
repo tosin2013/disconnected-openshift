@@ -15,7 +15,7 @@
         print_event:
           pretty: true
 
-    - name: debug lol
+    - name: debug more lol
       condition: true
       action:
         debug:
