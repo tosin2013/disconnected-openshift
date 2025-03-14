@@ -2,7 +2,12 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+defaultRootCA: certs/kemo-labs-root-ca.pem
+
 rootCertificates:
+  - namespace: openshift-config
+    name: default-root-ca-bundle
+
   - namespace: openshift-config
     name: user-ca-bundle
     keys:
