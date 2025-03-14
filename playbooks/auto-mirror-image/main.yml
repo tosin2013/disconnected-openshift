@@ -49,14 +49,17 @@
         - target_repo is defined
         - substringParts is defined
       block:
-        - name: "Pull the images - {{ image }}"
+        - name: pause for 5 seconds
+          ansible.builtin.pause:
+            seconds: 60
+        - name: "Pull the images"
           containers.podman.podman_image:
             name: "{{ image }}"
           loop: "{{ container_images }}"
           loop_control:
             loop_var: image
 
-        - name: "Tag the images - {{ image }} > {{ (image | split('/'))[substringParts:] | join('/') }}"
+        - name: "Tag the images"
           containers.podman.podman_image:
             name: "{{ image }}"
             target: "{{ target_repo }}/{{ (image | split('/'))[substringParts:] | join('/') }}"
@@ -64,7 +67,7 @@
           loop_control:
             loop_var: image
 
-        - name: "Push the images - {{ image }} > {{ target_repo }}/{{ (image | split('/'))[substringParts:] | join('/') }}"
+        - name: "Push the images"
           containers.podman.podman_image:
             name: "{{ target_repo }}/{{ (image | split('/'))[substringParts:] | join('/') }}"
             auth_file: "{{ auth_file_path }}"
