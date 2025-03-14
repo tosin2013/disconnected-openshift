@@ -39,6 +39,10 @@
     #    fail_msg: "The source image {{ source_image }} is not in the list of approved registries: {{ approved_registries|join(', ') }}"
     #    success_msg: "The source image {{ source_image }} is in the list of approved registries: {{ approved_registries|join(', ') }}"
 
+    - name: Sleep for 5 seconds
+      ansible.builtin.pause:
+        seconds: 60
+
     - name: Get the Pod definition from the cluster
       kubernetes.core.k8s_info:
         api_version: v1
