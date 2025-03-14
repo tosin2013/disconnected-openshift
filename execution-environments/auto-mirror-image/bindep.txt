@@ -1,0 +1,4 @@
+tar [platform:rpm]
+jq [platform:rpm]
+git [platform:rpm]
+podman [platform:rpm]

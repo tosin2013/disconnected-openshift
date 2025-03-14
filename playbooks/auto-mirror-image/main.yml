@@ -1,0 +1,73 @@
+# Input variables for mirroring a single image: source_image, target_image, auth_file_path
+# - source_image: quay.io/kenmoini/banana-phone:latest
+# - target_image: mirror.example.com/quay/kenmoini/banana-phone:latest
+# Input variables for mirroring a set of container images: container_images, target_repo, substringParts, auth_file_path
+# - container_images: [quay.io/kenmoini/banana-phone:latest, quay.io/containerdisks/fedora:42]
+# - target_repo: mirror.example.com/quay
+# - substringParts: 1
+---
+- name: Mirror an image
+  hosts: localhost
+  connection: local
+  gather_facts: true
+  collections:
+    - community.general
+
+  vars:
+    auth_file_path: /etc/containers/auth.json
+    # source_image: quay.io/kenmoini/banana-phone:latest
+    # target_image: mirror.example.com/quay/kenmoini/banana-phone:latest
+
+    #container_images:
+    #  - quay.io/kenmoini/banana-phone:latest
+    #  - quay.io/containerdisks/fedora:42
+    #  - nvcr.io/gpu-operator/gpu-operator:latest
+    #target_repo: mirror.example.com/quay
+    #substringParts: 1
+
+  tasks:
+    - name: Mirror a single image
+      when: source_image is defined
+      block:
+        - name: Pull the image
+          containers.podman.podman_image:
+            name: "{{ source_image }}"
+
+        - name: Tag the image
+          containers.podman.podman_image:
+            name: "{{ source_image }}"
+            target: "{{ target_image }}"
+
+        - name: Push the image
+          containers.podman.podman_image:
+            name: "{{ target_image }}"
+            auth_file: "{{ auth_file_path }}"
+
+    - name: Mirror a set of container images
+      when:
+        - container_images is defined
+        - target_repo is defined
+        - substringParts is defined
+      block:
+        - name: "Pull the images - {{ image }}"
+          containers.podman.podman_image:
+            name: "{{ image }}"
+          loop: "{{ container_images }}"
+          loop_control:
+            loop_var: image
+
+        - name: "Tag the images - {{ image }} > {{ (image | split('/'))[substringParts:] | join('/') }}"
+          containers.podman.podman_image:
+            name: "{{ image }}"
+            target: "{{ target_repo }}/{{ (image | split('/'))[substringParts:] | join('/') }}"
+          loop: "{{ container_images }}"
+          loop_control:
+            loop_var: image
+
+        - name: "Push the images - {{ image }} > {{ target_repo }}/{{ (image | split('/'))[substringParts:] | join('/') }}"
+          containers.podman.podman_image:
+            name: "{{ target_repo }}/{{ (image | split('/'))[substringParts:] | join('/') }}"
+            auth_file: "{{ auth_file_path }}"
+          loop: "{{ container_images }}"
+          loop_control:
+            loop_var: image

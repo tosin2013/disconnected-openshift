@@ -1,0 +1,66 @@
+# Provide some logic and data transformation to progress in the Workflow Template
+---
+- name: Decision Playbook - Auto Mirror Image
+  hosts: localhost
+  connection: local
+  gather_facts: true
+
+  vars:
+    approved_registries:
+      - quay.io
+      - registry.redhat.io
+      - nvcr.io
+      - ghcr.io
+      - gcr.io
+
+    # Test data
+    #ansible_eda:
+    #  event:
+    #    resource:
+    #      spec:
+    #        containers:
+    #          - image: quay.io/kenmoini/banana-phone:latest
+    #          - image: docker.io/kenmoini/openshift-sonarqube:latest
+    #        initContainers:
+    #          - image: nvcr.io/gpu-operator/gpu-operator:latest
+    #          - image: quay.io/containerdisks/fedora:42
+
+  tasks:
+
+    # Simple example if you're just deciding on a single image
+    #- name: Decide if the source image is in the list of approved registries
+    #  ansible.builtin.assert:
+    #    that: source_image.split('/')[0] in approved_registries
+    #    fail_msg: "The source image {{ source_image }} is not in the list of approved registries: {{ approved_registries|join(', ') }}"
+    #    success_msg: "The source image {{ source_image }} is in the list of approved registries: {{ approved_registries|join(', ') }}"
+
+    - name: Extract the container images from the Pod definition
+      ansible.builtin.set_fact:
+        container_images: "{{ container_images | default([]) + [image_item.image] }}"
+      loop: "{{ ansible_eda.event.resource.spec.containers }}"
+      loop_control:
+        loop_var: image_item
+
+    - name: Extract the initContainer images from the Pod definition
+      ansible.builtin.set_fact:
+        container_images: "{{ container_images | default([]) + [image_item.image] }}"
+      loop: "{{ ansible_eda.event.resource.spec.initContainers }}"
+      loop_control:
+        loop_var: image_item
+
+    - name: Create a list of approvied images
+      when: image_item.split('/')[0] in approved_registries
+      ansible.builtin.set_fact:
+        approved_container_images: "{{ approved_container_images | default([]) + [image_item] }}"
+      loop: "{{ container_images }}"
+      loop_control:
+        loop_var: image_item
+
+    - name: Debug the approved container images
+      ansible.builtin.debug:
+        var: approved_container_images | default([])
+
+    - name: Pass the container images along to the next Playbook in the Workflow Template
+      ansible.builtin.set_stats:
+        data:
+          container_images: "{{ approved_container_images }}"
