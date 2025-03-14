@@ -1,2 +1,7 @@
 kubernetes==26.1.0
 requests==2.28.2
+# asyncio
+# aiokafka
+# aiohttp
+# aiosignal
+# asyncio_mqtt
