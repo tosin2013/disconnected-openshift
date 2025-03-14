@@ -44,6 +44,7 @@
         msg: "{{ pod_info }}"
 
     - name: Extract the container images from the Pod definition
+      when: pod_info.resources[0].spec.containers is defined
       ansible.builtin.set_fact:
         container_images: "{{ container_images | default([]) + [image_item.image] }}"
       loop: "{{ pod_info.resources[0].spec.containers }}"
@@ -51,6 +52,7 @@
         loop_var: image_item
 
     - name: Extract the initContainer images from the Pod definition
+      when: pod_info.resources[0].spec.initContainers is defined
       ansible.builtin.set_fact:
         container_images: "{{ container_images | default([]) + [image_item.image] }}"
       loop: "{{ pod_info.resources[0].spec.initContainers }}"
