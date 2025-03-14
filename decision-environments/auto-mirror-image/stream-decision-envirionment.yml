@@ -1,0 +1,29 @@
+
+# ansible-builder build -f kitchen-sink.yml -t kitchen-sink-de:latest
+# podman tag kitchen-sink-de:latest quay.io/kenmoini/ansible-kitchen-sink-de:latest
+# podman push quay.io/kenmoini/ansible-kitchen-sink-de:latest
+version: 3
+
+build_arg_defaults:
+  ANSIBLE_GALAXY_CLI_COLLECTION_OPTS: "-v"
+  # Uncomment the following line to build on a supported RHEL 8 image
+  # EE_BASE_IMAGE: "registry.redhat.io/ansible-automation-platform-21/ee-supported-rhel8"
+
+images:
+  base_image:
+    #name: registry.access.redhat.com/ubi9/python-311:1-24.1695131442
+    name: quay.io/centos/centos:stream9
+
+dependencies:
+  galaxy: requirements.yml
+  python: requirements.txt
+  system:
+    - pkgconf-pkg-config [platform:rpm]
+    - systemd-devel [platform:rpm]
+    - gcc [platform:rpm]
+    - python39-devel [platform:rpm]
+  python_interpreter:
+    package_system: "python39"
+
+options:
+  package_manager_path: /usr/bin/microdnf

@@ -29,7 +29,7 @@ jobs:
       EE_IMAGE_NAME: 'de-auto-mirror-image'
       EE_IMAGE_TAG: 'latest'
       EE_FOLDER_NAME: 'decision-environments/auto-mirror-image'
-      EE_FILE_NAME: 'diy-decision-environment.yml'
+      EE_FILE_NAME: 'stream-decision-environment.yml'
     secrets:
       REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
       REGISTRY_PASSWORD: ${{ secrets.REGISTRY_TOKEN }}
