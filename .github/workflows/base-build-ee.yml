@@ -90,7 +90,7 @@ jobs:
 
       - name: Log in to registry.redhat.io
         id: registry-redhat
-        if: env.ENABLE_REDHAT_REGISTRY == true
+        if: ${{ env.ENABLE_REDHAT_REGISTRY == true }}
         uses: redhat-actions/podman-login@v1
         with:
           registry: registry.redhat.io
