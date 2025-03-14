@@ -23,7 +23,11 @@ dependencies:
     package_system: "python39"
 
   galaxy: requirements.yml
-  python: requirements.txt
+  
+  python:
+    - ansible-rulebook
+    - requests
+    - kubernetes
   system:
     - pkgconf-pkg-config [platform:rpm]
     - systemd-devel [platform:rpm]
