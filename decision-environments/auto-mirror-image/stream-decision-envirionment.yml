@@ -26,4 +26,4 @@ dependencies:
     package_system: "python39"
 
 options:
-  package_manager_path: /usr/bin/microdnf
+  package_manager_path: /usr/bin/dnf
