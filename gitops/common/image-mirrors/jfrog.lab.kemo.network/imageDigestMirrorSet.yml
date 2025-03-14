@@ -1,0 +1,25 @@
+---
+apiVersion: config.openshift.io/v1
+kind: ImageDigestMirrorSet
+metadata:
+  name: global
+spec:
+  imageDigestMirrors:
+    # Mandatory for OpenShift
+    - source: quay.io/openshift-release-dev/ocp-release
+      mirrors:
+        - quay-ptc.jfrog.lab.kemo.network/openshift-release-dev/ocp-release
+    - source: quay.io/openshift-release-dev/ocp-v4.0-art-dev
+      mirrors:
+        - quay-ptc.jfrog.lab.kemo.network/openshift-release-dev/ocp-v4.0-art-dev
+
+    # Optional for other registries
+    - source: quay.io
+      mirrors:
+        - quay-ptc.jfrog.lab.kemo.network
+    - source: registry.redhat.io
+      mirrors:
+        - registry-redhat-ptc.jfrog.lab.kemo.network
+    - source: registry.connect.redhat.com
+      mirrors:
+        - registry-connect-redhat-ptc.jfrog.lab.kemo.network

@@ -1,0 +1,26 @@
+{{- $file := .Files -}}
+{{- $root := . -}}
+{{- with .Values.rootCertificates }}{{ range $manifest := . }}
+{{- $name := $manifest.name | default $root.Values.defaultManifestName | trunc 63 | trimSuffix "-" -}}
+{{- $type := $manifest.type | default $root.Values.defaultManifestType }}
+---
+apiVersion: v1
+kind: {{ $type }}
+metadata:
+  name: {{ $name }}
+  namespace: {{ $manifest.namespace }}
+  labels:
+    {{- include "root-certificates.labels" $root | nindent 4 }}
+data:
+{{- with $manifest.keys }}{{- range $keys := . }}
+  {{ $keys.key | default $root.Values.defaultManifestKey }}: |
+  {{- range $f := $keys.files }}
+    {{- if eq $type "ConfigMap" -}}
+        {{- $file.Get $f | nindent 4 }}
+    {{- else if eq $type "Secret" -}}
+        {{- $file.Get $f | b64enc | nindent 4 }}
+    {{- end }}
+  {{- end }}
+{{- end }}{{- end }}
+
+{{- end }}{{- end }}

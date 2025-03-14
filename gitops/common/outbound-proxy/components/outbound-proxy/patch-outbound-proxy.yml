@@ -1,0 +1,9 @@
+---
+apiVersion: config.openshift.io/v1
+kind: Proxy
+metadata:
+  name: cluster
+spec:
+  httpProxy: 'http://proxy.kemo.labs:3129/'
+  httpsProxy: 'http://proxy.kemo.labs:3129/'
+  noProxy: '.svc,.local,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,127.0.0.1,localhost,.kemo.network,.kemo.labs'

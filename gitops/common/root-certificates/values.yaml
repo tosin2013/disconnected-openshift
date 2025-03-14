@@ -1,0 +1,37 @@
+# Default values for root-certificates.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+rootCertificates:
+  - namespace: openshift-config
+    name: user-ca-bundle
+    keys:
+      - files:
+          - certs/kemo-labs-root-ca.pem
+          - certs/kemo-labs-stepca.pem
+          - certs/serto-root-ca.pem
+          - certs/pgv-root-ca.pem
+
+  - namespace: openshift-config
+    name: image-ca-bundle
+    keys:
+      - key: updateservice-registry
+        files:
+          - certs/kemo-labs-root-ca.pem
+      - key: quay-ptc.jfrog.lab.kemo.network
+        files:
+          - certs/kemo-labs-root-ca.pem
+      - key: registry-redhat-ptc.jfrog.lab.kemo.network
+        files:
+          - certs/kemo-labs-root-ca.pem
+      - key: disconn-harbor.d70.kemo.labs
+        files:
+          - certs/kemo-labs-root-ca.pem
+
+# Don't need to edit this stuff
+
+defaultManifestType: "ConfigMap" # ConfigMap or Secret
+defaultManifestName: "root-certificates"
+defaultManifestKey: "ca-bundle.crt"
+defaultEnableBundleInjection: false
+defaultFiles: '*'
