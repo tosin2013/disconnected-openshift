@@ -39,10 +39,6 @@
     #    fail_msg: "The source image {{ source_image }} is not in the list of approved registries: {{ approved_registries|join(', ') }}"
     #    success_msg: "The source image {{ source_image }} is in the list of approved registries: {{ approved_registries|join(', ') }}"
 
-    - name: Sleep for 5 seconds
-      ansible.builtin.pause:
-        seconds: 60
-
     - name: Read in the ServiceAccount token
       ansible.builtin.set_fact:
         k8s_auth_token: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
