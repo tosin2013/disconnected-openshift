@@ -9,11 +9,6 @@
         port: 8000
 
   rules:
-    - name: debug lol
-      condition: true
-      action:
-        print_event:
-          pretty: true
 
     #- name: debug more lol
     #  condition: true
@@ -26,3 +21,9 @@
         run_workflow_template:
           name: "Automatically Mirror Images"
           organization: "Default"
+
+    - name: debug lol
+      condition: true
+      action:
+        print_event:
+          pretty: true
