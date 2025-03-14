@@ -10,7 +10,7 @@
 
   rules:
     - name: debug lol
-      condition: event.alert.status == "firing"
+      condition: true
       action:
         run_workflow_template:
           name: "Automatically Mirror Images"
