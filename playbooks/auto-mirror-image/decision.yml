@@ -28,9 +28,9 @@
 
   tasks:
 
-    - name: Debug event
+    - name: Debug eda
       ansible.builtin.debug:
-        msg: "{{ ansible_eda.event }}"
+        msg: "{{ ansible_eda }}"
 
     # Simple example if you're just deciding on a single image
     #- name: Decide if the source image is in the list of approved registries
@@ -39,17 +39,26 @@
     #    fail_msg: "The source image {{ source_image }} is not in the list of approved registries: {{ approved_registries|join(', ') }}"
     #    success_msg: "The source image {{ source_image }} is in the list of approved registries: {{ approved_registries|join(', ') }}"
 
+    - name: Get the Pod definition from the cluster
+      kubernetes.core.k8s_info:
+        api_version: v1
+        kind: Pod
+        namespace: "{{ evnt.resource.metadata.namespace }}"
+        name: "{{ evnt.resource.metadata.name }}"
+      register: pod_info
+
     - name: Extract the container images from the Pod definition
       ansible.builtin.set_fact:
         container_images: "{{ container_images | default([]) + [image_item.image] }}"
-      loop: "{{ ansible_eda.event.resource.spec.containers }}"
+      loop: "{{ pod_info.spec.containers }}"
       loop_control:
         loop_var: image_item
 
     - name: Extract the initContainer images from the Pod definition
       ansible.builtin.set_fact:
         container_images: "{{ container_images | default([]) + [image_item.image] }}"
-      loop: "{{ ansible_eda.event.resource.spec.initContainers }}"
+      #loop: "{{ ansible_eda.event.resource.spec.initContainers }}"
+      loop: "{{ pod_info.spec.initContainers }}"
       loop_control:
         loop_var: image_item
 
