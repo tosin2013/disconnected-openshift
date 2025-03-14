@@ -5,6 +5,13 @@
 ## Needed Inputs
 ## - REGISTRY_HOSTNAME - Target to push to
 ## - REGISTRY_PATH - Optional, if pushing to a path other than root, set to your username probably
+## - EE_IMAGE_NAME - Name of the image to build
+
+## Optional Inputs
+## - ENABLE_REDHAT_REGISTRY - If you need to login to registry.redhat.io
+## - EE_IMAGE_TAG - Tag for the image
+## - EE_FOLDER_NAME - Name of the folder where the DE/EE is located
+## - EE_FILE_NAME - Name of the Decision/Execution Environment config, defaults to execution-environment.yaml
 ## Optional Secrets
 ## - REDHAT_PASSWORD - If using a RHEL supported EE base image
 ## - REDHAT_USERNAME - If using a RHEL supported EE base image
@@ -130,6 +137,7 @@ jobs:
           tags: |
             ${{ inputs.EE_IMAGE_TAG }}
             ${{ github.sha }}
+            ${{ env.COMMIT_SHORT_SHA }}
             ${{ steps.date.outputs.date }}
           registry: ${{ inputs.REGISTRY_HOSTNAME }}/${{ inputs.REGISTRY_PATH }}/
           username: ${{ secrets.REGISTRY_USERNAME }}
@@ -143,6 +151,7 @@ jobs:
           echo "Image pushed to repository: [${{ steps.push-to-registry.outputs.registry-path }}](https://${{ steps.push-to-registry.outputs.registry-path }})" >> $GITHUB_STEP_SUMMARY
           echo "> \`podman pull ${{ steps.push-to-registry.outputs.registry-path }}\`" >> $GITHUB_STEP_SUMMARY
           echo "> \`podman pull ${{ inputs.REGISTRY_HOSTNAME }}/${{ inputs.REGISTRY_PATH }}/${{ inputs.EE_IMAGE_NAME }}:${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "> \`podman pull ${{ inputs.REGISTRY_HOSTNAME }}/${{ inputs.REGISTRY_PATH }}/${{ inputs.EE_IMAGE_NAME }}:${{ env.COMMIT_SHORT_SHA }}\`" >> $GITHUB_STEP_SUMMARY
           echo "> \`podman pull ${{ inputs.REGISTRY_HOSTNAME }}/${{ inputs.REGISTRY_PATH }}/${{ inputs.EE_IMAGE_NAME }}:${{ steps.date.outputs.date }}\`" >> $GITHUB_STEP_SUMMARY
           echo "## :pushpin: Ansible info:" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
