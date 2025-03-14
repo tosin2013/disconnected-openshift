@@ -35,7 +35,7 @@ This repository is meant to make all that easier.  It features:
 2. [Mirror OpenShift Release Container Images](./openshift-release/)
 3. [Obtain RHCOS assets](./rhcos/)
 4. [Deploy OpenShift - Disconnected Installation Examples](./installation-examples/)
-5. Configure disconnected cluster settings (Root CAs, Proxy, Image mirrors, etc)
+5. [Post-Install Configuration (Root CAs, Proxy, Image mirrors, etc)](./post-install-config/)
 6. Mirroring Operators
 7. Creating an Update Graph Container
 8. Using custom CatalogSources
@@ -75,3 +75,15 @@ Install from there, no other manual methods for mirroring images, creating Opera
 - [Configure Pull-through Proxy Cache, JFrog](./docs/pullthrough-proxy-cache-jfrog.md) - Guide to setup JFrog to act as a Pull-through/Proxy Cache.
 
 ***There is a caveat*** - that if your cluster can't talk to the Internet, while you can access container images transparently with this Pull-Through Cache/Proxy, the Update Graph data is not in a container.  This is on `api.openshift.com` and if you can't access that you'll still need to curate the Graph and Update Service - but otherwise there are no containers to really mirror this way.  If you can use a container registry acting as a remote pull-through cache/proxy then everything gets so much easier.
+
+Also, in earnest, there are still a few switches to flip with a Pull-through/Proxy Cache, but it's still easier than manual methods of mirroring things.  Namely you still need to:
+
+- Add Root CAs
+- Have Pull Secrets to pull from your private registry mirror(s)
+- Create ImageDigestMirrorSets and ImageTagMirrorSets
+- Set the Samples Operator Config to `Managed` from `Removed`
+- Configure the Image Config CR
+- Adjust for things like OpenShift Virt that doesn't use the cluster mirror config
+- Run an OpenShift Update Service instance
+
+But that's a much shorter list than all the other mirroring stuff.  If you can use a local proxy cache and an Outbound HTTP Proxy, then you can even skip the OSUS instance - really with an Outbound HTTP Proxy you can skip most of this stuff though.
