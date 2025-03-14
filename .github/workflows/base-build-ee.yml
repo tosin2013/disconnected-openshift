@@ -16,30 +16,29 @@ on:
   # This is a reusable workflow
   workflow_call:
     inputs:
+      ENABLE_REDHAT_REGISTRY:
+        description: 'Enable Red Hat Registry login'
+        default: false
+        type: boolean
       REGISTRY_HOSTNAME:
         description: 'Hostname for the target registry, eg quay.io'
         default: 'quay.io'
-        required: true
         type: string
       REGISTRY_PATH:
         description: 'Path to push to in the registry, eg your username'
         default: ''
-        required: true
         type: string
       EE_IMAGE_NAME:
         description: 'Image Name for the DE/EE'
-        default: ''
         required: true
         type: string
       EE_IMAGE_TAG:
         description: 'Image tag, must be one tag for image build, defaults to latest'
         default: 'latest'
-        required: true
         type: string
       EE_FOLDER_NAME:
         description: 'name of the folder where the DE/EE is located'
         default: ''
-        required: true
         type: string
       EE_FILE_NAME:
         description: 'name of the Decision/Execution Environment config, defaults to execution-environment.yaml'
@@ -91,7 +90,7 @@ jobs:
 
       - name: Log in to registry.redhat.io
         id: registry-redhat
-        if: secrets.REDHAT_PASSWORD != null && secrets.REDHAT_USERNAME != null
+        if: env.ENABLE_REDHAT_REGISTRY
         uses: redhat-actions/podman-login@v1
         with:
           registry: registry.redhat.io
@@ -135,8 +134,8 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Image pushed to repository: [${{ steps.push-to-registry.outputs.registry-path }}](https://${{ steps.push-to-registry.outputs.registry-path }})" >> $GITHUB_STEP_SUMMARY
           echo "> \`podman pull ${{ steps.push-to-registry.outputs.registry-path }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "> \`podman pull ${{ secrets.REGISTRY_HOSTNAME }}/${{ inputs.REGISTRY_PATH }}/${{ inputs.EE_IMAGE_NAME }}:${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "> \`podman pull ${{ secrets.REGISTRY_HOSTNAME }}/${{ inputs.REGISTRY_PATH }}/${{ inputs.EE_IMAGE_NAME }}:${{ steps.date.outputs.date }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "> \`podman pull ${{ inputs.REGISTRY_HOSTNAME }}/${{ inputs.REGISTRY_PATH }}/${{ inputs.EE_IMAGE_NAME }}:${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "> \`podman pull ${{ inputs.REGISTRY_HOSTNAME }}/${{ inputs.REGISTRY_PATH }}/${{ inputs.EE_IMAGE_NAME }}:${{ steps.date.outputs.date }}\`" >> $GITHUB_STEP_SUMMARY
           echo "## :pushpin: Ansible info:" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY

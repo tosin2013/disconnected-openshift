@@ -23,6 +23,7 @@ jobs:
     uses: kenmoini/disconnected-openshift/.github/workflows/base-build-ee.yml@main
     #uses: kenmoini/ansible-ee-builder/.github/workflows/build-ee-base.yml@main
     with:
+      ENABLE_REDHAT_REGISTRY: true
       REGISTRY_HOSTNAME: quay.io
       REGISTRY_PATH: kenmoini
       EE_IMAGE_NAME: 'de-auto-mirror-image'
