@@ -83,7 +83,7 @@ Also, in earnest, there are still a few switches to flip with a Pull-through/Pro
 - Create ImageDigestMirrorSets and ImageTagMirrorSets
 - Set the Samples Operator Config to `Managed` from `Removed`
 - Configure the Image Config CR
-- Adjust for things like OpenShift Virt that doesn't use the cluster mirror config
+- Adjust for things like OpenShift Virt that doesn't use the global mirror config
 - Run an OpenShift Update Service instance
 
 But that's a much shorter list than all the other mirroring stuff.  If you can use a local proxy cache and an Outbound HTTP Proxy, then you can even skip the OSUS instance - really with an Outbound HTTP Proxy you can skip most of this stuff though.
