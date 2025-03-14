@@ -9,6 +9,8 @@ on:
       - main
     paths:
       - 'execution-environments/binaries/**'
+      - '.github/workflows/binaries-build-ee.yml'
+      - '.github/workflows/base-build-ee.yml'
 
   # Schedule workflow run at 00:00 on Sunday
   schedule:

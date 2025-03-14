@@ -9,6 +9,8 @@ on:
       - main
     paths:
       - 'decision-environments/auto-mirror-image/**'
+      - '.github/workflows/auto-mirror-image-build-de.yml'
+      - '.github/workflows/base-build-ee.yml'
 
   # Schedule workflow run at 00:00 on Sunday
   schedule:

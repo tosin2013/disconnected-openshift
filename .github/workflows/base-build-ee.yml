@@ -101,6 +101,12 @@ jobs:
         id: date
         run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
 
+      - name: Set short git commit SHA
+        id: shortShaVar
+        run: |
+          calculatedSha=$(git rev-parse --short ${{ github.sha }})
+          echo "COMMIT_SHORT_SHA=$calculatedSha" >> $GITHUB_ENV
+
       - name: Build image
         id: build-image
         working-directory: ${{ inputs.EE_FOLDER_NAME }}
@@ -109,6 +115,7 @@ jobs:
           --file=${{ inputs.EE_FILE_NAME }} \
           --tag=${{ inputs.EE_IMAGE_NAME }}:${{ inputs.EE_IMAGE_TAG }} \
           --tag=${{ inputs.EE_IMAGE_NAME }}:${{ github.sha }} \
+          --tag=${{ inputs.EE_IMAGE_NAME }}:${{ env.COMMIT_SHORT_SHA }} \
           --tag=${{ inputs.EE_IMAGE_NAME }}:${{ steps.date.outputs.date }} \
           -vvv
 #         env:
