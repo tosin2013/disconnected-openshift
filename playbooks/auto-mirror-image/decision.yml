@@ -43,8 +43,8 @@
       kubernetes.core.k8s_info:
         api_version: v1
         kind: Pod
-        namespace: "{{ evnt.labels.namespace }}"
-        name: "{{ evnt.labels.pod }}"
+        namespace: "{{ evnt.alert.labels.namespace }}"
+        name: "{{ evnt.alert.labels.pod }}"
       register: pod_info
 
     - name: Debug pod info
