@@ -21,6 +21,7 @@ spec:
       for: 2m
       labels:
         severity: critical
+        processor: eda
     - alert: PodStuckImagePullBackOff
       annotations:
         summary: Cannot pull images in project {{ $labels.namespace }}
@@ -30,6 +31,7 @@ spec:
       for: 2m
       labels:
         severity: critical
+        processor: eda
     - alert: PodStuckErrImagePull
       annotations:
         summary: Cannot pull images in project {{ $labels.namespace }}
@@ -39,6 +41,7 @@ spec:
       for: 2m
       labels:
         severity: critical
+        processor: eda
     - alert: PodStuckCrashLoopBackOff
       annotations:
         summary: CrashLoopBackOff in project {{ $labels.namespace }}
@@ -48,6 +51,7 @@ spec:
       for: 2m
       labels:
         severity: critical
+        processor: eda
     - alert: PodStuckCreateContainerError
       annotations:
         summary: Pod cannot created in project {{ $labels.namespace }}
@@ -57,6 +61,7 @@ spec:
       for: 2m
       labels:
         severity: critical
+        processor: eda
     #- alert: FailedEvictedPods
     #  annotations:
     #    summary: Failed Evicted pod:{{ $labels.pod }} namespace:{{ $labels.namespace }}
