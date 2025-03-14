@@ -9,6 +9,12 @@
         port: 8000
 
   rules:
+    - name: debug lol
+      condition: event.alert.status == "firing"
+      action:
+        run_workflow_template:
+          name: "Automatically Mirror Images"
+          organization: "Default"
 
     - name: Pod is stuck in image pull back off, try to mirror
       condition: event.alert.labels.alertname == "PodStuckImagePullBackOff" and event.alert.status == "firing"

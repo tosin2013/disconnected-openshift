@@ -6,6 +6,7 @@
   gather_facts: true
 
   vars:
+    evnt: "{{ ansible_eda.event }}"
     approved_registries:
       - quay.io
       - registry.redhat.io
@@ -26,6 +27,10 @@
     #          - image: quay.io/containerdisks/fedora:42
 
   tasks:
+
+    - name: Debug event
+      ansible.builtin.debug:
+        msg: "{{ ansible_eda.event }}"
 
     # Simple example if you're just deciding on a single image
     #- name: Decide if the source image is in the list of approved registries
