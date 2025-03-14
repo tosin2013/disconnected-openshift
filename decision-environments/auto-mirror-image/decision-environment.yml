@@ -12,7 +12,7 @@ dependencies:
   python: requirements.txt
   system:
     - pkgconf-pkg-config [platform:rpm]
-    # - systemd-devel [platform:rpm]
+    - systemd-devel [platform:rpm]
     # - gcc [platform:rpm]
     # - python39-devel [platform:rpm]
   python_interpreter:
