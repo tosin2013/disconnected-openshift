@@ -20,7 +20,8 @@ dependencies:
   ansible_runner:
     package_pip: ansible-runner
   python_interpreter:
-    package_system: "python39"
+    package_system: "python3.11"
+    python_path: "/usr/bin/python3.11"
 
   galaxy: requirements.yml
   
@@ -29,10 +30,21 @@ dependencies:
     - requests
     - kubernetes
   system:
+    - java-17 [platform:rpm]
+    - python3.11 [platform:rpm]
+    - python3.11-devel [platform:rpm]
     - pkgconf-pkg-config [platform:rpm]
     - systemd-devel [platform:rpm]
     - gcc [platform:rpm]
-    - python3-devel [platform:rpm]
+    #- python3-devel [platform:rpm]
+
+additional_build_steps:
+  append_final:
+    - RUN for dir in /home/runner /home/runner/.ansible /home/runner/.ansible/tmp /runner /home/runner /runner/env /runner/inventory /runner/project /runner/artifacts ; do mkdir -m 0775 -p $dir ; chmod -R g+rwx $dir ; chgrp -R root $dir ; done && for file in /home/runner/.ansible/galaxy_token /etc/passwd /etc/group ; do touch $file ; chmod g+rw $file ; chgrp root $file ; done
+    - RUN rm -rf /usr/bin/python3 && ln -s python3.11 /usr/bin/python3
+    - VOLUME /runner
+    - WORKDIR /runner
+    - ENV HOME=/home/runner
 
 options:
   package_manager_path: /usr/bin/dnf
