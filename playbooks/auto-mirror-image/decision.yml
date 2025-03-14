@@ -43,9 +43,13 @@
       kubernetes.core.k8s_info:
         api_version: v1
         kind: Pod
-        namespace: "{{ evnt.resource.metadata.namespace }}"
-        name: "{{ evnt.resource.metadata.name }}"
+        namespace: "{{ evnt.labels.namespace }}"
+        name: "{{ evnt.labels.pod }}"
       register: pod_info
+
+    - name: Debug pod info
+      ansible.builtin.debug:
+        msg: "{{ pod_info }}"
 
     - name: Extract the container images from the Pod definition
       ansible.builtin.set_fact:
