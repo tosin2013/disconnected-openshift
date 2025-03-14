@@ -91,7 +91,7 @@ jobs:
 
       - name: Log in to registry.redhat.io
         id: registry-redhat
-        if: ${{ secrets.REDHAT_PASSWORD != 0 }}
+        if: ${{ secrets.REDHAT_PASSWORD != null && secrets.REDHAT_USERNAME != null }}
         uses: redhat-actions/podman-login@v1
         with:
           registry: registry.redhat.io
