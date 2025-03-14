@@ -6,8 +6,9 @@ version: 3
 
 build_arg_defaults:
   ANSIBLE_GALAXY_CLI_COLLECTION_OPTS: "-v"
-  # Uncomment the following line to build on a supported RHEL 8 image
-  # EE_BASE_IMAGE: "registry.redhat.io/ansible-automation-platform-21/ee-supported-rhel8"
+additional_build_files:
+  - src: ansible.cfg
+    dest: configs
 
 images:
   base_image:
@@ -42,9 +43,9 @@ additional_build_steps:
   append_final:
     - RUN rm -rf /usr/bin/python3 && ln -s /usr/bin/python3.11 /usr/bin/python3
     #- RUN for dir in /home/runner /home/runner/.ansible /home/runner/.ansible/tmp /runner /home/runner /runner/env /runner/inventory /runner/project /runner/artifacts ; do mkdir -m 0775 -p $dir ; chmod -R g+rwx $dir ; chgrp -R root $dir ; done && for file in /home/runner/.ansible/galaxy_token /etc/passwd /etc/group ; do touch $file ; chmod g+rw $file ; chgrp root $file ; done
-    #- VOLUME /runner
-    #- WORKDIR /runner
-    #- ENV HOME=/home/runner
+    - VOLUME /runner
+    - ENV HOME=/runner
+    - WORKDIR /runner
 
 options:
   package_manager_path: /usr/bin/dnf
