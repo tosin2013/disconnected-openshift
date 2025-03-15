@@ -40,5 +40,5 @@ additional_build_steps:
       && mkdir -p /runner/.config/containers \
       && mkdir /runner/proc \
       && (echo "[containers]";echo "netns=\"host\"";echo "volumes=[";echo "  \"/runner/proc:/proc:rw\"";echo "]") > /runner/.config/containers/containers.conf \
-      && chown -R 1001:0 /runner /etc/passwd /etc/group /etc/subuid /etc/subgid \
+      && chown -R 1000:0 /runner /etc/passwd /etc/group /etc/subuid /etc/subgid \
       && chmod -R g=u /etc/passwd /etc/group /etc/subuid /etc/subgid
