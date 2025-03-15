@@ -21,6 +21,7 @@ dependencies:
     - ansible-rulebook
     - requests
     - kubernetes
+  system:
     - java-17 [platform:rpm]
     - python3.11 [platform:rpm]
     - python3.11-devel [platform:rpm]
