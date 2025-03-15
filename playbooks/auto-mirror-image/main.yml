@@ -49,9 +49,7 @@
         - target_repo is defined
         - substringParts is defined
       block:
-        - name: pause for 5 seconds
-          ansible.builtin.pause:
-            seconds: 60
+
         - name: "Pull the images"
           containers.podman.podman_image:
             name: "{{ image }}"
