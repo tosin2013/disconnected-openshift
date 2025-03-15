@@ -52,7 +52,7 @@
 
         - name: "Manually Pull the images"
           ansible.builtin.shell:
-            cmd: "podman pull {{ image }}"
+            cmd: "whoami && id && podman pull {{ image }}"
           loop: "{{ container_images }}"
           loop_control:
             loop_var: image
