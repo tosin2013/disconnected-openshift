@@ -33,8 +33,6 @@ additional_build_steps:
   append_final: |
     RUN curl -L https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz | tar -xvzf - -C /usr/local/bin/ oc kubectl && chmod 755 /usr/local/bin/oc && chmod 755 /usr/local/bin/kubectl \
       && curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-    #
-    # Setup for root-less podman
     ENV BUILDAH_ISOLATION=chroot
     RUN setcap cap_setuid+ep /usr/bin/newuidmap \
       && setcap cap_setgid+ep /usr/bin/newgidmap \
