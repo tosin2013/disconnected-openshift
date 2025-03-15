@@ -1,0 +1,47 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: skopeo-single-copy
+  namespace: aap
+spec:
+  params:
+    - name: SOURCE_IMAGE_URL
+      description: ''
+    - name: DESTINATION_IMAGE_URL
+      description: ''
+    - name: SRC_TLS_VERIFY
+      description: ''
+      default: 'true'
+    - name: DEST_TLS_VERIFY
+      description: ''
+      default: 'true'
+  workspaces:
+    - name: images_url
+      optional: true
+  tasks:
+    - name: skopeo-copy-proxy
+      taskRef:
+        resolver: cluster
+        params:
+          - name: kind
+            value: task
+          - name: name
+            value: skopeo-copy-proxy
+          - name: namespace
+            value: openshift-pipelines
+      params:
+        - name: SOURCE_IMAGE_URL
+          value: $(params.SOURCE_IMAGE_URL)
+        - name: DESTINATION_IMAGE_URL
+          value: $(params.DESTINATION_IMAGE_URL)
+        - name: SRC_TLS_VERIFY
+          value: $(params.SRC_TLS_VERIFY)
+        - name: DEST_TLS_VERIFY
+          value: $(params.DEST_TLS_VERIFY)
+        - name: VERBOSE
+          value: 'true'
+        - name: ARGS
+          value: ''
+      workspaces:
+        - name: images_url
+          workspace: images_url
