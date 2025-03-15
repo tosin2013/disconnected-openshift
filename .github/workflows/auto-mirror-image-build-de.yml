@@ -25,15 +25,15 @@ jobs:
     uses: kenmoini/disconnected-openshift/.github/workflows/base-build-ee.yml@main
     #uses: kenmoini/ansible-ee-builder/.github/workflows/build-ee-base.yml@main
     with:
-      ENABLE_REDHAT_REGISTRY: true
+      #ENABLE_REDHAT_REGISTRY: true
       REGISTRY_HOSTNAME: quay.io
       REGISTRY_PATH: kenmoini
       EE_IMAGE_NAME: 'de-auto-mirror-image'
       EE_IMAGE_TAG: 'latest'
       EE_FOLDER_NAME: 'decision-environments/auto-mirror-image'
-      EE_FILE_NAME: stream-decision-environment.yml
+      EE_FILE_NAME: diy-decision-environment.yml
     secrets:
       REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
       REGISTRY_PASSWORD: ${{ secrets.REGISTRY_TOKEN }}
-      REDHAT_USERNAME: ${{ secrets.REDHAT_USERNAME }}
-      REDHAT_PASSWORD: ${{ secrets.REDHAT_PASSWORD }}
+      #REDHAT_USERNAME: ${{ secrets.REDHAT_USERNAME }}
+      #REDHAT_PASSWORD: ${{ secrets.REDHAT_PASSWORD }}
