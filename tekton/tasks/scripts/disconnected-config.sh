@@ -11,6 +11,7 @@ mkdir -p $TEKTON_HOME/.config/containers
 
 declare -x NEEDS_FORMATTING="true"
 declare -x REGISTRY_CONF=""
+declare -x DOCKER_CONFIG=""
 declare -x AUTHFILE_PARAM=""
 # Set for skopeo-copy-proxy
 declare -x SKOPEO_REGISTRIESD_FLAG=""
@@ -19,15 +20,18 @@ declare -x SKOPEO_AUTHFILE_FLAG=""
 if [[ "${WORKSPACES_CONTAINERCONFIG_BOUND}" == "true" ]]; then
     phase "Setting container configuration ..."
 
-    cp -r ${WORKSPACES_CONTAINERCONFIG_PATH}/* $HOME/.config/containers
-    cp -r ${WORKSPACES_CONTAINERCONFIG_PATH}/* $TEKTON_HOME/.config/containers
+    cp -r ${WORKSPACES_CONTAINERCONFIG_PATH}/* $HOME/.config/containers/
+    cp -r ${WORKSPACES_CONTAINERCONFIG_PATH}/* $TEKTON_HOME/.config/containers/
     if [[ -d "${WORKSPACES_CONTAINERCONFIG_PATH}/registries.conf.d" ]]; then
-        export SKOPEO_REGISTRIESD_FLAG="--registries.d ${WORKSPACES_CONTAINERCONFIG_PATH}/registries.conf.d"
+        SKOPEO_REGISTRIESD_FLAG="--registries.d ${WORKSPACES_CONTAINERCONFIG_PATH}/registries.conf.d"
     fi
     if [[ -f "${WORKSPACES_CONTAINERCONFIG_PATH}/registries.conf" ]]; then
         REGISTRY_CONF="--registries-conf ${WORKSPACES_CONTAINERCONFIG_PATH}/registries.conf"
     fi
-    export DOCKER_CONFIG="$HOME/.config/containers/"
+    if [[ "${WORKSPACES_REGISTRIESD_BOUND}" == "true" ]]; then
+        SKOPEO_REGISTRIESD_FLAG="--registries.d ${WORKSPACES_REGISTRIESD_PATH}"
+    fi
+    DOCKER_CONFIG="$HOME/.config/containers/"
 
     phase "REGISTRY_CONF: '${REGISTRY_CONF}'"
     phase "SKOPEO_REGISTRIESD_FLAG: '${SKOPEO_REGISTRIESD_FLAG}'"

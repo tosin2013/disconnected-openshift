@@ -75,6 +75,8 @@ spec:
           workspace: authsecret
         - name: containerconfig
           workspace: containerconfig
+        - name: registriesd
+          workspace: registriesd
         - name: root-ca-certs
           workspace: root-ca-certs
   workspaces:
@@ -83,6 +85,8 @@ spec:
     - name: authsecret
       optional: true
     - name: containerconfig
+      optional: true
+    - name: registriesd
       optional: true
     - name: root-ca-certs
       optional: true

@@ -33,11 +33,19 @@ spec:
 
 # Optional in case you're pulling from a private repository and/or need to use a proxy
     - configMap:
+        name: mirror-registry-config
+        items:
+          - key: registries.conf
+            path: mirror.conf
+      name: registriesd
+
+    - configMap:
         items:
           - key: registries.conf
             path: registries.conf
         name: mirror-registry-config
       name: containerconfig
+
     - configMap:
         items:
           - key: ca-bundle.crt

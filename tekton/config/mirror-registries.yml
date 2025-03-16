@@ -24,3 +24,30 @@ data:
       mirror-by-digest-only = false
       [[registry.mirror]]
         location = "disconn-harbor.d70.kemo.labs/registry-connect-redhat-com-ptc"
+
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: mirror-registriesd-config
+data:
+  mirror.conf: |
+    unqualified-search-registries = ["quay-ptc.jfrog.lab.kemo.network", "registry.access.redhat.com", "quay.io", "docker.io"]
+    [[registry]]
+      prefix = ""
+      location = "quay.io"
+      mirror-by-digest-only = false
+      [[registry.mirror]]
+        location = "disconn-harbor.d70.kemo.labs/quay-ptc"
+    [[registry]]
+      prefix = ""
+      location = "registry.redhat.io"
+      mirror-by-digest-only = false
+      [[registry.mirror]]
+        location = "disconn-harbor.d70.kemo.labs/registry-redhat-io-ptc"
+    [[registry]]
+      prefix = ""
+      location = "registry.connect.redhat.com"
+      mirror-by-digest-only = false
+      [[registry.mirror]]
+        location = "disconn-harbor.d70.kemo.labs/registry-connect-redhat-com-ptc"

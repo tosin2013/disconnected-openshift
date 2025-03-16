@@ -20,7 +20,7 @@ This repository is meant to make all that easier.  It features:
 - Disconnected Installation examples!
 - Azure DevOps Pipelines, GitHub Actions, Ansible Automation/EEs, and/or Tekton Pipelines when/where available!
 - RHACM Policy examples for distributing disconnected configuration!
-- Stuff for ACM, DevSpaces, OpenShift AI, Quay, Virtualization, and more!
+- Stuff for ACM, Ansible, DevSpaces, OpenShift AI, Quay, Virtualization, and more!
 
 ## Prerequisites
 
@@ -46,6 +46,7 @@ This repository is meant to make all that easier.  It features:
 
 - [Extras](./extras/) - Small helpful quick references eg deploying an NGINX container on Podman, and a HTTP server that will automatically mirror assets.
 - [Tekton Resources](./tekton/) - Build containers in disconnect environments, run mirroring pipelines
+- [Ansible EDA + Tekton Pipeline](./docs/deploy-aap-on-openshift.md) for automatically mirroring images from ImagePullBackoff events
 - [Dev/Test Quay on OpenShift](./quay/) - A quick way to deploy Quay via the Operator on OpenShift for some quick testing, not configured for production.
 - [Dev/Test Harbor on Podman](./docs/deploy-harbor-podman-compose.md) - A easy/quick way to deploy Harbor with little more than a RHEL VM and Podman Compose.
 - [Configure Pull-through Proxy Cache, Harbor](./docs/pullthrough-proxy-cache-harbor.md) - Guide to setup Harbor to act as a Pull-through/Proxy Cache.
