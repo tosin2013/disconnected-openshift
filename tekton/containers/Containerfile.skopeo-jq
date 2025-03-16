@@ -1,6 +1,6 @@
 # quay.io/kenmoini/skopeo-jq:latest
 #FROM registry.stage.redhat.io/ubi8/ubi:8.10
-FROM registry.access.redhat.com/ubi8-minimal:latest
+FROM registry.access.redhat.com/ubi8:latest
 LABEL maintainer="Not Ken Moini lololo"
 
 LABEL com.redhat.component="skopeo-container"
