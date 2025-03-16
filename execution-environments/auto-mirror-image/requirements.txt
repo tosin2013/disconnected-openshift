@@ -2,6 +2,7 @@
 --trusted-host pypi.python.org
 --trusted-host files.pythonhosted.org
 kubernetes
+kubernetes-validate
 jmespath
 jsonpatch
 openshift
