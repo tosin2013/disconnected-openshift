@@ -11,7 +11,7 @@ spec:
     - name: SOURCE_IMAGE_URL
       value: "docker://{{ c_mirror_image }}"
     - name: DESTINATION_IMAGE_URL
-      value: "docker://{{ target_repo }}/{{ (image | split('/'))[substringParts:] | join('/') }}"
+      value: "docker://{{ target_repo }}/{{ (c_mirror_image | split('/'))[substringParts:] | join('/') }}"
 
     - name: HTTP_PROXY
       value: "http://proxy.kemo.labs:3129"
