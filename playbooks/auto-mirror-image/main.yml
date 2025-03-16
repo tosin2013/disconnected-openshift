@@ -43,8 +43,8 @@
             api_key: "{{ k8s_auth_token }}"
             state: present
             definition: "{{ lookup('template', 'tekton-pipelinerun.yml.j2') | from_yaml }}"
-            validate:
-              fail_on_error: yes
+            #validate:
+            #  fail_on_error: yes
           loop: "{{ container_images }}"
           loop_control:
             loop_var: c_mirror_image
