@@ -32,12 +32,32 @@ spec:
       labels:
         severity: critical
         processor: eda
+    - alert: PodStuckInitImagePullBackOff
+      annotations:
+        summary: Cannot pull init images in project {{ $labels.namespace }}
+        message: Pod  {{ $labels.pod }}  in project {{ $labels.namespace }} project stuck at Init:ImagePullBackOff
+        description: Pod  {{ $labels.pod }}  in project {{ $labels.namespace }} project stuck at Init:ImagePullBackOff
+      expr: kube_pod_init_container_status_waiting_reason{reason="ImagePullBackOff"} == 1
+      for: 2m
+      labels:
+        severity: critical
+        processor: eda
     - alert: PodStuckErrImagePull
       annotations:
         summary: Cannot pull images in project {{ $labels.namespace }}
         message: Pod  {{ $labels.pod }}  in project {{ $labels.namespace }} project stuck at ErrImagePull
         description: Pod  {{ $labels.pod }}  in project {{ $labels.namespace }} project stuck at ErrImagePull
-      expr: kube_pod_container_status_waiting_reason{reason="ErrImagePull"} == 2
+      expr: kube_pod_container_status_waiting_reason{reason="ErrImagePull"} == 1
+      for: 2m
+      labels:
+        severity: critical
+        processor: eda
+    - alert: PodStuckInitErrImagePull
+      annotations:
+        summary: Cannot pull images in project {{ $labels.namespace }}
+        message: Pod  {{ $labels.pod }}  in project {{ $labels.namespace }} project stuck at ErrImagePull
+        description: Pod  {{ $labels.pod }}  in project {{ $labels.namespace }} project stuck at ErrImagePull
+      expr: kube_pod_init_container_status_waiting_reason{reason="ErrImagePull"} == 1
       for: 2m
       labels:
         severity: critical

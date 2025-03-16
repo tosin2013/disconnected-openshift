@@ -1,6 +1,7 @@
 ---
 - name: Automatic Remediation from Alert Manager for container images that are not able to pull
   hosts: all
+  match_multiple_rules: true
   execution_strategy: parallel
   sources:
     - name: Listen for alerts from Alert Manager
@@ -16,7 +17,7 @@
     #    debug:
 
     - name: Pod is stuck in image pull back off, try to mirror
-      condition: event.alert.labels.alertname == "PodStuckImagePullBackOff" and event.alert.status == "firing"
+      condition: event.alert.status == "firing" and event.alert.labels.alertname in ["PodStuckImagePullBackOff", "PodStuckInitImagePullBackOff", "PodStuckErrImagePull", "PodStuckInitErrImagePull"]
       action:
         run_workflow_template:
           name: "Automatically Mirror Images"
