@@ -2,11 +2,12 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-#namespace: disconn-ocp-releases
+#namespace: disconn-tekton
 
 resources:
-  - shared/tasks/
-  - shared/config/
+  - tasks/
+  - config/
+  - pipelines/
 
 # Namespace Transformer - This will set the namespace to discon-tekton for resources that do not have one specified
 transformers:
@@ -15,5 +16,9 @@ transformers:
     kind: NamespaceTransformer
     metadata:
       name: notImportantHere
-      namespace: disconn-ocp-releases
+      namespace: disconn-tekton
     unsetOnly: true
+
+# This doesn't work lol
+# configurations:
+#   - kConfig-namespace.yml

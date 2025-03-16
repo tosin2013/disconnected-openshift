@@ -3,7 +3,7 @@
 FROM registry.access.redhat.com/ubi8:latest
 LABEL maintainer="Not Ken Moini lololo"
 
-LABEL com.redhat.component="skopeo-container"
+LABEL com.redhat.component="skopeo-jq-container"
 LABEL com.redhat.license_terms="https://www.redhat.com/en/about/red-hat-end-user-license-agreements#UBI"
 LABEL name="rhel8/skopeo-jq"
 

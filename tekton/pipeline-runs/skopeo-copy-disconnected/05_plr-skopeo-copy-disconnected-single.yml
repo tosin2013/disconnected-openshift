@@ -2,17 +2,16 @@
 apiVersion: tekton.dev/v1
 kind: PipelineRun
 metadata:
-  generateName: ocp-release-mirror-to-registry-
+  generateName: skopeo-copy-disconnected-single-
   labels:
-    tekton.dev/pipeline: ocp-release-mirror-to-registry
+    tekton.dev/pipeline: skopeo-copy-disconnected-single
 spec:
   params:
     - name: SOURCE_IMAGE_URL
-      value: ""
+      value: "docker://nvcr.io/nvidia/gpu-operator@sha256:92f5262bb4934e0ea29eb10ec0ad4fc293164f2f2f94d48a935922791abbfdac"
     - name: DESTINATION_IMAGE_URL
-      value: ""
-    - name: AUTH_FILE
-      value: "/tmp/authsecret/auth.json"
+      value: "docker://disconn-harbor.d70.kemo.labs/man-mirror/nvidia/gpu-operator"
+
     - name: HTTP_PROXY
       value: "http://proxy.kemo.labs:3129"
     - name: HTTPS_PROXY
@@ -21,22 +20,15 @@ spec:
       value: ".kemo.labs,.kemo.network,.local,.svc,localhost,127.0.0.1,192.168.0.0/16,172.16.0.0/12,10.0.0.0/8"
 
   pipelineRef:
-    name: skopeo-single-copy
+    name: skopeo-copy-disconnected-single
   taskRunTemplate:
     serviceAccountName: pipeline
   timeouts:
     pipeline: 1h0m0s
   workspaces:
 
-    - name: savepath
-      persistentVolumeClaim:
-        claimName: ocp-release-mirror
-
     - name: authsecret
       secret:
-        items:
-          - key: .dockerconfigjson
-            path: auth.json
         secretName: container-reg-auth
 
 # Optional in case you're pulling from a private repository and/or need to use a proxy
