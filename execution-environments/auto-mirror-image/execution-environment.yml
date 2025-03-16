@@ -33,12 +33,3 @@ additional_build_steps:
   append_final: |
     RUN curl -L https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz | tar -xvzf - -C /usr/local/bin/ oc kubectl && chmod 755 /usr/local/bin/oc && chmod 755 /usr/local/bin/kubectl \
       && curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-    ENV BUILDAH_ISOLATION=chroot
-    RUN setcap cap_setuid+ep /usr/bin/newuidmap \
-      && setcap cap_setgid+ep /usr/bin/newgidmap \
-      && touch /etc/subgid /etc/subuid \
-      && mkdir -p /runner/.config/containers \
-      && mkdir /runner/proc \
-      && (echo "[containers]";echo "netns=\"host\"";echo "volumes=[";echo "  \"/runner/proc:/proc:rw\"";echo "]") > /runner/.config/containers/containers.conf \
-      && chown -R 1000:0 /runner /etc/passwd /etc/group /etc/subuid /etc/subgid \
-      && chmod -R g=u /etc/passwd /etc/group /etc/subuid /etc/subgid
