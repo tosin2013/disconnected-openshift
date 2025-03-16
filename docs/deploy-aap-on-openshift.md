@@ -238,6 +238,31 @@ By default, the EDA Alertmanager webhook listener is on `/endpoint` and the port
 
 The Alertmanager Route provides routing of PrometheusRule definitions that have the `processor = eda` label to the receiver.
 
+Make sure you have an ImageDigestMirrorSet and an ImageTagMirrorSet definition for wherever you're mirroring things, eg:
+
+```yaml
+---
+apiVersion: config.openshift.io/v1
+kind: ImageDigestMirrorSet
+metadata:
+  name: manually-mirrored-registries
+spec:
+  imageDigestMirrors:
+    - source: nvcr.io
+      mirrors:
+        - disconn-harbor.d70.kemo.labs/man-mirror
+---
+apiVersion: config.openshift.io/v1
+kind: ImageTagMirrorSet
+metadata:
+  name: manually-mirrored-registries
+spec:
+  imageTagMirrors:
+    - source: nvcr.io
+      mirrors:
+        - disconn-harbor.d70.kemo.labs/man-mirror
+```
+
 > With all that you should start to see AAP process events for Pods that are in an ImagePullBackoff state and mirror them to a target repo.
 
 ---
@@ -251,3 +276,5 @@ There is a mode of operation that supports using Podman to pull/tag/push an imag
 For use in OpenShift, the automation will kick off the Tekton Pipeline that's provided as part of this repo in `tekton/` - this way each individual image can be mirrored in its own pipeline, letting for more atomic failure patterns.  Alternatively you can do Podman-in-Pod in OpenShift, but that requires a specially crafted Execution Environment and additional modifications to the platform to support that.
 
 Currently it has a single `target_repo` endpoint variable - in more complex systems you may want to matrix this out to different registries or paths.
+
+You could also add additional functionality to automate against your repository to dynamically create schema, and/or add a set of tasks to automatically process IDMS/ITMS entries.
