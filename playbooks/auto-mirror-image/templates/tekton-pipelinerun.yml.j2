@@ -1,0 +1,47 @@
+---
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  generateName: skopeo-copy-disconnected-single-
+  namespace: {{ tekton_pipelinerun_namespace }}
+  labels:
+    tekton.dev/pipeline: skopeo-copy-disconnected-single
+spec:
+  params:
+    - name: SOURCE_IMAGE_URL
+      value: "docker://{{ c_mirror_image }}"
+    - name: DESTINATION_IMAGE_URL
+      value: "docker://{{ target_repo }}/{{ (image | split('/'))[substringParts:] | join('/') }}"
+
+    - name: HTTP_PROXY
+      value: "http://proxy.kemo.labs:3129"
+    - name: HTTPS_PROXY
+      value: "http://proxy.kemo.labs:3129"
+    - name: NO_PROXY
+      value: ".kemo.labs,.kemo.network,.local,.svc,localhost,127.0.0.1,192.168.0.0/16,172.16.0.0/12,10.0.0.0/8"
+
+  pipelineRef:
+    name: skopeo-copy-disconnected-single
+  taskRunTemplate:
+    serviceAccountName: pipeline
+  timeouts:
+    pipeline: 1h0m0s
+  workspaces:
+
+    - name: authsecret
+      secret:
+        secretName: container-reg-auth
+
+# Optional in case you're pulling from a private repository and/or need to use a proxy
+    - configMap:
+        items:
+          - key: registries.conf
+            path: registries.conf
+        name: mirror-registry-config
+      name: containerconfig
+    - configMap:
+        items:
+          - key: ca-bundle.crt
+            path: ca-bundle.crt
+        name: root-ca-certs
+      name: root-ca-certs

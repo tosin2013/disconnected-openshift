@@ -14,6 +14,10 @@
     - community.general
 
   vars:
+    operation_mode: tekton # tekton or podman
+
+    tekton_pipelinerun_namespace: disconn-tekton
+
     auth_file_path: /etc/containers/auth.json
     # source_image: quay.io/kenmoini/banana-phone:latest
     # target_image: mirror.example.com/quay/kenmoini/banana-phone:latest
@@ -26,56 +30,79 @@
     #substringParts: 1
 
   tasks:
-    - name: Mirror a single image
-      when: source_image is defined
-      block:
-        - name: Pull the image
-          containers.podman.podman_image:
-            name: "{{ source_image }}"
-
-        - name: Tag the image
-          containers.podman.podman_image:
-            name: "{{ source_image }}"
-            target: "{{ target_image }}"
-
-        - name: Push the image
-          containers.podman.podman_image:
-            name: "{{ target_image }}"
-            auth_file: "{{ auth_file_path }}"
-
-    - name: Mirror a set of container images
-      when:
-        - container_images is defined
-        - target_repo is defined
-        - substringParts is defined
+    - name: Operation Mode - Tekton
+      when: operation_mode == "tekton"
       block:
 
-        - name: "Manually Pull the images"
-          ansible.builtin.shell:
-            cmd: "whoami && id && podman pull {{ image }}"
-          loop: "{{ container_images }}"
-          loop_control:
-            loop_var: image
+        - name: Read in the ServiceAccount token
+          ansible.builtin.set_fact:
+            k8s_auth_token: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
 
-        - name: "Pull the images"
-          containers.podman.podman_image:
-            name: "{{ image }}"
+        - name: Create the Tekton PipelineRun
+          kubernetes.core.k8s:
+            api_key: "{{ k8s_auth_token }}"
+            state: present
+            definition: "{{ lookup('template', 'tekton-pipelinerun.yml.j2') | from_yaml }}"
+            validate:
+              fail_on_error: yes
           loop: "{{ container_images }}"
           loop_control:
-            loop_var: image
+            loop_var: c_mirror_image
 
-        - name: "Tag the images"
-          containers.podman.podman_image:
-            name: "{{ image }}"
-            target: "{{ target_repo }}/{{ (image | split('/'))[substringParts:] | join('/') }}"
-          loop: "{{ container_images }}"
-          loop_control:
-            loop_var: image
 
-        - name: "Push the images"
-          containers.podman.podman_image:
-            name: "{{ target_repo }}/{{ (image | split('/'))[substringParts:] | join('/') }}"
-            auth_file: "{{ auth_file_path }}"
-          loop: "{{ container_images }}"
-          loop_control:
-            loop_var: image
+    - name: Operation Mode - Podman
+      when: operation_mode == "podman"
+      block:
+        - name: Mirror a single image
+          when: source_image is defined
+          block:
+            - name: Pull the image
+              containers.podman.podman_image:
+                name: "{{ source_image }}"
+
+            - name: Tag the image
+              containers.podman.podman_image:
+                name: "{{ source_image }}"
+                target: "{{ target_image }}"
+
+            - name: Push the image
+              containers.podman.podman_image:
+                name: "{{ target_image }}"
+                auth_file: "{{ auth_file_path }}"
+
+        - name: Mirror a set of container images
+          when:
+            - container_images is defined
+            - target_repo is defined
+            - substringParts is defined
+          block:
+
+            - name: "Manually Pull the images"
+              ansible.builtin.shell:
+                cmd: "whoami && id && podman pull {{ image }}"
+              loop: "{{ container_images }}"
+              loop_control:
+                loop_var: image
+
+            - name: "Pull the images"
+              containers.podman.podman_image:
+                name: "{{ image }}"
+              loop: "{{ container_images }}"
+              loop_control:
+                loop_var: image
+
+            - name: "Tag the images"
+              containers.podman.podman_image:
+                name: "{{ image }}"
+                target: "{{ target_repo }}/{{ (image | split('/'))[substringParts:] | join('/') }}"
+              loop: "{{ container_images }}"
+              loop_control:
+                loop_var: image
+
+            - name: "Push the images"
+              containers.podman.podman_image:
+                name: "{{ target_repo }}/{{ (image | split('/'))[substringParts:] | join('/') }}"
+                auth_file: "{{ auth_file_path }}"
+              loop: "{{ container_images }}"
+              loop_control:
+                loop_var: image
