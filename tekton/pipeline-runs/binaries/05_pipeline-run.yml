@@ -2,13 +2,13 @@
 apiVersion: tekton.dev/v1
 kind: PipelineRun
 metadata:
-  generateName: ocp-bin-tools-
-  namespace: ocp-bin-tools
+  generateName: ocp-binary-tools-
+  namespace: ocp-binary-tools
   labels:
-    tekton.dev/pipeline: ocp-bin-tools
+    tekton.dev/pipeline: ocp-binary-tools
 spec:
   pipelineRef:
-    name: ocp-bin-tools
+    name: ocp-binary-tools
   taskRunTemplate:
     serviceAccountName: pipeline-internal-reg
   timeouts:
@@ -16,7 +16,7 @@ spec:
   workspaces:
     - name: build
       persistentVolumeClaim:
-        claimName: ocp-bin-tools
+        claimName: ocp-binary-tools
 
     - name: authsecret
       secret:

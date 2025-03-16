@@ -1,8 +1,7 @@
 apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
-  name: skopeo-single-copy
-  namespace: aap
+  name: skopeo-single-copy-proxy
 spec:
   params:
     - name: SOURCE_IMAGE_URL
@@ -15,9 +14,23 @@ spec:
     - name: DEST_TLS_VERIFY
       description: ''
       default: 'true'
-  workspaces:
-    - name: images_url
-      optional: true
+
+    - name: AUTH_FILE
+      default: '/tmp/authfile/auth.json'
+      description: Path to authentication file to use for pulling/pushing images
+      type: string
+    - name: HTTP_PROXY
+      default: ''
+      description: HTTP proxy server (non-TLS requests).
+      type: string
+    - name: HTTPS_PROXY
+      default: ''
+      description: HTTPS proxy server (TLS requests).
+      type: string
+    - name: NO_PROXY
+      default: ''
+      description: Opt out of proxying HTTP/HTTPS requests.
+      type: string
   tasks:
     - name: skopeo-copy-proxy
       taskRef:
@@ -42,6 +55,31 @@ spec:
           value: 'true'
         - name: ARGS
           value: ''
+
+        - name: AUTH_FILE
+          value: "$(params.AUTH_FILE)"
+        # Optional Proxy Configuration
+        - name: HTTP_PROXY
+          value: "$(params.HTTP_PROXY)"
+        - name: HTTPS_PROXY
+          value: "$(params.HTTPS_PROXY)"
+        - name: NO_PROXY
+          value: "$(params.NO_PROXY)"
       workspaces:
         - name: images_url
           workspace: images_url
+        - name: authsecret
+          workspace: authsecret
+        - name: containerconfig
+          workspace: containerconfig
+        - name: root-ca-certs
+          workspace: root-ca-certs
+  workspaces:
+    - name: images_url
+      optional: true
+    - name: authsecret
+      optional: true
+    - name: containerconfig
+      optional: true
+    - name: root-ca-certs
+      optional: true

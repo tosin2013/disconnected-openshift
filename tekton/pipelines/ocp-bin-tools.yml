@@ -1,8 +1,7 @@
 apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
-  name: ocp-bin-tools
-  namespace: ocp-bin-tools
+  name: ocp-binary-tools
 spec:
   tasks:
     - name: git-clone

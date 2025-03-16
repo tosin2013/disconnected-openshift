@@ -13,4 +13,4 @@ resources:
   - supporting/configmap-registries.yml
   - supporting/configmap-root-ca.yml
   # Tekton Shared Resources - Pipelines
-  - pipelines/ocp-bin-tools.yml
+  - pipelines/ocp-binary-tools.yml
