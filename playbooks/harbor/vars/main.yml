@@ -1,0 +1,26 @@
+---
+# Harbor Configuration
+harbor_hostname: harbor.example.com
+harbor_admin_password: Harbor12345
+harbor_version: v2.12.2
+harbor_data_volume: /data
+system_cert_path: /usr/local/share/ca-certificates
+
+# Network Configuration
+connected_ip: "{{ ansible_host }}"
+dns_server: "192.168.122.22"
+
+# Project Configuration
+project_root: "/home/CHANGEME/disconnected-openshift"
+
+# SSL Configuration
+ssl_cert_path: "/etc/letsencrypt/live/{{ harbor_hostname }}"
+host_ssl_path: "{{ project_root }}/ssl/{{ harbor_hostname }}"
+
+# AWS Configuration
+aws_credentials:
+  access_key_id: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  secret_access_key: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  region: us-east-1 
+
+

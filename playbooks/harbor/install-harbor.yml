@@ -1,0 +1,660 @@
+---
+- name: Install and Configure Harbor
+  hosts: all
+  become: true
+  vars_files:
+    - vars/main.yml
+
+  pre_tasks:
+    - name: Install certbot and Route53 plugin on host
+      delegate_to: localhost
+      become: yes
+      package:
+        name: 
+          - certbot
+          - python3-certbot-dns-route53
+          - python3-boto3
+        state: present
+        update_cache: yes
+
+    - name: Verify OpenShift CLI installation
+      delegate_to: localhost
+      command: oc version
+      register: oc_version
+      ignore_errors: true
+      changed_when: false
+
+    - name: Fail if OpenShift CLI is not installed
+      delegate_to: localhost
+      fail:
+        msg: "OpenShift CLI (oc) is not installed or not in PATH"
+      when: oc_version.rc != 0
+      ignore_errors: true
+
+    - name: Verify OpenShift login status
+      delegate_to: localhost
+      command: oc whoami
+      register: oc_login
+      ignore_errors: true
+      changed_when: false
+
+    - name: Fail if not logged into OpenShift
+      delegate_to: localhost
+      fail:
+        msg: "Not logged into OpenShift. Please run 'oc login' first"
+      when: oc_login.rc != 0
+      ignore_errors: true
+
+    - name: Create AWS credentials directory on host
+      delegate_to: localhost
+      file:
+        path: /root/.aws
+        state: directory
+        mode: '0700'
+
+    - name: Create AWS credentials file on host
+      delegate_to: localhost
+      copy:
+        content: |
+          [default]
+          aws_access_key_id = {{ aws_credentials.access_key_id }}
+          aws_secret_access_key = {{ aws_credentials.secret_access_key }}
+        dest: /root/.aws/credentials
+        mode: '0600'
+
+    - name: Configure DNS settings
+      blockinfile:
+        path: /etc/hosts
+        block: |
+          192.168.49.10 harbor.f2775.sandbox999.opentlc.com
+        marker: "# {mark} ANSIBLE MANAGED BLOCK FOR HARBOR"
+        state: present
+
+    - name: Check if SSL certificates exist on host
+      delegate_to: localhost
+      stat:
+        path: "{{ host_ssl_path }}/live/{{ harbor_hostname }}/fullchain.pem"
+      register: ssl_cert_check
+
+    - name: Create SSL directory on host if it doesn't exist
+      delegate_to: localhost
+      become: yes
+      file:
+        path: "{{ host_ssl_path }}"
+        state: directory
+        mode: '0755'
+      when: not ssl_cert_check.stat.exists
+
+    - name: Ensure base letsencrypt directory exists
+      delegate_to: localhost
+      become: yes
+      file:
+        path: "{{ host_ssl_path }}"
+        state: directory
+        mode: '0755'
+        owner: root
+        group: root
+
+    - name: Debug - Check if certbot directory exists
+      delegate_to: localhost
+      command: ls -la {{ host_ssl_path }}
+      register: certbot_dir_check
+      changed_when: false
+
+    - name: Show certbot directory status
+      debug:
+        var: certbot_dir_check.stdout_lines
+
+    - name: Run certbot in Podman container
+      delegate_to: localhost
+      command: >
+        sudo -E podman run --rm 
+        --env AWS_ACCESS_KEY_ID={{ aws_credentials.access_key_id }}
+        --env AWS_SECRET_ACCESS_KEY={{ aws_credentials.secret_access_key }}
+        --env EMAIL=admin@{{ harbor_hostname }}
+        -v "{{ host_ssl_path }}:/etc/letsencrypt"
+        certbot/dns-route53
+        certonly --dns-route53
+        -d {{ harbor_hostname }}
+        --agree-tos
+        --email admin@{{ harbor_hostname }}
+        --non-interactive
+      register: certbot_result
+      when: not ssl_cert_check.stat.exists
+
+    - name: Debug - Show certbot result
+      debug:
+        var: certbot_result
+      when: not ssl_cert_check.stat.exists
+
+    - name: Verify certbot created the live directory
+      delegate_to: localhost
+      stat:
+        path: "{{ host_ssl_path }}/live/{{ harbor_hostname }}"
+      register: live_dir_check
+
+    - name: Show live directory status
+      debug:
+        msg: "Live directory exists: {{ live_dir_check.stat.exists }}"
+
+    - name: Fail if live directory was not created
+      fail:
+        msg: "Certbot failed to create live directory. Check certbot output for errors."
+      when: not live_dir_check.stat.exists
+
+    - name: Debug - List certificate files
+      delegate_to: localhost
+      command: "ls -la {{ host_ssl_path }}/live/{{ harbor_hostname }}/"
+      register: cert_files
+      changed_when: false
+
+    - name: Show certificate files
+      debug:
+        var: cert_files.stdout_lines
+
+    - name: Create SSL directory on VM
+      file:
+        path: "{{ ssl_cert_path }}"
+        state: directory
+        mode: '0755'
+        owner: root
+        group: root
+
+    - name: Create system trust store directory
+      file:
+        path: "{{ system_cert_path }}"
+        state: directory
+        mode: '0755'
+        owner: root
+        group: root
+        recurse: yes
+
+    - name: Copy SSL certificates to VM
+      copy:
+        src: "{{ host_ssl_path }}/live/{{ harbor_hostname }}/{{ item }}"
+        dest: "{{ ssl_cert_path }}/{{ item }}"
+        mode: '0644'
+        owner: root
+        group: root
+      with_items:
+        - fullchain.pem
+        - privkey.pem
+
+    - name: Copy certificates to system trust store
+      copy:
+        src: "{{ ssl_cert_path }}/fullchain.pem"
+        dest: "{{ system_cert_path }}/harbor.crt"
+        mode: '0644'
+        owner: root
+        group: root
+      register: cert_copied
+
+    - name: Install ca-certificates package on VM
+      package:
+        name: ca-certificates
+        state: present
+      become: yes
+
+    - name: Update system CA trust on VM (Ubuntu)
+      command: update-ca-certificates
+      become: yes
+      when: cert_copied.changed
+
+    - name: Install Docker prerequisites
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+        state: present
+        update_cache: yes
+
+    - name: Add Docker's official GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker repository
+      apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+        state: present
+
+    - name: Install Docker
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+        state: present
+        update_cache: yes
+
+    - name: Install Docker Compose
+      get_url:
+        url: https://github.com/docker/compose/releases/download/v2.24.5/docker-compose-linux-x86_64
+        dest: /usr/local/bin/docker-compose
+        mode: '0755'
+
+    - name: Start and enable Docker service
+      systemd:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Create Harbor base directory
+      file:
+        path: /root/harbor
+        state: directory
+        mode: '0755'
+        owner: root
+        group: root
+
+    - name: Download Harbor release
+      get_url:
+        url: https://github.com/goharbor/harbor/releases/download/v2.8.3/harbor-offline-installer-v2.8.3.tgz
+        dest: /root/harbor/harbor-offline-installer-v2.8.3.tgz
+        mode: '0644'
+
+    - name: Extract Harbor release
+      unarchive:
+        src: /root/harbor/harbor-offline-installer-v2.8.3.tgz
+        dest: /root
+        remote_src: yes
+        creates: /root/harbor/prepare
+
+    - name: Create Harbor configuration
+      copy:
+        dest: /root/harbor/harbor.yml
+        mode: '0644'
+        content: |
+          hostname: {{ harbor_hostname }}
+          http:
+            port: 80
+          https:
+            port: 443
+            certificate: {{ ssl_cert_path }}/fullchain.pem
+            private_key: {{ ssl_cert_path }}/privkey.pem
+          external_url: https://{{ harbor_hostname }}
+          harbor_admin_password: {{ harbor_admin_password }}
+          database:
+            password: root123
+            max_idle_conns: 100
+            max_open_conns: 900
+          data_volume: {{ harbor_data_volume }}
+          log:
+            level: debug
+            local:
+              rotate_count: 50
+              rotate_size: 200M
+              location: /var/log/harbor
+          jobservice:
+            max_job_workers: 10
+            logger_sweeper_duration: 24h
+          notification:
+            webhook_job_max_retry: 10
+            webhook_job_http_client_timeout: 3s
+          chart:
+            absolute_url: disabled
+          trivy:
+            ignore_unfixed: true
+            skip_update: false
+            offline_scan: false
+            security_check: vuln
+            insecure: false
+          maintenance:
+            uploadpurge: true
+            readonly: false
+
+    - name: Debug - Display Harbor configuration
+      command: cat /root/harbor/harbor.yml
+      register: harbor_config
+      changed_when: false
+
+    - name: Show Harbor configuration
+      debug:
+        var: harbor_config.stdout_lines
+
+    - name: Verify certificate paths before prepare
+      stat:
+        path: "{{ item }}"
+      with_items:
+        - "{{ ssl_cert_path }}/fullchain.pem"
+        - "{{ ssl_cert_path }}/privkey.pem"
+      register: cert_paths
+
+    - name: Fail if certificates are not in place
+      fail:
+        msg: "Certificate {{ item.item }} does not exist"
+      when: not item.stat.exists
+      with_items: "{{ cert_paths.results }}"
+
+    - name: Create data directory
+      file:
+        path: "{{ harbor_data_volume }}"
+        state: directory
+        mode: '0755'
+        owner: root
+        group: root
+
+    - name: Debug - List Harbor directory contents
+      command: ls -la /root/harbor/
+      register: harbor_dir
+      changed_when: false
+
+    - name: Show Harbor directory contents
+      debug:
+        var: harbor_dir.stdout_lines
+
+    - name: Debug - Check if prepare script exists and is executable
+      stat:
+        path: /root/harbor/prepare
+      register: prepare_script
+
+    - name: Show prepare script status
+      debug:
+        msg: 
+          - "Prepare script exists: {{ prepare_script.stat.exists }}"
+          - "Prepare script is executable: {{ prepare_script.stat.mode | int is divisibleby 8 }}"
+
+    - name: Debug - Check if harbor.yml exists and is readable
+      stat:
+        path: /root/harbor/harbor.yml
+      register: harbor_config_file
+
+    - name: Show harbor.yml status
+      debug:
+        msg: 
+          - "harbor.yml exists: {{ harbor_config_file.stat.exists }}"
+          - "harbor.yml is readable: {{ harbor_config_file.stat.mode | int is divisibleby 4 }}"
+
+    - name: Debug - Check Docker service status
+      systemd:
+        name: docker
+        state: started
+      register: docker_status
+      check_mode: yes
+
+    - name: Show Docker service status
+      debug:
+        msg: "Docker service is running: {{ docker_status.state == 'started' }}"
+
+    - name: Debug - Check Docker Compose installation
+      command: docker-compose --version
+      register: docker_compose_version
+      changed_when: false
+
+    - name: Show Docker Compose version
+      debug:
+        var: docker_compose_version.stdout_lines
+
+    - name: Debug - Check certificate paths
+      stat:
+        path: "{{ item }}"
+      with_items:
+        - "{{ ssl_cert_path }}/fullchain.pem"
+        - "{{ ssl_cert_path }}/privkey.pem"
+      register: cert_paths
+
+    - name: Show certificate paths status
+      debug:
+        msg: "Certificate {{ item.item }} exists: {{ item.stat.exists }}"
+      with_items: "{{ cert_paths.results }}"
+
+    - name: Debug - Check data volume directory
+      stat:
+        path: "{{ harbor_data_volume }}"
+      register: data_volume
+
+    - name: Show data volume status
+      debug:
+        msg: 
+          - "Data volume directory exists: {{ data_volume.stat.exists }}"
+          - "Data volume directory is writable: {{ data_volume.stat.mode | int is divisibleby 2 }}"
+
+    - name: Debug - Check prepare script permissions
+      command: ls -l /root/harbor/prepare
+      register: prepare_perms
+      changed_when: false
+
+    - name: Show prepare script permissions
+      debug:
+        var: prepare_perms.stdout_lines
+
+    - name: Debug - Check prepare script content
+      command: head -n 5 /root/harbor/prepare
+      register: prepare_content
+      changed_when: false
+
+    - name: Show prepare script content
+      debug:
+        var: prepare_content.stdout_lines
+
+    - name: Run Harbor prepare script
+      command: ./prepare
+      args:
+        chdir: /root/harbor
+        executable: /bin/bash
+      register: prepare_result
+      ignore_errors: yes
+
+    - name: Show prepare script stdout
+      debug:
+        var: prepare_result.stdout_lines
+      when: prepare_result.stdout_lines is defined
+
+    - name: Show prepare script stderr
+      debug:
+        var: prepare_result.stderr_lines
+      when: prepare_result.stderr_lines is defined
+
+    - name: Show prepare script rc
+      debug:
+        msg: "Prepare script return code: {{ prepare_result.rc }}"
+
+    - name: Install Harbor
+      command: ./install.sh
+      args:
+        chdir: /root/harbor
+      register: install_result
+
+    - name: Show install script output
+      debug:
+        var: install_result.stdout_lines
+
+    - name: Create Harbor systemd service
+      blockinfile:
+        path: /etc/systemd/system/harbor.service
+        create: yes
+        block: |
+          [Unit]
+          Description=Harbor Container Registry
+          After=docker.service systemd-networkd.service systemd-resolved.service
+          Requires=docker.service
+          Documentation=https://goharbor.io/docs/
+
+          [Service]
+          Type=simple
+          User=root
+          Group=root
+          WorkingDirectory=/root/harbor
+          ExecStart=/usr/local/bin/docker-compose up
+          ExecStop=/usr/local/bin/docker-compose down
+          Restart=always
+          RestartSec=10s
+
+          [Install]
+          WantedBy=multi-user.target
+
+    - name: Reload systemd daemon
+      systemd:
+        daemon_reload: yes
+
+    - name: Debug - Check systemd service file
+      command: cat /etc/systemd/system/harbor.service
+      register: service_file
+      changed_when: false
+
+    - name: Show systemd service file
+      debug:
+        var: service_file.stdout_lines
+
+    - name: Enable and start Harbor service
+      systemd:
+        name: harbor
+        state: started
+        enabled: yes
+        daemon_reload: yes
+
+    - name: Setup certificate renewal service
+      copy:
+        dest: /etc/systemd/system/certbot-renewal.service
+        content: |
+          [Unit]
+          Description=Certbot Renewal Service
+          After=network-online.target
+
+          [Service]
+          Type=oneshot
+          ExecStart=/usr/bin/certbot renew --quiet --agree-tos --deploy-hook "systemctl restart harbor"
+
+    - name: Setup certificate renewal timer
+      copy:
+        dest: /etc/systemd/system/certbot-renewal.timer
+        content: |
+          [Unit]
+          Description=Timer for Certbot Renewal
+
+          [Timer]
+          OnCalendar=*-*-* 00:00:00
+          RandomizedDelaySec=43200
+          Persistent=true
+
+          [Install]
+          WantedBy=timers.target
+
+    - name: Enable and start certificate renewal timer
+      systemd:
+        name: certbot-renewal.timer
+        state: started
+        enabled: yes
+        daemon_reload: yes
+
+    - name: Create SSL directory on host if it doesn't exist
+      delegate_to: localhost
+      file:
+        path: "{{ host_ssl_path }}"
+        state: directory
+        mode: '0755'
+
+    - name: Run certbot in Podman container
+      delegate_to: localhost
+      command: >
+        sudo -E podman run --rm 
+        --env AWS_ACCESS_KEY_ID={{ aws_credentials.access_key_id }}
+        --env AWS_SECRET_ACCESS_KEY={{ aws_credentials.secret_access_key }}
+        --env EMAIL=admin@{{ harbor_hostname }}
+        -v "{{ host_ssl_path }}:/etc/letsencrypt"
+        certbot/dns-route53
+        certonly --dns-route53
+        -d {{ harbor_hostname }}
+        --agree-tos
+        --email admin@{{ harbor_hostname }}
+        --non-interactive
+      args:
+        creates: "{{ host_ssl_path }}/live/{{ harbor_hostname }}/fullchain.pem"
+      register: certbot_result
+
+    - name: Check Docker Compose configuration
+      command: docker-compose config
+      args:
+        chdir: /root/harbor
+      register: compose_config
+      changed_when: false
+
+    - name: Show Docker Compose configuration
+      debug:
+        var: compose_config.stdout_lines
+
+    - name: Check running containers
+      command: docker ps -a
+      register: running_containers
+      changed_when: false
+
+    - name: Show running containers
+      debug:
+        var: running_containers.stdout_lines
+
+    - name: Check Docker network
+      command: docker network ls
+      register: docker_networks
+      changed_when: false
+
+    - name: Show Docker networks
+      debug:
+        var: docker_networks.stdout_lines
+
+    - name: Check Harbor network configuration
+      command: docker network inspect harbor
+      register: harbor_network
+      changed_when: false
+      ignore_errors: yes
+
+    - name: Show Harbor network configuration
+      debug:
+        var: harbor_network.stdout_lines
+      when: harbor_network.rc == 0
+
+    - name: Check Jobservice container logs
+      command: docker-compose logs jobservice
+      args:
+        chdir: /root/harbor
+      register: jobservice_logs
+      changed_when: false
+
+    - name: Show Jobservice logs
+      debug:
+        var: jobservice_logs.stdout_lines
+
+    - name: Install UFW if not present
+      apt:
+        name: ufw
+        state: present
+
+    - name: Allow SSH through firewall
+      ufw:
+        rule: allow
+        port: ssh
+        proto: tcp
+
+    - name: Allow Harbor HTTP port
+      ufw:
+        rule: allow
+        port: '80'
+        proto: tcp
+
+    - name: Allow Harbor HTTPS port
+      ufw:
+        rule: allow
+        port: '443'
+        proto: tcp
+
+    - name: Allow Harbor Content Trust port
+      ufw:
+        rule: allow
+        port: '4443'
+        proto: tcp
+
+    - name: Enable UFW
+      ufw:
+        state: enabled
+        policy: deny
+
+    - name: Show UFW status
+      command: ufw status verbose
+      register: ufw_status
+      changed_when: false
+
+    - name: Display UFW status
+      debug:
+        var: ufw_status.stdout_lines 
