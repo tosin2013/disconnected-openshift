@@ -1,0 +1,201 @@
+---
+# Test Harbor Integration with OpenShift
+- name: Verify Harbor-OpenShift Integration
+  hosts: harbor
+  become: yes
+  vars_files:
+    - group_vars/all/vars.yml
+  vars:
+    kubeconfig_path: "{{ lookup('env', 'KUBECONFIG') | default('/home/lab-user/generated_assets/ocp4/auth/kubeconfig') }}"
+    test_namespace: "harbor-test"
+    test_image: "quay.io/takinosh/simple-http"
+    test_image_tag: "prod"
+    test_deployment_name: "simple-http-test"
+    harbor_project: "{{ test_namespace }}"
+    harbor_dest_image: "{{ harbor_hostname }}/{{ harbor_project }}/simple-http:{{ test_image_tag }}"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+
+  tasks:
+    - name: Verify OpenShift CLI access
+      command: oc whoami
+      register: oc_whoami
+      delegate_to: localhost
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
+      changed_when: false
+
+    - name: Show current user
+      debug:
+        var: oc_whoami.stdout_lines
+
+    - name: Create test project
+      command: "oc new-project {{ test_namespace }}"
+      delegate_to: localhost
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
+      ignore_errors: yes
+
+    - name: Create Harbor project
+      uri:
+        url: "https://{{ harbor_hostname }}/api/v2.0/projects"
+        method: POST
+        body_format: json
+        body:
+          project_name: "{{ harbor_project }}"
+          public: false
+        headers:
+          Authorization: "Basic {{ ('admin:' + harbor_admin_password) | b64encode }}"
+        validate_certs: no
+        status_code: [201, 409]  # 409 means project already exists
+      delegate_to: localhost
+
+    - name: Pull test image
+      command: "podman pull {{ test_image }}:{{ test_image_tag }}"
+      register: pull_result
+      delegate_to: localhost
+
+    - name: Tag for Harbor
+      command: "podman tag {{ test_image }}:{{ test_image_tag }} {{ harbor_dest_image }}"
+      when: pull_result.rc == 0
+      delegate_to: localhost
+
+    - name: Login to Harbor
+      command: podman login --tls-verify=false -u admin -p {{ harbor_admin_password }} {{ harbor_hostname }}
+      register: login_result
+      no_log: true  # Hide password from logs
+      delegate_to: localhost
+
+    - name: Push test image to Harbor
+      command: "podman push --tls-verify=false {{ harbor_dest_image }}"
+      when: login_result.rc == 0
+      delegate_to: localhost
+
+    - name: Create image pull secret
+      command: >
+        oc create secret docker-registry harbor-pull-secret
+        --docker-server={{ harbor_hostname }}
+        --docker-username=admin
+        --docker-password={{ harbor_admin_password }}
+        --docker-email=admin@example.com
+        -n {{ test_namespace }}
+      delegate_to: localhost
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
+      register: secret_result
+      ignore_errors: yes  # In case it already exists
+
+    - name: Link pull secret to default service account
+      command: "oc secrets link default harbor-pull-secret --for=pull -n {{ test_namespace }}"
+      delegate_to: localhost
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
+
+    - name: Allow anyuid SCC for default service account
+      command: "oc adm policy add-scc-to-user anyuid -z default -n {{ test_namespace }}"
+      delegate_to: localhost
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
+
+    - name: Create test deployment
+      command: >
+        oc create deployment {{ test_deployment_name }}
+        --image={{ harbor_dest_image }}
+        -n {{ test_namespace }}
+      delegate_to: localhost
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
+      register: deploy_result
+
+    - name: Show deployment status
+      command: oc get pods -l app={{ test_deployment_name }}
+      delegate_to: localhost
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
+      register: pod_status
+      changed_when: false
+
+    - name: Display pod status
+      debug:
+        var: pod_status.stdout_lines
+
+    # Test disconnected scenario
+    - name: Create NetworkPolicy to simulate disconnection
+      copy:
+        dest: /tmp/network-policy.yml
+        content: |
+          apiVersion: networking.k8s.io/v1
+          kind: NetworkPolicy
+          metadata:
+            name: restrict-registry-access
+            namespace: {{ test_namespace }}
+          spec:
+            podSelector: {}
+            policyTypes:
+            - Egress
+            egress:
+            - to:
+              - ipBlock:
+                  cidr: {{ harbor_ip }}/32
+            - to:
+              - namespaceSelector:
+                  matchLabels:
+                    kubernetes.io/metadata.name: openshift-dns
+            - to:
+              - namespaceSelector:
+                  matchLabels:
+                    kubernetes.io/metadata.name: openshift-ingress
+      delegate_to: localhost
+
+    - name: Apply NetworkPolicy
+      command: oc apply -f /tmp/network-policy.yml
+      delegate_to: localhost
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
+
+    - name: Cleanup temporary files
+      file:
+        path: /tmp/network-policy.yml
+        state: absent
+      delegate_to: localhost
+
+    - name: Scale deployment to 0
+      command: oc scale deployment {{ test_deployment_name }} --replicas=0 -n {{ test_namespace }}
+      delegate_to: localhost
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
+
+    - name: Wait for scale down
+      pause:
+        seconds: 5
+
+    - name: Scale deployment back to 1
+      command: oc scale deployment {{ test_deployment_name }} --replicas=1 -n {{ test_namespace }}
+      delegate_to: localhost
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
+
+    - name: Wait for pod to be ready
+      command: oc wait --for=condition=ready pod -l app={{ test_deployment_name }} -n {{ test_namespace }} --timeout=60s
+      delegate_to: localhost
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
+
+    - name: Show final pod status
+      command: oc get pods -l app={{ test_deployment_name }}
+      delegate_to: localhost
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
+      register: final_status
+      changed_when: false
+
+    - name: Display final status
+      debug:
+        var: final_status.stdout_lines
+
+    - name: Cleanup test resources
+      command: oc delete project {{ test_namespace }}
+      delegate_to: localhost
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
+      when: deploy_result.rc == 0 
