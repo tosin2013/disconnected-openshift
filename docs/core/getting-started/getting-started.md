@@ -3,9 +3,9 @@
 ## Introduction
 
 This guide will walk you through setting up a disconnected OpenShift environment from scratch. By the end, you'll have:
-- A fully functional OpenShift cluster
+- A fully functional OpenShift 4.18 cluster
 - A secure Harbor registry for storing images
-- Tekton pipelines for automation
+- Ansible Automation Platform (AAP) for automation
 - Everything configured for disconnected operation
 
 ## Prerequisites Checklist
@@ -58,12 +58,6 @@ This guide will walk you through setting up a disconnected OpenShift environment
   $ tar xvf openshift-client-linux.tar.gz
   $ sudo mv oc /usr/local/bin/
   $ oc version
-  
-❏ Tekton CLI (tkn)
-  $ curl -LO https://<your-domain>
-  $ tar xvf tkn_0.30.1_Linux_x86_64.tar.gz
-  $ sudo mv tkn /usr/local/bin/
-  $ tkn version
 ```
 
 ## Initial Setup
@@ -87,25 +81,124 @@ cd disconnected-openshift
 - Storage availability
 ```
 
-### 3. Configure Environment Variables
+### 3. OpenShift Validation
+
+The disconnected environment requires a running OpenShift 4.18 cluster. We use the [OpenShift Agent-Based Installer](https://github.com/Red-Hat-SE-RTO/openshift-agent-install) for deployment.
+
+1. Verify OpenShift cluster status:
+```bash
+# Check cluster version (should show 4.18.x)
+oc get clusterversion
+oc version
+
+# Expected output:
+# Client Version: 4.18.0
+# Kustomize Version: v5.0.1
+# Server Version: 4.18.0
+# Kubernetes Version: v1.25.0
+
+# Check nodes and cluster operators
+oc get nodes
+oc get co
+
+# Expected output should show:
+# - Cluster version: 4.18.x
+# - Nodes: Ready
+# - Cluster Operators: Available
+```
+
+2. Verify cluster networking:
+```bash
+# Check cluster network operator
+oc get network.operator cluster -o yaml
+
+# Check network policies
+oc get networkpolicies --all-namespaces
+
+# Verify DNS resolution
+oc get dns.operator/default -o yaml
+```
+
+3. Verify storage configuration:
+```bash
+# Check storage classes
+oc get storageclass
+
+# Verify persistent volumes
+oc get pv
+
+# Check storage operator status
+oc get csv -n openshift-storage
+```
+
+4. Check registry configuration:
+```bash
+# Verify internal registry status
+oc get configs.imageregistry.operator.openshift.io cluster -o yaml
+
+# Check registry pods
+oc get pods -n openshift-image-registry
+
+# Verify registry storage
+oc get pvc -n openshift-image-registry
+```
+
+### 4. Configure Environment Variables
 ```bash
 # Copy and edit the environment file
 cp .env.example .env
 
-# Required variables:
-HARBOR_HOSTNAME=harbor.example.com
-HARBOR_ADMIN_PASSWORD="<your-secure-password>"
-REGISTRY_CERTIFICATE_PATH=/path/to/certs
-KUBECONFIG=/path/to/kubeconfig
+# Required variables for OpenShift
+KUBECONFIG=/path/to/kubeconfig             # Path to OpenShift kubeconfig
+OPENSHIFT_PULL_SECRET="<pull-secret>"      # Your OpenShift pull secret
+OPENSHIFT_VERSION="4.18"                   # OpenShift version to mirror
+OPENSHIFT_MINOR_VERSION="4.18.0"           # Specific version for tools
+OPENSHIFT_ARCHITECTURE="x86_64"            # Architecture for OpenShift binaries
+
+# Required variables for Harbor Registry
+HARBOR_HOSTNAME=harbor.example.com          # Your Harbor registry hostname
+HARBOR_ADMIN_PASSWORD="your-secure-password" # Admin password for Harbor UI
+REGISTRY_CERTIFICATE_PATH=/path/to/certs    # Path to store TLS certificates
+
+# Optional proxy configuration (if needed)
+HTTP_PROXY=http://proxy.example.com:3128
+HTTPS_PROXY=http://proxy.example.com:3128
+NO_PROXY=localhost,127.0.0.1,.svc,.cluster.local
+
+# Verify environment
+env | grep -E 'HARBOR|REGISTRY|KUBECONFIG|OPENSHIFT|PROXY'
 ```
 
-## Next Steps
+These variables will be used by various components:
+- OpenShift: Uses `OPENSHIFT_*` variables for configuration and mirroring
+- Harbor Registry: Uses `HARBOR_*` variables for configuration
+- TLS Certificates: Stored in `REGISTRY_CERTIFICATE_PATH`
+- Proxy Settings: Used by containers and tools if configured
 
-Once you've completed this initial setup:
+## Implementation Steps
 
-1. Follow the [Harbor Deployment Guide](harbor/deployment.md) to set up your private registry
-2. Configure your [Pipeline Setup](pipeline/setup.md) for automation
-3. Review the [Security Guide](security/security-guide.md) for best practices
+Follow these guides in order to set up your disconnected environment:
+
+1. **Environment Setup**
+   - Review [Environment Setup Guide](../../environment/setup-guide.md) for detailed configuration
+   - Ensure compatibility with OpenShift 4.18
+   - Set up [Decision Environments](../../environment/decision-environments.md) for automation
+   - Configure [Execution Environments](../../environment/execution-environments.md) for tasks
+
+2. **Registry Setup**
+   - Deploy Harbor using the [Harbor Deployment Guide](../../core/registry/deploy-harbor-podman-compose.md)
+   - Configure the [Pull-through Cache](../../core/registry/pullthrough-proxy-cache-harbor.md)
+   - Review [Alternative Registry Options](../../reference/alternative-implementations/deploy-jfrog-podman.md) if needed
+
+3. **Automation Setup**
+   - Deploy AAP using the [AAP Deployment Guide](../../core/automation/deploy-aap-on-openshift.md)
+   - Configure [Automation Rulebooks](../../automation/rulebooks.md) for event-driven automation
+   - Set up [Development Workflow](../../environment/development-workflow.md)
+
+4. **Operations & Monitoring**
+   - Implement [Deployment Operations](../../environment/deployment-operations.md)
+   - Set up [Registry Monitoring](../../reference/monitoring/harbor-monitoring.md)
+   - Configure [Dependency Management](../../environment/dependency-management.md)
 
 ## Troubleshooting Initial Setup
 
@@ -145,6 +238,22 @@ Once you've completed this initial setup:
    ls -la ${REGISTRY_CERTIFICATE_PATH}
    ```
 
+4. **OpenShift Version Issues**
+   ```bash
+   # Verify OpenShift client and server versions match
+   oc version
+   
+   # Check for available updates
+   oc adm upgrade
+   
+   # View update history
+   oc adm upgrade history
+   
+   # Check cluster operators for version-related issues
+   oc get clusteroperators
+   oc get clusterversion -o yaml
+   ```
+
 ### Getting Help
 
 If you encounter issues during setup:
@@ -174,16 +283,15 @@ If you encounter issues during setup:
 
 ## Additional Resources
 
-- [Environment Setup Guide](environment/setup-guide.md) - Detailed environment configuration
-- [Harbor Deployment Guide](harbor/deployment.md) - Complete Harbor setup and configuration
-- [Pipeline Guide](pipeline/setup.md) - Tekton pipeline configuration and usage
-- [Troubleshooting Guide](operations/troubleshooting.md) - Detailed troubleshooting steps
+- [Documentation Map](../../README.md) - Overview of all documentation
+- [Architecture Decisions](../../adr/) - Understanding design choices
+- [YAML Standards](../../reference/standards/yaml-standards.md) - Configuration standards
 
 ## Support
 
 If you encounter issues:
 
-1. Check the [Troubleshooting Guide](operations/troubleshooting.md)
+1. Check the troubleshooting sections in each component guide
 2. Review relevant component logs
 3. Open an issue with:
    - Environment validation output

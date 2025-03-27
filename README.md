@@ -1,90 +1,169 @@
 # Disconnected OpenShift - A Compendium
 
-> This repo is a work in progress as I gather various different sources into this one place and make my garbage scripts less trashy.
+> This repo is a work in progress as we gather various different sources into this one place and make our scripts more robust and maintainable.
 
-To deploy OpenShift in disconnected, semi-connected, and barely-connected environments, you have to figure for a few things
+## What This Solves
 
-- Binaries
-- OpenShift Release Container Images
-- RHCOS Media
-- Operators
+Deploying OpenShift in disconnected, semi-connected, and barely-connected environments requires managing multiple components:
+
+- OpenShift binaries and CLI tools
+- Container images for OpenShift releases
+- RHCOS (Red Hat CoreOS) media
+- Operators and their dependencies
 - OpenShift Update Service and Graph Data
-- etc
+- And more...
 
-This repository is meant to make all that easier.  It features:
+For a detailed understanding of the architecture and design decisions, see our:
+- [Architecture Overview](docs/architecture/overview.md)
+- [Architecture Decision Records](docs/adr/0000-index.md)
 
-- Things for Outbound HTTP Proxies!
-- Custom Root CA helpers for Outbound HTTP Proxies that do SSL MitM!
-- Private image registry pointers!
-- Multi-arch and FIPS examples where available!
-- Disconnected Installation examples!
-- Azure DevOps Pipelines, GitHub Actions, Ansible Automation/EEs, and/or Tekton Pipelines when/where available!
-- RHACM Policy examples for distributing disconnected configuration!
-- Stuff for ACM, Ansible, DevSpaces, OpenShift AI, Quay, Virtualization, and more!
+This repository simplifies these challenges by providing:
+
+✅ **Proxy Support**
+- Complete outbound HTTP proxy configuration
+- SSL MitM handling with custom Root CA helpers
+- Transparent proxy cache setup guides
+
+✅ **Registry Management**
+- Private registry configuration and deployment
+- Multi-architecture support (including FIPS)
+- Pull-through cache setup for Harbor and JFrog
+
+✅ **Automation Options**
+- Azure DevOps Pipelines
+- GitHub Actions workflows
+- Ansible Automation/Execution Environments
+- Tekton Pipelines
+
+✅ **Enterprise Features**
+- RHACM policy examples for disconnected configs
+- Integration guides for ACM, DevSpaces, OpenShift AI
+- Quay and virtualization setup in disconnected mode
 
 ## Prerequisites
 
-- **Pull Secrets** - Container Registry Pull Secrets for Red Hat Registries as well as your own.  You can find a handy script in [./scripts/join-auths.sh](./scripts/join-auths.sh) to combine two JSON pull secret files into one.
-- **A Container Image Registry** - This can be an existing Harbor, JFrog Artifactory, Sonatype Nexus, Red Hat Quay, etc deployment.  You need some place to mirror container images to.  Examples for deploying different container image registries are provided in this repo.
-- **An HTTP server** - While not always needed, often comes in handy.  Examples for deploying some HTTP servers are provided in this repo.
-- **A Linux Server** - Not always needed by often is.  Any ol' Linux server, physical, virtual, a laptop will even do, ideally RHEL 9 but could be other distros.
+### Required Components
+- **Pull Secrets**
+  ```bash
+  # Combine registry pull secrets
+  ./scripts/join-auths.sh registry1-auth.json registry2-auth.json
+  ```
 
-## Walkthrough
+- **Container Registry**
+  - Support for Harbor, JFrog, Nexus, or Quay
+  - Examples for each registry included
+  - Pull-through cache configuration guides
 
-1. [Download/Mirror OpenShift Binaries](./binaries/)
-2. [Mirror OpenShift Release Container Images](./openshift-release/)
-3. [Obtain RHCOS assets](./rhcos/)
-4. [Deploy OpenShift - Disconnected Installation Examples](./installation-examples/)
-5. [Post-Install Configuration (Root CAs, Proxy, Image mirrors, etc)](./post-install-config/)
-6. Mirroring Operators
-7. Creating an Update Graph Container
-8. Using custom CatalogSources
-9. Deploying the OpenShift Update Service Operator
-10. Automate the steps
+- **HTTP Server** (Optional but recommended)
+  - Example deployments included
+  - Used for serving RHCOS and other assets
+
+- **Linux Server**
+  - RHEL 9 recommended (other distros supported)
+  - Physical, virtual, or even a laptop
+  - Minimum specs in [system requirements](docs/requirements.md)
+
+## Quick Start
+
+### 1. Mirror Essential Components
+```bash
+# 1. Get OpenShift binaries
+./binaries/mirror-binaries.sh
+
+# 2. Mirror release images
+./openshift-release/mirror-release.sh
+
+# 3. Download RHCOS assets
+./rhcos/download-rhcos.sh
+```
+
+### 2. Deploy Infrastructure
+```bash
+# 1. Deploy your registry (example using Harbor)
+./scripts/deploy-harbor-vm.sh
+
+# 2. Configure authentication
+./scripts/pull-secret-to-harbor-auth.sh
+./scripts/join-auths.sh
+
+# 3. Start HTTP server (if needed)
+./scripts/start-http-server.sh
+```
+
+### 3. Install OpenShift
+Follow our [installation examples](./installation-examples/) for your scenario:
+- Fully disconnected
+- Semi-connected (limited internet)
+- Proxy-based setups
+
+## Documentation Structure
+
+### Core Setup
+1. [Download/Mirror OpenShift Binaries](./binaries/) - [ADR-0006](docs/adr/0006-binary-management-strategy.md)
+2. [Mirror OpenShift Release Images](./openshift-release/) - [ADR-0002](docs/adr/0002-registry-management-strategy.md)
+3. [Obtain RHCOS Assets](./rhcos/) - [ADR-0006](docs/adr/0006-binary-management-strategy.md)
+4. [Deploy OpenShift - Disconnected Examples](./installation-examples/) - [ADR-0009](docs/adr/0009-openshift-agent-installation.md)
+5. [Post-Install Configuration](./post-install-config/) - [ADR-0005](docs/adr/0005-gitops-implementation.md)
+
+### Advanced Topics
+6. [Operator Mirroring Guide](./docs/operator-mirroring.md)
+7. [Update Graph Container Creation](./docs/update-graph.md)
+8. [Custom CatalogSource Setup](./docs/catalogsources.md)
+9. [OpenShift Update Service](./docs/update-service.md)
+10. [Automation Examples](./docs/automation.md) - [ADR-0003](docs/adr/0003-pipeline-automation-approach.md)
 
 ## Additional Resources
 
-- [Extras](./extras/) - Small helpful quick references eg deploying an NGINX container on Podman, and a HTTP server that will automatically mirror assets.
-- [Tekton Resources](./tekton/) - Build containers in disconnect environments, run mirroring pipelines
-- [Ansible EDA + Tekton Pipeline](./docs/deploy-aap-on-openshift.md) for automatically mirroring images from ImagePullBackoff events
-- [Dev/Test Quay on OpenShift](./quay/) - A quick way to deploy Quay via the Operator on OpenShift for some quick testing, not configured for production.
-- [Dev/Test Harbor on Podman](./docs/deploy-harbor-podman-compose.md) - A easy/quick way to deploy Harbor with little more than a RHEL VM and Podman Compose.
-- [Configure Pull-through Proxy Cache, Harbor](./docs/pullthrough-proxy-cache-harbor.md) - Guide to setup Harbor to act as a Pull-through/Proxy Cache.
-- [Configure Pull-through Proxy Cache, JFrog](./docs/pullthrough-proxy-cache-jfrog.md) - Guide to setup JFrog to act as a Pull-through/Proxy Cache.
+### Quick References
+- [Extras](./extras/) - Helper scripts and quick deployment examples
+- [Tekton Resources](./tekton/) - Disconnected build and mirror pipelines
+- [Ansible EDA + Tekton](./docs/deploy-aap-on-openshift.md) - Automated image mirroring
 
----
+### Registry Guides
+- [Dev/Test Quay on OpenShift](./quay/)
+- [Harbor on Podman](./docs/deploy-harbor-podman-compose.md)
+- [Harbor Pull-through Cache](./docs/pullthrough-proxy-cache-harbor.md)
+- [JFrog Pull-through Cache](./docs/pullthrough-proxy-cache-jfrog.md)
 
-## How to not do any of this
+## The Easier Way: Pull-Through Cache
 
-Mirroring OpenShift assets for a disconnected deployment can be daunting.  It can certainly be automated, and you'll find examples of that here - *but what if there were a better way?*
+Instead of manually mirroring everything, consider using your existing artifact repository as a pull-through cache:
 
-It's common for environments to have some sort of artifact/container repository - something like JFrog Artifactory, Sonatype Nexus, Harbor, etc.  Often used for proxying in developer assets such as dependencies, images, modules, etc.
+1. **Configure Proxy Repositories**
+   ```bash
+   # Example mappings:
+   quay.io -> quay-ptc.registry.example.com
+   registry.redhat.io -> redhat-ptc.registry.example.com
+   ```
 
-If you have this already and can use it to do the same sort of proxying for container images from public sources and provide them internally then all this gets much simpler.
+2. **Update Pull Secrets**
+   ```bash
+   # Combine Red Hat and private registry secrets
+   ./scripts/join-auths.sh redhat-pull-secret.json private-registry-secret.json
+   ```
 
-All you need to do in this instance is:
+3. **Configure OpenShift**
+   - Add registry certificates/CAs
+   - Set up image mirror configuration
+   - Deploy and you're done!
 
-- Create the Proxy Repos in whatever Registry you use, point them to Quay and the Red Hat Registry at a minimum, eg `quay.io = quay-ptc.registry.example.com`
-- Combine your private Pull Secret with the Red Hat ones
-- Add that pull secret, any Root CAs, the mirror configuration for the imageMirrorSources.
+### Caveats
+- Update Graph data still needs manual handling for fully disconnected setups
+- Some components need additional configuration:
+  - Root CA management
+  - OpenShift Virtualization mirror settings
+  - Samples Operator configuration
+  - Image Config CR adjustments
 
-***And that's it!***
+But this is much simpler than manually mirroring everything!
 
-Install from there, no other manual methods for mirroring images, creating Operator Indexes, etc.  Any time a workload on OpenShift calls out to `quay.io` it will be pointed to `quay-ptc.registry.example.com` instead under the covers of everything.  There are some guides on setting things up:
+## Contributing
 
-- [Configure Pull-through Proxy Cache, Harbor](./docs/pullthrough-proxy-cache-harbor.md) - Guide to setup Harbor to act as a Pull-through/Proxy Cache.
-- [Configure Pull-through Proxy Cache, JFrog](./docs/pullthrough-proxy-cache-jfrog.md) - Guide to setup JFrog to act as a Pull-through/Proxy Cache.
+- Fork the repository
+- Create a feature branch
+- Submit a pull request
+- Check our [contribution guidelines](CONTRIBUTING.md)
 
-***There is a caveat*** - that if your cluster can't talk to the Internet, while you can access container images transparently with this Pull-Through Cache/Proxy, the Update Graph data is not in a container.  This is on `api.openshift.com` and if you can't access that you'll still need to curate the Graph and Update Service - but otherwise there are no containers to really mirror this way.  If you can use a container registry acting as a remote pull-through cache/proxy then everything gets so much easier.
+## License
 
-Also, in earnest, there are still a few switches to flip with a Pull-through/Proxy Cache, but it's still easier than manual methods of mirroring things.  Namely you still need to:
-
-- Add Root CAs
-- Have Pull Secrets to pull from your private registry mirror(s)
-- Create ImageDigestMirrorSets and ImageTagMirrorSets
-- Set the Samples Operator Config to `Managed` from `Removed`
-- Configure the Image Config CR
-- Adjust for things like OpenShift Virt that doesn't use the global mirror config
-- Run an OpenShift Update Service instance
-
-But that's a much shorter list than all the other mirroring stuff.  If you can use a local proxy cache and an Outbound HTTP Proxy, then you can even skip the OSUS instance - really with an Outbound HTTP Proxy you can skip most of this stuff though.
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.

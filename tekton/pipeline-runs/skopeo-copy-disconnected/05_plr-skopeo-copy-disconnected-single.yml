@@ -8,16 +8,15 @@ metadata:
 spec:
   params:
     - name: SOURCE_IMAGE_URL
-      value: "docker://nvcr.io/nvidia/gpu-operator@sha256:92f5262bb4934e0ea29eb10ec0ad4fc293164f2f2f94d48a935922791abbfdac"
+      value: "docker://registry.redhat.io/ubi8/ubi-minimal:latest"
     - name: DESTINATION_IMAGE_URL
-      value: "docker://disconn-harbor.d70.kemo.labs/man-mirror/nvidia/gpu-operator"
-
-    - name: HTTP_PROXY
-      value: "http://proxy.kemo.labs:3129"
-    - name: HTTPS_PROXY
-      value: "http://proxy.kemo.labs:3129"
-    - name: NO_PROXY
-      value: ".kemo.labs,.kemo.network,.local,.svc,localhost,127.0.0.1,192.168.0.0/16,172.16.0.0/12,10.0.0.0/8"
+      value: "docker://harbor.f2775.sandbox999.opentlc.com/mirror/ubi-minimal:latest"
+    - name: SRC_TLS_VERIFY
+      value: "false"
+    - name: DEST_TLS_VERIFY
+      value: "true"
+    - name: ARGS
+      value: "--src-tls-verify=false --dest-tls-verify=true"
 
   pipelineRef:
     name: skopeo-copy-disconnected-single
@@ -26,29 +25,15 @@ spec:
   timeouts:
     pipeline: 1h0m0s
   workspaces:
-
     - name: authsecret
       secret:
-        secretName: container-reg-auth
-
-# Optional in case you're pulling from a private repository and/or need to use a proxy
+        secretName: combined-registry-auth
     - configMap:
-        name: mirror-registry-config
-        items:
-          - key: registries.conf
-            path: mirror.conf
-      name: registriesd
-
-    - configMap:
-        items:
-          - key: registries.conf
-            path: registries.conf
-        name: mirror-registry-config
-      name: containerconfig
-
-    - configMap:
-        items:
-          - key: ca-bundle.crt
-            path: ca-bundle.crt
         name: root-ca-certs
       name: root-ca-certs
+    - configMap:
+        name: mirror-registry-config
+      name: registriesd
+    - configMap:
+        name: mirror-registry-config
+      name: containerconfig

@@ -4,7 +4,7 @@
   hosts: harbor
   become: yes
   vars_files:
-    - group_vars/all/vars.yml
+    - playbooks/harbor/vars/main.yml
   vars:
     kubeconfig_path: "{{ lookup('env', 'KUBECONFIG') | default('/home/lab-user/generated_assets/ocp4/auth/kubeconfig') }}"
     test_namespace: "harbor-test"
