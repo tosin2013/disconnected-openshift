@@ -1,0 +1,191 @@
+# Getting Started Guide
+
+## Introduction
+
+This guide will walk you through setting up a disconnected OpenShift environment from scratch. By the end, you'll have:
+- A fully functional OpenShift cluster
+- A secure Harbor registry for storing images
+- Tekton pipelines for automation
+- Everything configured for disconnected operation
+
+## Prerequisites Checklist
+
+### 1. Hardware Requirements
+```bash
+# Verify your system meets these requirements:
+❏ CPU: 8+ cores
+  $ lscpu | grep "CPU(s):"
+  
+❏ RAM: 32GB+
+  $ free -h
+  
+❏ Storage: 1TB+ available
+  $ df -h
+```
+
+### 2. Network Requirements
+```bash
+# Verify network access:
+❏ Lab Network (192.168.50.0/24)
+  $ ping 192.168.50.1
+  
+❏ Trans-Proxy Network (192.168.54.0/24)
+  $ ping 192.168.54.1
+```
+
+### 3. Required Tools
+```bash
+# Install and verify each tool:
+
+❏ podman
+  $ sudo dnf install podman
+  $ podman --version
+  
+❏ buildah
+  $ sudo dnf install buildah
+  $ buildah --version
+  
+❏ skopeo
+  $ sudo dnf install skopeo
+  $ skopeo --version
+  
+❏ ansible
+  $ sudo dnf install ansible
+  $ ansible --version
+  
+❏ OpenShift CLI (oc)
+  $ curl -LO https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz
+  $ tar xvf openshift-client-linux.tar.gz
+  $ sudo mv oc /usr/local/bin/
+  $ oc version
+  
+❏ Tekton CLI (tkn)
+  $ curl -LO https://github.com/tektoncd/cli/releases/download/v0.30.1/tkn_0.30.1_Linux_x86_64.tar.gz
+  $ tar xvf tkn_0.30.1_Linux_x86_64.tar.gz
+  $ sudo mv tkn /usr/local/bin/
+  $ tkn version
+```
+
+## Initial Setup
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/your-org/disconnected-openshift.git
+cd disconnected-openshift
+```
+
+### 2. Environment Validation
+```bash
+# Run the validation script
+./scripts/validate-environment.sh
+
+# This will check:
+- System requirements
+- Required tools
+- Network connectivity
+- DNS resolution
+- Storage availability
+```
+
+### 3. Configure Environment Variables
+```bash
+# Copy and edit the environment file
+cp .env.example .env
+
+# Required variables:
+HARBOR_HOSTNAME=harbor.example.com
+HARBOR_ADMIN_PASSWORD=your-secure-password
+REGISTRY_CERTIFICATE_PATH=/path/to/certs
+KUBECONFIG=/path/to/kubeconfig
+```
+
+## Next Steps
+
+Once you've completed this initial setup:
+
+1. Follow the [Harbor Deployment Guide](harbor/deployment.md) to set up your private registry
+2. Configure your [Pipeline Setup](pipeline/setup.md) for automation
+3. Review the [Security Guide](security/security-guide.md) for best practices
+
+## Troubleshooting Initial Setup
+
+### Common Issues
+
+1. **Tool Installation Failures**
+   ```bash
+   # Check system package manager
+   sudo dnf clean all
+   sudo dnf update
+   
+   # Try alternative installation methods
+   # For podman/buildah:
+   sudo yum module enable container-tools
+   sudo yum module install container-tools
+   ```
+
+2. **Network Connectivity**
+   ```bash
+   # Check DNS resolution
+   nslookup ${HARBOR_HOSTNAME}
+   
+   # Verify network routes
+   ip route show
+   
+   # Test proxy settings (if used)
+   env | grep -i proxy
+   ```
+
+3. **Storage Issues**
+   ```bash
+   # Check filesystem
+   df -h
+   
+   # Verify permissions
+   ls -la /var/lib/containers
+   ls -la ${REGISTRY_CERTIFICATE_PATH}
+   ```
+
+### Getting Help
+
+If you encounter issues during setup:
+
+1. Check the logs:
+   ```bash
+   # Validation script logs
+   cat /var/log/validate-environment.log
+   
+   # System logs
+   journalctl -xe
+   ```
+
+2. Verify system state:
+   ```bash
+   # SELinux status
+   getenforce
+   
+   # Firewall rules
+   sudo firewall-cmd --list-all
+   ```
+
+3. If still stuck, open an issue with:
+   - Output from validate-environment.sh
+   - Relevant error messages
+   - Your environment details (OS version, tool versions)
+
+## Additional Resources
+
+- [Environment Setup Guide](environment/setup-guide.md) - Detailed environment configuration
+- [Harbor Deployment Guide](harbor/deployment.md) - Complete Harbor setup and configuration
+- [Pipeline Guide](pipeline/setup.md) - Tekton pipeline configuration and usage
+- [Troubleshooting Guide](operations/troubleshooting.md) - Detailed troubleshooting steps
+
+## Support
+
+If you encounter issues:
+
+1. Check the [Troubleshooting Guide](operations/troubleshooting.md)
+2. Review relevant component logs
+3. Open an issue with:
+   - Environment validation output
+   - Relevant error messages
+   - Steps to reproduce 
