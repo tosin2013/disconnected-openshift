@@ -4,33 +4,43 @@
 
 This documentation provides comprehensive guidance for setting up and managing a disconnected OpenShift environment. Each section aligns with our [Architecture Decision Records](adr/) and provides practical implementation details.
 
-## Core Documentation
+## Documentation Structure
 
-### Getting Started
+### Core Documentation
+Essential implementation guides and primary workflows.
+
+#### Getting Started
 - [Requirements](requirements.md) - System and environment requirements
-- [Getting Started Guide](getting-started.md) - Initial setup walkthrough
+- [Getting Started Guide](core/getting-started/getting-started.md) - Initial setup walkthrough
 - [Environment Setup](environment/setup-guide.md) - Detailed environment configuration
 
-### Architecture & Design
-- [System Architecture](architecture/overview.md) - High-level system design
-- [System Integration](system-integration.md) - Component integration details
-- [Disconnected Environment Plan](disconnected-environment-plan.md) - Planning guide
+#### Registry Management
+- [Harbor Deployment Guide](core/registry/deploy-harbor-podman-compose.md) - Harbor registry setup
+- [Pull-through Cache Setup](core/registry/pullthrough-proxy-cache-harbor.md) - Registry caching configuration
 
-### Registry Management
-- [Harbor Deployment](harbor/deployment.md) - Harbor registry setup
-- [Harbor Monitoring](harbor-monitoring.md) - Registry monitoring
-- [Pull-through Cache (Harbor)](pullthrough-proxy-cache-harbor.md) - Harbor cache setup
-- [Pull-through Cache (JFrog)](pullthrough-proxy-cache-jfrog.md) - JFrog cache setup
+#### Automation Platform
+- [AAP Deployment Guide](core/automation/deploy-aap-on-openshift.md) - Ansible Automation Platform setup
+- [Rulebooks Guide](automation/rulebooks.md) - Event-Driven Ansible rulebooks
 
-### Pipeline & Automation
-- [Pipeline Setup](pipeline/setup.md) - Pipeline configuration
-- [Tekton Setup](tekton-setup.md) - Tekton installation and configuration
-- [Workflow Guide](workflow.md) - Development and deployment workflows
-
-### Environment Management
+#### Environment Management
+- [Decision Environments](environment/decision-environments.md) - Decision environment setup and usage
+- [Execution Environments](environment/execution-environments.md) - Execution environment configuration
 - [Development Workflow](environment/development-workflow.md) - Developer guide
 - [Deployment Operations](environment/deployment-operations.md) - Operations guide
 - [Dependency Management](environment/dependency-management.md) - Managing dependencies
+
+### Reference Documentation
+Additional implementation details, alternatives, and standards.
+
+#### Alternative Implementations
+- [JFrog Cache Setup](reference/alternative-implementations/pullthrough-proxy-cache-jfrog.md) - Alternative caching with JFrog
+- [JFrog Deployment](reference/alternative-implementations/deploy-jfrog-podman.md) - JFrog container registry setup
+
+#### Monitoring
+- [Harbor Monitoring](reference/monitoring/harbor-monitoring.md) - Registry monitoring setup
+
+#### Standards
+- [YAML Standards](reference/standards/yaml-standards.md) - YAML file formatting and structure
 
 ## Missing Documentation (TODO)
 
@@ -66,7 +76,7 @@ This documentation provides comprehensive guidance for setting up and managing a
 
 ## Documentation Standards
 
-All documentation should follow our [YAML Standards](yaml-standards.md) and maintain consistent formatting. For documentation generation guidelines, see [Documentation Generation](documentation-generation.md).
+All documentation should follow our [YAML Standards](reference/standards/yaml-standards.md) and maintain consistent formatting. For documentation generation guidelines, see [Documentation Generation](documentation-generation.md).
 
 ## Contributing
 
@@ -81,23 +91,33 @@ To contribute to the documentation:
 
 ```mermaid
 graph TD
-    A[Getting Started] --> B[Environment Setup]
-    B --> C[Registry Setup]
-    B --> D[Pipeline Setup]
-    C --> E[Operations]
-    D --> E
-    E --> F[Monitoring]
+    subgraph Core Documentation
+        A[Getting Started] --> B[Environment Setup]
+        B --> C[Registry Setup]
+        B --> D[Automation Platform]
+        C --> E[Operations]
+        D --> E
+    end
     
-    G[Security] -.-> C
-    G -.-> D
-    H[GitOps] -.-> E
-    I[KCLI] -.-> B
+    subgraph Reference
+        F[Standards] -.-> B
+        G[Alternative Implementations] -.-> C
+        H[Monitoring] -.-> E
+    end
     
-    style G stroke-dasharray: 5 5
-    style H stroke-dasharray: 5 5
+    subgraph Planned
+        I[Security] -.-> B
+        J[GitOps] -.-> E
+        K[KCLI] -.-> B
+        L[Binary Management] -.-> C
+    end
+    
     style I stroke-dasharray: 5 5
+    style J stroke-dasharray: 5 5
+    style K stroke-dasharray: 5 5
+    style L stroke-dasharray: 5 5
 ```
 
 Legend:
 - Solid lines: Existing documentation
-- Dashed lines: Planned documentation 
+- Dashed lines: Reference or planned documentation 
