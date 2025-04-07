@@ -1,19 +1,42 @@
 # Disconnected OpenShift PoC Guide
 
 ## Overview
-This guide implements a Proof of Concept (PoC) environment for a disconnected OpenShift cluster with Harbor registry, Event-Driven Ansible automation, and comprehensive monitoring. 
+This guide implements a Proof of Concept (PoC) environment for a disconnected OpenShift cluster with registry options, automation, and comprehensive monitoring.
 
-### Reference Architecture Documents
-**Location**: `docs/adr/`
-- Project Structure: `docs/adr/0001-project-structure.md`
-- Registry Architecture: `docs/adr/0002-registry-architecture.md`
-- Automation Framework: `docs/adr/0005-automation-framework.md`
-- Monitoring and Troubleshooting: `docs/adr/0010-monitoring-troubleshooting.md`
+### Project Structure
+```bash
+.
+├── binaries/              # Required binary tools
+├── docs/                  # Documentation
+├── execution-environments/ # Ansible execution environments
+├── extras/               # Additional resources
+├── gitops/               # GitOps configurations
+├── installation-examples/ # Example installations
+├── openshift-release/    # OpenShift release artifacts
+├── playbooks/           # Ansible playbooks
+├── post-install-config/  # Post-installation configuration
+├── quay/                # Quay registry configuration
+├── rhcos/               # Red Hat CoreOS artifacts
+├── rulebooks/           # Event-Driven Ansible rulebooks
+├── scripts/             # Utility scripts
+├── static/              # Static resources
+└── tekton/              # Tekton pipelines and tasks
+```
 
-## Step 0: Environment Setup
-**Location**: `scripts/validation/`
+## Step 0: Environment Preparation - Test Completed
+**Location**: `scripts/validation/` and `binaries/`
 
-### Prerequisites Validation
+### 0.1 Binary Setup
+- Required Tools: `binaries/`
+  - OpenShift Client
+  - Tekton CLI
+  - Other utilities
+```bash
+# Setup required binaries
+./scripts/setup/install-binaries.sh
+```
+
+### 0.2 Prerequisites Validation
 1. Hardware Requirements Check
    - Script: `scripts/validation/check-hardware.sh`
    ```bash
@@ -37,8 +60,8 @@ This guide implements a Proof of Concept (PoC) environment for a disconnected Op
    ./scripts/validation/verify-dns.sh
    ```
 
-## Step 1: Registry Options
-**Location**: `quay/`
+## Step 1: Registry Selection and Setup
+**Location**: `quay/` or `playbooks/harbor/`
 
 ### 1.1 Quay Configuration
 - Base Files:
@@ -46,6 +69,10 @@ This guide implements a Proof of Concept (PoC) environment for a disconnected Op
   - Quay Instance: `quay/quay-instance.yml`
 
 ```bash
+# Deploy Quay operator
+oc apply -f quay/quay-operator.yml
+# Deploy Quay registry namespace
+oc apply -f quay/quay-registry-namespace.yaml
 # Deploy Quay configuration secret
 oc apply -f quay/config-secret.yml
 
@@ -69,76 +96,34 @@ During the PoC, we have two registry options:
 Choose the appropriate registry based on your PoC requirements.
 
 ## Step 2: OpenShift Installation
-**Location**: `playbooks/openshift/`
+**Location**: `openshift-release/` and `rhcos/`
 
-### 2.1 Image Mirroring
-- Config: `gitops/common/image-mirrors/`
-- Script: `scripts/openshift/mirror-images.sh`
+### 2.1 RHCOS Configuration
+- Base Images: `rhcos/`
+- Configuration: `rhcos/config/`
 ```bash
-# Mirror OpenShift images
-./scripts/openshift/mirror-images.sh
+# Configure RHCOS
+./scripts/rhcos/configure-rhcos.sh
 ```
 
-### 2.2 Cluster Deployment
-- Config: `config/openshift/install-config.yaml`
-- Script: `scripts/openshift/deploy-cluster.sh`
+### 2.2 OpenShift Release
+- Release Files: `openshift-release/`
+- Mirror Configuration: `openshift-release/mirror/`
+
+## Step 3: Post-Installation Configuration
+**Location**: `post-install-config/`
+
+### 3.1 Base Configuration
+- Network Setup
+- Storage Configuration
+- Security Settings
 ```bash
-# Deploy OpenShift cluster
-./scripts/openshift/deploy-cluster.sh
-```
-
-## Step 3: Operator Deployment
-**Location**: `gitops/operators/`
-
-### 3.1 OpenShift Pipelines
-**Location**: `tekton/`
-- Base Configuration:
-  - Namespace Config: `tekton/kConfig-namespace.yml`
-  - Kustomization: `tekton/kustomization.yml`
-  - Documentation: `tekton/README.md`
-
-- Components:
-  - Tasks: `tekton/tasks/`
-    - Base Tasks
-    - Custom Tasks
-    - Shared Resources
-  - Pipelines: `tekton/pipelines/`
-    - Pipeline Definitions
-    - Pipeline Resources
-  - Pipeline Runs: `tekton/pipeline-runs/`
-    - Example Runs
-    - Templates
-  - Configuration: `tekton/config/`
-    - Global Settings
-    - Environment Variables
-  - Containers: `tekton/containers/`
-    - Custom Task Containers
-    - Builder Images
-
-```bash
-# Deploy Tekton base configuration
-oc apply -k tekton/
-
-# Deploy pipeline tasks
-oc apply -f tekton/tasks/
-
-# Deploy pipelines
-oc apply -f tekton/pipelines/
-
-# Deploy example pipeline runs
-oc apply -f tekton/pipeline-runs/
-```
-
-### 3.2 Ansible Automation Platform
-- Subscription: `gitops/operators/aap/subscription.yaml`
-- Config: `gitops/operators/aap/controller.yaml`
-```bash
-# Deploy AAP operator
-oc apply -f gitops/operators/aap/
+# Apply post-install configuration
+./scripts/post-install/configure-cluster.sh
 ```
 
 ## Step 4: Automation Setup
-**Location**: `decision-environments/` and `rulebooks/`
+**Location**: `execution-environments/` and `rulebooks/`
 
 ### 4.1 Event-Driven Ansible
 - Environment: `decision-environments/auto-mirror-image/`
@@ -204,11 +189,22 @@ oc apply -f gitops/operators/aap/
   ./scripts/automation/setup-builders.sh
   ```
 
-## Step 5: GitOps Implementation
+## Step 5: Example Implementations
+**Location**: `installation-examples/`
+
+### 5.1 Reference Architectures
+- Basic Setup: `installation-examples/basic/`
+- Enterprise Setup: `installation-examples/enterprise/`
+```bash
+# Deploy example configuration
+./scripts/examples/deploy-example.sh basic
+```
+
+## Step 6: GitOps Implementation
 **Location**: `gitops/`
 - Documentation: `gitops/README.md`
 
-### 5.1 GitOps Structure Setup
+### 6.1 GitOps Structure Setup
 - Base Configuration:
   - Common Resources: `gitops/common/`
   - Environment Specific: `gitops/environments/`
@@ -218,7 +214,7 @@ oc apply -f gitops/operators/aap/
 ./scripts/gitops/init-gitops.sh
 ```
 
-### 5.2 ArgoCD Deployment
+### 6.2 ArgoCD Deployment
 **Location**: `gitops/argocd/`
 - Operator: `gitops/operators/argocd/subscription.yaml`
 - Configuration: `gitops/argocd/config/`
@@ -230,7 +226,7 @@ oc apply -f gitops/operators/argocd/
 oc apply -f gitops/argocd/config/
 ```
 
-### 5.3 Repository Structure
+### 6.3 Repository Structure
 **Location**: `gitops/common/`
 - Image Mirrors: `gitops/common/image-mirrors/`
   - Harbor sync configurations
@@ -246,7 +242,7 @@ oc apply -f gitops/argocd/config/
 oc apply -k gitops/common/
 ```
 
-### 5.4 Environment Configuration
+### 6.4 Environment Configuration
 **Location**: `gitops/environments/`
 - Development: `gitops/environments/dev/`
 - Production: `gitops/environments/prod/`
@@ -256,7 +252,7 @@ oc apply -k gitops/common/
 oc apply -k gitops/environments/shared/
 ```
 
-### 5.5 Application Deployment
+### 6.5 Application Deployment
 **Location**: `gitops/applications/`
 - Base Applications: `gitops/applications/base/`
 - Overlays: `gitops/applications/overlays/`
@@ -265,10 +261,10 @@ oc apply -k gitops/environments/shared/
 oc apply -k gitops/applications/overlays/dev/
 ```
 
-## Step 6: Registry Integration
+## Step 7: Registry Integration
 **Location**: `gitops/registry/`
 
-### 6.1 Internal Registry Setup
+### 7.1 Internal Registry Setup
 - Config: `gitops/registry/internal/config.yaml`
 - ImageStreams: `gitops/registry/imagestreams/`
 ```bash
@@ -276,7 +272,7 @@ oc apply -k gitops/applications/overlays/dev/
 oc apply -f gitops/registry/internal/
 ```
 
-### 6.2 Harbor Integration
+### 7.2 Harbor Integration
 - Config: `gitops/registry/harbor/sync.yaml`
 - Scripts: `scripts/registry/sync-images.sh`
 ```bash
@@ -284,10 +280,10 @@ oc apply -f gitops/registry/internal/
 ./scripts/registry/sync-images.sh
 ```
 
-## Step 7: Monitoring Configuration
+## Step 8: Monitoring Configuration
 **Location**: `gitops/monitoring/`
 
-### 7.1 Prometheus Setup
+### 8.1 Prometheus Setup
 - Rules: `gitops/monitoring/prometheus/rules/`
 - Config: `gitops/monitoring/prometheus/config/`
 ```bash
@@ -295,7 +291,7 @@ oc apply -f gitops/registry/internal/
 oc apply -f gitops/monitoring/prometheus/
 ```
 
-### 7.2 Grafana Setup
+### 8.2 Grafana Setup
 - Dashboards: `gitops/monitoring/grafana/dashboards/`
 - Config: `gitops/monitoring/grafana/config/`
 ```bash
@@ -303,10 +299,10 @@ oc apply -f gitops/monitoring/prometheus/
 oc apply -f gitops/monitoring/grafana/
 ```
 
-## Step 8: Validation and Testing
+## Step 9: Validation and Testing
 **Location**: `scripts/validation/`
 
-### 8.1 Component Testing
+### 9.1 Component Testing
 - Scripts: 
   - `scripts/validation/test-harbor.sh`
   - `scripts/validation/test-pipelines.sh`
@@ -316,7 +312,7 @@ oc apply -f gitops/monitoring/grafana/
 ./scripts/validation/run-all-tests.sh
 ```
 
-### 8.2 Integration Testing
+### 9.2 Integration Testing
 - Scripts: `scripts/validation/integration-tests/`
 - Config: `config/tests/integration.yaml`
 ```bash
@@ -324,10 +320,10 @@ oc apply -f gitops/monitoring/grafana/
 ./scripts/validation/run-integration-tests.sh
 ```
 
-## Step 9: Maintenance Setup
+## Step 10: Maintenance Setup
 **Location**: `scripts/maintenance/`
 
-### 9.1 Backup Configuration
+### 10.1 Backup Configuration
 - Scripts: `scripts/maintenance/backup/`
 - Config: `config/backup/backup.yaml`
 ```bash
@@ -335,7 +331,7 @@ oc apply -f gitops/monitoring/grafana/
 ./scripts/maintenance/configure-backups.sh
 ```
 
-### 9.2 Update Procedures
+### 10.2 Update Procedures
 - Scripts: `scripts/maintenance/updates/`
 - Config: `config/updates/update.yaml`
 ```bash
@@ -474,3 +470,19 @@ oc apply -f gitops/monitoring/grafana/
    - Cost assessment
    - Support evaluation
    - Final recommendation
+
+## Additional Resources
+**Location**: `extras/`
+
+### Extra Components
+- Additional Tools: `extras/tools/`
+- Optional Features: `extras/features/`
+- Reference Scripts: `extras/scripts/`
+
+### Example Configurations
+- Sample Files: `extras/samples/`
+- Templates: `extras/templates/`
+```bash
+# Deploy additional components
+./scripts/extras/deploy-component.sh monitoring
+```
