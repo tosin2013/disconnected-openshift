@@ -10,7 +10,7 @@ USER 0
 # Update system packages and install needed tools via dnf and pip
 RUN dnf update -y \
  && dnf copr enable nmstate/nmstate-git -y \
- && dnf install -y git wget nmstate tar jq python3-pip python3-devel nano bash-completion \
+ && dnf install -y git wget nmstate tar jq python3-pip python3-devel nano bash-completion sos \
  && python3 -m pip install ansible jmespath nmstate \
  && ansible-galaxy collection install community.general \
  && ansible-galaxy collection install community.crypto \
