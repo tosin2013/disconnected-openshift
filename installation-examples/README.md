@@ -4,24 +4,31 @@ For disconnected installations, you're largely going to use the same `install-co
 
 There are common concerns listed right below, and then there are some specific configuration changes you'll need depending on how you're deploying OCP which is found below and in the accompanying YAML manifests.
 
-- [Installation Examples](#installation-examples)
-  - [Common/General Disconnected Configuration](#commongeneral-disconnected-configuration)
-    - [Pull Secret](#pull-secret)
-    - [Additional Root CA Certificates](#additional-root-ca-certificates)
-    - [Outbound HTTP Proxy](#outbound-http-proxy)
-    - [Container Registry Mirrors](#container-registry-mirrors)
-    - [NTP](#ntp)
-  - [Per Provider - vSphere IPI/UPI](#per-provider---vsphere-ipiupi)
-  - [Per Provider - OpenStack IPI/UPI](#per-provider---openstack-ipiupi)
-  - [Per Provider - Bare Metal IPI/UPI](#per-provider---bare-metal-ipiupi)
-  - [Per Provider - Nutanix IPI/UPI](#per-provider---nutanix-ipiupi)
-  - [Per Provider - Agent Based Installer](#per-provider---agent-based-installer)
+- [Common/General Disconnected Configuration](#commongeneral-disconnected-configuration)
+  - [Pull Secret](#pull-secret)
+  - [Additional Root CA Certificates](#additional-root-ca-certificates)
+  - [Outbound HTTP Proxy](#outbound-http-proxy)
+  - [Container Registry Mirrors](#container-registry-mirrors)
+  - [NTP](#ntp)
+- [Per Provider - vSphere IPI/UPI](#per-provider---vsphere-ipiupi)
+- [Per Provider - OpenStack IPI/UPI](#per-provider---openstack-ipiupi)
+- [Per Provider - Bare Metal IPI/UPI](#per-provider---bare-metal-ipiupi)
+- [Per Provider - Nutanix IPI/UPI](#per-provider---nutanix-ipiupi)
+- [Per Provider - Agent Based Installer](#per-provider---agent-based-installer)
+- [Hosted Control Plane Examples](#hosted-control-plane-examples)
+  - [Additional Trust Bundle](#additional-trust-bundle)
+  - [Container Mirror Configuration](#container-mirror-configuration)
+  - [Pull Secret \& Release Images](#pull-secret--release-images)
+  - [NTP](#ntp-1)
+  - [Outbound Proxy Configuration](#outbound-proxy-configuration)
 
 ## Common/General Disconnected Configuration
 
 No matter what installation method you use, if it starts with an `install-config.yaml` like with IPI/UPI/ABI then you'll find some common configuration needing to be set.
 
 ### Pull Secret
+
+> For IPI/UPI/ABI
 
 Not much to this - make sure your combined pull secret has the credentials provided by Red Hat as well as the ones needed to access any private container image registries.
 
@@ -41,6 +48,8 @@ pullSecret: '{"auths":{"registry.example.com":{"auth":"bigLongBase64String"}, "q
 You can find a script in [./scripts/join-auths.sh](../scripts/join-auths.sh) that can take two pull secret files and join them for you.
 
 ### Additional Root CA Certificates
+
+> For IPI/UPI/ABI
 
 In case your container image registry/proxy/etc service has a TLS/SSL certificate that is signed by a custom/internal Root CA that is not part of the standard `ca-certificates` Linux system package, you'll need to provide the Root CA to the installer to trust.
 
@@ -88,6 +97,8 @@ additionalTrustBundle: |
 
 ### Outbound HTTP Proxy
 
+> For IPI/UPI/ABI
+
 In case you're just accessing things through an Outbound HTTP Proxy, you'll need to pass along that configuration as well:
 
 ```yaml
@@ -109,6 +120,8 @@ proxy:
 ```
 
 ### Container Registry Mirrors
+
+> For IPI/UPI/ABI
 
 When using a private container image registry, you'll need to tell the OpenShift Installer where to pull images from instead of the default sources.
 
@@ -161,9 +174,11 @@ imageContentSources:
 
 ### NTP
 
+> For non-baremetal IPI/UPI - see below for ABI, Baremetal IPI/UPI, or HCP
+
 A commonly overlooked detail, but critical to successful installations and happy clusters.
 
-By default, RHCOS will use public NTP pools
+By default, RHCOS will use public NTP pools.
 
 In case your NTP is not provided to your infrastructure via DHCP, you'll need to craft a MachineConfig and provide it as an additional manifest to the IPI/UPI installation.  Additional details can be found here: https://docs.openshift.com/container-platform/4.18/installing/installing_bare_metal/upi/installing-restricted-networks-bare-metal.html#installation-special-config-chrony_installing-restricted-networks-bare-metal
 
@@ -332,3 +347,243 @@ additionalNTPSources:
 ```
 
 Once the ISO is generated, you could automate bare metal system booting via Redfish like with this: https://github.com/kenmoini/ansible-redfish
+
+---
+
+## Hosted Control Plane Examples
+
+In case you're not using IPI/UPI/ABI and you're using the ever-wonderful goodness that is Hosted Control Planes, then you have a whole totally different set of YAML manifests to modify for disconnected deployments.
+
+Many of the cluster-level configuration parameters such as MachineConfigs are passed to HostedClusters via ConfigMaps and referenced in the NodePool CRs:
+
+```yaml
+---
+apiVersion: hypershift.openshift.io/v1beta1
+kind: NodePool
+metadata:
+  name: 'kiddie-pool'
+  namespace: 'clusters'
+spec:
+  config:
+    - name: 'config-imagemirrors'
+    - name: 'img-tag-override'
+    - name: '999-chronyd-config'
+  # ... other NodePool config ...
+```
+
+### Additional Trust Bundle
+
+To define additional Root CA Certs for the HCP cluster to trust, add them in a ConfigMap - there is the general `ca-bundle.crt` key for system-wide trusted certs, and then individual ones for the Image CR, you can put them all in a single ConfigMap like so:
+
+```yaml
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: user-ca-bundle
+  namespace: 'clusters'
+  #labels:
+  #  config.openshift.io/inject-trusted-cabundle: 'true'
+data:
+  ca-bundle.crt: |
+    -----BEGIN CERTIFICATE-----
+    MIIH....
+    -----END CERTIFICATE-----
+    -----BEGIN CERTIFICATE-----
+    MIIH....other root cert
+    -----END CERTIFICATE-----
+    -----BEGIN CERTIFICATE-----
+    MIIH....third root cert
+    -----END CERTIFICATE-----
+  quay-ptc.jfrog.lab.kemo.network: |
+    -----BEGIN CERTIFICATE-----
+    MIIH....
+    -----END CERTIFICATE-----
+  registry-redhat-ptc.jfrog.lab.kemo.network: |
+    -----BEGIN CERTIFICATE-----
+    MIIH....
+    -----END CERTIFICATE-----
+```
+
+Then reference that ConfigMap in the HostedCluster CR:
+
+```yaml
+---
+apiVersion: hypershift.openshift.io/v1beta1
+kind: HostedCluster
+metadata:
+  name: 'hypershift-virt'
+  namespace: 'clusters'
+  labels:
+    "cluster.open-cluster-management.io/clusterset": 'default'
+spec:
+  # ========================================================================================
+  # Additional Trust Bundle Configuration
+  # ========================================================================================
+  # .spec.additionalTrustBundle applies extra root CAs to the HCP nodes and cluster services
+  additionalTrustBundle:
+    name: user-ca-bundle
+  # .spec.configuration.image.additionalTrustedCA applies trusted Roots for image registries
+  configuration:
+    image:
+      additionalTrustedCA:
+        name: user-ca-bundle
+```
+
+### Container Mirror Configuration
+
+To define your image registry mirrors, you more or less just put an IDMS/ITMS objects into a ConfigMap and call it a day - pretty much like you would do for any other MachineConfig for HCP:
+
+```yaml
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: config-imagemirrors
+data:
+  config: |
+    apiVersion: config.openshift.io/v1
+    kind: ImageDigestMirrorSet
+    metadata:
+      name: image-digest-mirror
+    spec:
+      imageDigestMirrors:
+        # Remember, the ocp-release and ocp-v4.0-art-dev definitions are required
+        - mirrors:
+            - quay-ptc.jfrog.lab.kemo.network/openshift-release-dev/ocp-release
+          source: quay.io/openshift-release-dev/ocp-release
+        - mirrors:
+            - quay-ptc.jfrog.lab.kemo.network/openshift-release-dev/ocp-v4.0-art-dev
+          source: quay.io/openshift-release-dev/ocp-v4.0-art-dev
+        - mirrors:
+            - quay-ptc.jfrog.lab.kemo.network
+          source: quay.io
+        - mirrors:
+            - registry-redhat-ptc.jfrog.lab.kemo.network
+          source: registry.redhat.io
+        - mirrors:
+            - registry-connect-redhat-ptc.jfrog.lab.kemo.network
+          source: registry.connect.redhat.com
+        - mirrors:
+            - registry-access-redhat-ptc.jfrog.lab.kemo.network
+          source: registry.access.redhat.com
+```
+
+...and another place to add the mirrors is in the HostedCluster CR:
+
+```yaml
+---
+apiVersion: hypershift.openshift.io/v1beta1
+kind: HostedCluster
+metadata:
+  name: 'hypershift-virt'
+  namespace: 'clusters'
+  labels:
+    "cluster.open-cluster-management.io/clusterset": 'default'
+spec:
+  # ========================================================================================
+  # Disconnected/Private Registry Configuration
+  # ========================================================================================
+  imageContentSources:
+  - source: quay.io/openshift-release-dev/ocp-v4.0-art-dev
+    mirrors:
+      - quay-ptc.jfrog.lab.kemo.network/openshift-release-dev/ocp-v4.0-art-dev
+  - source: quay.io/openshift-release-dev/ocp-release
+    mirrors:
+      - quay-ptc.jfrog.lab.kemo.network/openshift-release-dev/ocp-release
+  - source: quay.io
+    mirrors:
+      - quay-ptc.jfrog.lab.kemo.network
+  - source: registry.redhat.io
+    mirrors:
+      - registry-redhat-ptc.jfrog.lab.kemo.network
+  - source: registry.connect.redhat.com
+    mirrors:
+      - registry-connect-redhat-ptc.jfrog.lab.kemo.network
+```
+
+### Pull Secret & Release Images
+
+For HCP clusters to start from a mirror registry, the release image has to be defined in the HostedCluster CR:
+
+```yaml
+---
+apiVersion: hypershift.openshift.io/v1beta1
+kind: HostedCluster
+metadata:
+  name: 'hypershift-virt'
+  namespace: 'clusters'
+  labels:
+    "cluster.open-cluster-management.io/clusterset": 'default'
+spec:
+  # OpenShift Release Image location
+  release:
+    # Disconnected/Mirror registry
+    image: quay-ptc.jfrog.lab.kemo.network/openshift-release-dev/ocp-release:4.17.12-x86_64
+  # Make sure the Pull Secret has access to all registries, Red Hat and private
+  pullSecret:
+    name: pull-secret
+```
+
+### NTP
+
+Much like other install methods, you'll probably need to override the default public RHEL NTP pools if you're deploying HCP.  Guess what?  This is also another MachineConfig stuffed in a ConfigMap!
+
+```yaml
+# pool ntp.kemo.labs iburst
+# driftfile /var/lib/chrony/drift
+# makestep 1.0 3
+# rtcsync
+# logdir /var/log/chrony
+
+# cG9vbCBudHAua2Vtby5sYWJzIGlidXJzdApkcmlmdGZpbGUgL3Zhci9saWIvY2hyb255L2RyaWZ0Cm1ha2VzdGVwIDEuMCAzCnJ0Y3N5bmMKbG9nZGlyIC92YXIvbG9nL2Nocm9ueQo=
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: 999-chronyd-config
+  namespace: clusters
+data:
+  config: |
+    apiVersion: machineconfiguration.openshift.io/v1
+    kind: MachineConfig
+    metadata:
+      labels:
+        machineconfiguration.openshift.io/role: worker
+      name: 999-chronyd-config
+    spec:
+      config:
+        ignition:
+          version: 3.2.0
+        storage:
+          files:
+          - contents:
+              source: data:text/plain;charset=utf-8;base64,cG9vbCBudHAua2Vtby5sYWJzIGlidXJzdApkcmlmdGZpbGUgL3Zhci9saWIvY2hyb255L2RyaWZ0Cm1ha2VzdGVwIDEuMCAzCnJ0Y3N5bmMKbG9nZGlyIC92YXIvbG9nL2Nocm9ueQo=
+            mode: 420
+            overwrite: true
+            path: /etc/chrony.conf
+```
+
+### Outbound Proxy Configuration
+
+If you're using an Outbound HTTP Proxy for installation, you define that in the HostedCluster CR:
+
+```yaml
+---
+apiVersion: hypershift.openshift.io/v1beta1
+kind: HostedCluster
+metadata:
+  name: 'hypershift-virt'
+  namespace: 'clusters'
+  labels:
+    "cluster.open-cluster-management.io/clusterset": 'default'
+spec:
+  # ========================================================================================
+  # Outbound Proxy Configuration
+  # ========================================================================================
+  proxy:
+    httpProxy: http://proxy.kemo.labs:3128
+    httpsProxy: http://proxy.kemo.labs:3128
+    noProxy: '.kemo.labs,.kemo.network,.local,.svc,localhost,127.0.0.1,192.168.0.0/16,172.16.0.0/12,10.0.0.0/8'
+````

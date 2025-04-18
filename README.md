@@ -36,7 +36,7 @@ This repository is meant to make all that easier.  It features:
 3. [Obtain RHCOS assets](./rhcos/)
 4. [Deploy OpenShift - Disconnected Installation Examples](./installation-examples/)
 5. [Post-Install Configuration (Root CAs, Proxy, Image mirrors, etc)](./post-install-config/)
-6. Mirroring Operators
+6. Operator Management
 7. Creating an Update Graph Container
 8. Using custom CatalogSources
 9. Deploying the OpenShift Update Service Operator
