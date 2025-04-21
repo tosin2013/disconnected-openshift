@@ -6,6 +6,24 @@ FROM registry.access.redhat.com/ubi9/ubi:latest
 
 RUN curl -L -o cincinnati-graph-data.tar.gz https://api.openshift.com/api/upgrades_info/graph-data
 
-RUN mkdir -p /var/lib/cincinnati-graph-data && tar xvzf cincinnati-graph-data.tar.gz -C /var/lib/cincinnati-graph-data/ --no-overwrite-dir --no-same-owner
+# The following command is used to extract the graph data tarball and remove unwanted channels/versions
+RUN mkdir -p /var/lib/cincinnati-graph-data && tar xvzf cincinnati-graph-data.tar.gz -C /var/lib/cincinnati-graph-data/ --no-overwrite-dir --no-same-owner \
+ && rm -vf /var/lib/cincinnati-graph-data/channels/candidate* \
+ && rm -vf /var/lib/cincinnati-graph-data/channels/fast* \
+ && rm -vf /var/lib/cincinnati-graph-data/channels/pre* \
+ && rm -vf /var/lib/cincinnati-graph-data/channels/*-4.1.yaml \
+ && rm -vf /var/lib/cincinnati-graph-data/channels/*-4.2.yaml \
+ && rm -vf /var/lib/cincinnati-graph-data/channels/*-4.3.yaml \
+ && rm -vf /var/lib/cincinnati-graph-data/channels/*-4.4.yaml \
+ && rm -vf /var/lib/cincinnati-graph-data/channels/*-4.5.yaml \
+ && rm -vf /var/lib/cincinnati-graph-data/channels/*-4.6.yaml \
+ && rm -vf /var/lib/cincinnati-graph-data/channels/*-4.7.yaml \
+ && rm -vf /var/lib/cincinnati-graph-data/channels/*-4.8.yaml \
+ && rm -vf /var/lib/cincinnati-graph-data/channels/*-4.9.yaml \
+ && rm -vf /var/lib/cincinnati-graph-data/channels/*-4.10.yaml \
+ && rm -vf /var/lib/cincinnati-graph-data/channels/*-4.11.yaml \
+ && rm -vf /var/lib/cincinnati-graph-data/channels/*-4.12.yaml \
+ && rm -vf /var/lib/cincinnati-graph-data/channels/*-4.13.yaml \
+ && rm -vf /var/lib/cincinnati-graph-data/channels/*-4.14.yaml
 
 CMD ["/bin/bash", "-c" ,"exec cp -rp /var/lib/cincinnati-graph-data/* /var/lib/cincinnati/graph-data"]
