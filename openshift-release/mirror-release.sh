@@ -51,7 +51,7 @@ if [ "${MIRROR_METHOD}" == "direct" ]; then echo "> Local Registry: ${LOCAL_REGI
 if [ "${MIRROR_METHOD}" == "file" ]; then echo "> Save Path: ${TARGET_SAVE_PATH}" && echo "> Mirror Direction: ${MIRROR_DIRECTION}"; fi
 echo "> Dry Run: ${DRY_RUN}"
 
-MIRROR_CMD="oc adm release mirror ${EXTRA_OC_ARGS} -a ${AUTH_FILE} --print-mirror-instructions=none --from=${UPSTREAM_REGISTRY}/${UPSTREAM_PATH}:${OCP_RELEASE}-${ARCHITECTURE}"
+MIRROR_CMD="oc adm release mirror ${EXTRA_OC_ARGS} -a ${AUTH_FILE} --from=${UPSTREAM_REGISTRY}/${UPSTREAM_PATH}:${OCP_RELEASE}-${ARCHITECTURE}"
 if [ "${MIRROR_METHOD}" == "direct" ]; then MIRROR_CMD="${MIRROR_CMD} --to=${OCP_BASE_REGISTRY_PATH} --to-release-image=${OCP_BASE_REGISTRY_PATH}:${OCP_RELEASE}-${ARCHITECTURE}"; fi
 if [ "${MIRROR_METHOD}" == "file" ]; then
   if [ "${MIRROR_DIRECTION}" == "download" ]; then MIRROR_CMD="${MIRROR_CMD} --to-dir=${TARGET_SAVE_PATH}"; fi
