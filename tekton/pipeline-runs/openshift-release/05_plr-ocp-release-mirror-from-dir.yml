@@ -43,7 +43,7 @@ spec:
         items:
           - key: .dockerconfigjson
             path: auth.json
-        secretName: container-reg-auth
+        secretName: combined-reg-secret
 
 # Optional in case you're pulling from a private repository and/or need to use a proxy
     - configMap:

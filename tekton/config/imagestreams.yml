@@ -8,5 +8,11 @@ metadata:
 apiVersion: image.openshift.io/v1
 kind: ImageStream
 metadata:
+  name: ocp-release-tools
+  namespace: openshift
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
   name: osus-graph-data
   namespace: openshift-update-service

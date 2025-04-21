@@ -131,7 +131,7 @@ spec:
   steps:
     - computeResources: {}
       #image: 'quay.io/kenmoini/ocp-release-utils:6fc5cf7'
-      image: 'image-registry.openshift-image-registry.svc:5000/disconn-ocp-releases/ocp-release-tools:latest'
+      image: 'image-registry.openshift-image-registry.svc:5000/disconn-tekton/ocp-release-tools:latest'
       name: mirror
       script: |
         set -e

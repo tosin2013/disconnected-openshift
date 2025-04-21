@@ -13,6 +13,12 @@ spec:
       value: "4.17.12"
     - name: MIRROR_METHOD
       value: 'direct'
+
+    - name: LOCAL_REGISTRY
+      value: 'quay-quay.quay.svc'
+    - name: LOCAL_REGISTRY_PATH_OCP_RELEASE
+      value: 'disconn-ocp/openshift-releases'
+
     - name: AUTH_FILE
       value: "/tmp/authsecret/auth.json"
     - name: HTTP_PROXY
@@ -39,7 +45,7 @@ spec:
         items:
           - key: .dockerconfigjson
             path: auth.json
-        secretName: container-reg-auth
+        secretName: combined-reg-secret
 
 # Optional in case you're pulling from a private repository and/or need to use a proxy
     - configMap:
