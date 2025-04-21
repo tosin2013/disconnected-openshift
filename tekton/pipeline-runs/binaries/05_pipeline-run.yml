@@ -10,7 +10,7 @@ spec:
   pipelineRef:
     name: ocp-binary-tools
   taskRunTemplate:
-    serviceAccountName: pipeline-internal-reg
+    serviceAccountName: pipeline
   timeouts:
     pipeline: 1h0m0s
   workspaces:

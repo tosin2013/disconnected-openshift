@@ -2,21 +2,24 @@
 apiVersion: tekton.dev/v1
 kind: PipelineRun
 metadata:
-  generateName: ocp-release-tools-
-  #namespace: ocp-release-tools
+  generateName: build-osus-graph-data-
+  #namespace: build-osus-graph-data
   labels:
-    tekton.dev/pipeline: ocp-release-tools
+    tekton.dev/pipeline: build-osus-graph-data
 spec:
+  params:
+    - name: IMAGE
+      value: "image-registry.openshift-image-registry.svc:5000/openshift-update-service/osus-graph-data:latest"
   pipelineRef:
-    name: ocp-release-tools
+    name: build-osus-graph-data
   taskRunTemplate:
-    serviceAccountName: pipeline-internal-reg
+    serviceAccountName: pipeline
   timeouts:
     pipeline: 1h0m0s
   workspaces:
     - name: build
       persistentVolumeClaim:
-        claimName: ocp-release-tools
+        claimName: build-osus-graph-data
 
     - name: authsecret
       secret:

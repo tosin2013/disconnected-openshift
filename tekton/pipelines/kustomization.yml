@@ -6,6 +6,7 @@ kind: Kustomization
 
 resources:
   - build-ocp-release-tools-container.yml
+  - build-osus-graph-data.yml
   - ocp-binary-tools.yml
   - ocp-release-mirror-from-dir.yml
   - ocp-release-mirror-to-dir.yml
