@@ -16,6 +16,7 @@ OCP_RELEASE=${OCP_RELEASE:="4.17.16"}
 
 # Operational flags
 DRY_RUN=${DRY_RUN:="true"}
+EXTRA_OC_ARGS=${EXTRA_OC_ARGS:=""}
 MIRROR_METHOD=${MIRROR_METHOD:="direct"} # direct or file
 MIRROR_DIRECTION=${MIRROR_DIRECTION:="download"} # download or upload, only used when MIRROR_METHOD=file
 
@@ -31,6 +32,7 @@ OCP_BASE_REGISTRY_PATH="${LOCAL_REGISTRY}/${LOCAL_REGISTRY_PATH_OCP_RELEASE}"
 TARGET_SAVE_PATH=${TARGET_SAVE_PATH:="/tmp/ocp-mirror-${OCP_RELEASE}"} # Only used if MIRROR_METHOD=file
 PRODUCT_REPO="openshift-release-dev"
 RELEASE_NAME="ocp-release"
+UPSTREAM_REGISTRY=${UPSTREAM_REGISTRY=:"quay.io"}
 UPSTREAM_PATH="${PRODUCT_REPO}/${RELEASE_NAME}"
 
 # Check for needed binaries
@@ -49,12 +51,12 @@ if [ "${MIRROR_METHOD}" == "direct" ]; then echo "> Local Registry: ${LOCAL_REGI
 if [ "${MIRROR_METHOD}" == "file" ]; then echo "> Save Path: ${TARGET_SAVE_PATH}" && echo "> Mirror Direction: ${MIRROR_DIRECTION}"; fi
 echo "> Dry Run: ${DRY_RUN}"
 
-MIRROR_CMD="oc adm release mirror -a ${AUTH_FILE} --print-mirror-instructions=none --from=quay.io/${UPSTREAM_PATH}:${OCP_RELEASE}-${ARCHITECTURE}"
+MIRROR_CMD="oc adm release mirror ${EXTRA_OC_ARGS} -a ${AUTH_FILE} --print-mirror-instructions=none --from=${UPSTREAM_REGISTRY}/${UPSTREAM_PATH}:${OCP_RELEASE}-${ARCHITECTURE}"
 if [ "${MIRROR_METHOD}" == "direct" ]; then MIRROR_CMD="${MIRROR_CMD} --to=${OCP_BASE_REGISTRY_PATH} --to-release-image=${OCP_BASE_REGISTRY_PATH}:${OCP_RELEASE}-${ARCHITECTURE}"; fi
 if [ "${MIRROR_METHOD}" == "file" ]; then
   if [ "${MIRROR_DIRECTION}" == "download" ]; then MIRROR_CMD="${MIRROR_CMD} --to-dir=${TARGET_SAVE_PATH}"; fi
   if [ "${MIRROR_DIRECTION}" == "upload" ]; then
-    MIRROR_CMD="oc image mirror -a ${AUTH_FILE} --skip-missing --from-dir=${TARGET_SAVE_PATH}"
+    MIRROR_CMD="oc image mirror ${EXTRA_OC_ARGS} -a ${AUTH_FILE} --skip-missing --from-dir=${TARGET_SAVE_PATH}"
     MIRROR_CMD="${MIRROR_CMD} \"file://openshift/release:${OCP_RELEASE}*\" ${LOCAL_REGISTRY}/${LOCAL_REGISTRY_PATH_OCP_RELEASE}"
   fi
   

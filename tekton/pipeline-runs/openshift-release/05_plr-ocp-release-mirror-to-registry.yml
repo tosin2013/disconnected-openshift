@@ -15,9 +15,14 @@ spec:
       value: 'direct'
 
     - name: LOCAL_REGISTRY
-      value: 'quay-quay.quay.svc'
+      value: 'quay-quay-app.quay.svc.cluster.local:80'
     - name: LOCAL_REGISTRY_PATH_OCP_RELEASE
       value: 'disconn-ocp/openshift-releases'
+
+    - name: EXTRA_OC_ARGS
+      value: '--insecure'
+    - name: TLS_VERIFY
+      value: 'false'
 
     - name: AUTH_FILE
       value: "/tmp/authsecret/auth.json"

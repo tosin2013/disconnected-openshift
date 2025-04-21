@@ -17,6 +17,10 @@ spec:
       description: Perform a dry run test or not
       default: 'true'
       type: string
+    - name: EXTRA_OC_ARGS
+      description: Extra prepended arguments to the oc command
+      default: ''
+      type: string
     - name: MIRROR_METHOD
       default: 'direct'
       description: Method to mirror - either direct or file
@@ -59,6 +63,8 @@ spec:
           value: "$(params.AUTH_FILE)"
         - name: DRY_RUN
           value: "$(params.DRY_RUN)"
+        - name: EXTRA_OC_ARGS
+          value: "$(params.EXTRA_OC_ARGS)"
         - name: MIRROR_METHOD
           value: "$(params.MIRROR_METHOD)"
         - name: LOCAL_REGISTRY
