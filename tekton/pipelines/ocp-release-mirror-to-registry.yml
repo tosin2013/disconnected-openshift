@@ -13,6 +13,10 @@ spec:
       default: '4.17.16'
       description: OpenShift Release version to mirror
       type: string
+    - name: ARCHITECTURE
+      default: 'x86_64'
+      description: OpenShift Release architecture to mirror - x86_64, aarch64, s390x, ppc64le
+      type: string
     - name: DRY_RUN
       description: Perform a dry run test or not
       default: 'true'
@@ -59,6 +63,8 @@ spec:
       params:
         - name: OCP_RELEASE
           value: "$(params.OCP_RELEASE)"
+        - name: ARCHITECTURE
+          value: "$(params.ARCHITECTURE)"
         - name: AUTH_FILE
           value: "$(params.AUTH_FILE)"
         - name: DRY_RUN

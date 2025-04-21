@@ -11,3 +11,7 @@ In this folder you can find a variety of Tekton manifests that can support diffe
 - **Task** - OpenShift Release Tools, a script wrapper really
 
 There are other supporting assets such as PVCs, PipelineRuns, RBAC, and additional configuration to set for disconnected environments.
+
+## Helpful Commands
+
+- Clear failed Tekton tasks: `oc -n disconn-tekton delete pipelinerun $(oc -n disconn-tekton get pipelinerun -o jsonpath='{range .items[?(@.status.conditions[*].status=="False")]}{.metadata.name}{"\n"}{end}')`

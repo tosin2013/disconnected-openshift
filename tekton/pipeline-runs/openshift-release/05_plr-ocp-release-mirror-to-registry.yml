@@ -10,19 +10,22 @@ spec:
     - name: DRY_RUN
       value: "false"
     - name: OCP_RELEASE
-      value: "4.17.12"
+      value: "4.18.8"
+    - name: ARCHITECTURE
+      value: "multi"
     - name: MIRROR_METHOD
       value: 'direct'
 
     - name: LOCAL_REGISTRY
-      value: 'quay-quay-app.quay.svc.cluster.local:80'
+      #value: 'quay-quay-quay.apps.endurance-sno.d70.lab.kemo.network'
+      value: 'disconn-harbor.d70.kemo.labs'
     - name: LOCAL_REGISTRY_PATH_OCP_RELEASE
-      value: 'disconn-ocp/openshift-releases'
+      value: 'man-mirror/openshift-releases'
 
-    - name: EXTRA_OC_ARGS
-      value: '--insecure'
-    - name: TLS_VERIFY
-      value: 'false'
+    #- name: EXTRA_OC_ARGS
+    #  value: '--insecure'
+    #- name: TLS_VERIFY
+    #  value: 'false'
 
     - name: AUTH_FILE
       value: "/tmp/authsecret/auth.json"
