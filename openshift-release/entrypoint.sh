@@ -1,5 +1,9 @@
 #!/bin/bash
 
+VERBOSE=${VERBOSE:="false"}
+MAKE_SIGNATURE_CONFIGMAP=${MAKE_SIGNATURE_CONFIGMAP:="false"}
+if [[ "${VERBOSE}" == "true" ]]; then set -x; fi
+
 MIRROR_ENGINE=${MIRROR_ENGINE:="oc"} # oc or oc-mirror
 
 REGISTRY_CONF=""
@@ -41,4 +45,8 @@ if [ "${MIRROR_ENGINE}" == "oc" ]; then
     /mirror-release.sh
 else
     /oc-mirror.sh
+fi
+
+if [[ "${MAKE_SIGNATURE_CONFIGMAP}" == "true" ]]; then
+    /make-ocp-release-signature.sh ${OCP_RELEASE}
 fi

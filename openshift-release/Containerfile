@@ -2,6 +2,7 @@
 ARG C_BASE_IMAGE=quay.io/kenmoini/ocp-install-utils:latest
 FROM $C_BASE_IMAGE
 
+COPY make-ocp-release-signature.sh /make-ocp-release-signature.sh
 COPY mirror-release.sh /mirror-release.sh
 COPY oc-mirror.sh /oc-mirror.sh
 COPY entrypoint.sh /entrypoint.sh
