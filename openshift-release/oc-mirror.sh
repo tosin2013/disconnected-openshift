@@ -29,7 +29,7 @@ LOCAL_REGISTRY=${LOCAL_REGISTRY:="disconn-harbor.d70.kemo.labs"}
 LOCAL_REGISTRY_PATH_OCP_RELEASE=${LOCAL_REGISTRY_PATH_OCP_RELEASE:="man-mirror/ocp"}
 
 # No need to change these things - probably
-ARCHITECTURE=${ARCHITECTURE:="x86_64"} # x86_64, aarch64, s390x, ppc64le
+ARCHITECTURE=${ARCHITECTURE:="multi"} # amd64, arm64, multi, s390x, ppc64le
 SKIP_TLS_VERIFY=${SKIP_TLS_VERIFY:="false"}
 OCP_BASE_REGISTRY_PATH="${LOCAL_REGISTRY}/${LOCAL_REGISTRY_PATH_OCP_RELEASE}"
 TARGET_SAVE_PATH=${TARGET_SAVE_PATH:="/tmp/ocp-mirror-${OCP_RELEASE}"}
@@ -51,6 +51,7 @@ echo "> Local Registry: ${LOCAL_REGISTRY}"; fi
 echo "> Save Path: ${TARGET_SAVE_PATH}" && echo "> Mirror Direction: ${MIRROR_DIRECTION}"; fi
 echo "> Dry Run: ${DRY_RUN}"
 echo "> Skip TLS Verify: ${SKIP_TLS_VERIFY}"
+echo "> XDG_RUNTIME_DIR: ${XDG_RUNTIME_DIR}"
 
 # Make the save path directory
 mkdir -p ${TARGET_SAVE_PATH}/work-dir
@@ -63,8 +64,9 @@ apiVersion: mirror.openshift.io/v2alpha1
 mirror:
   platform:
     graph: false
+    kubeVirtContainer: true
     architectures:
-      - "${ARCHITECTURE}"
+      - ${ARCHITECTURE}
     channels:
       - name: ${OCP_CHANNEL}-${OCP_XY_RELEASE}
         minVersion: ${OCP_RELEASE}
@@ -79,6 +81,7 @@ if [ "${MIRROR_METHOD}" == "file" ]; then
   if [ "${MIRROR_DIRECTION}" == "download" ]; then MIRROR_CMD="${MIRROR_CMD} file://${TARGET_SAVE_PATH}/work-dir --v2"; fi
   if [ "${MIRROR_DIRECTION}" == "upload" ]; then MIRROR_CMD="${MIRROR_CMD} --from file://${TARGET_SAVE_PATH}/work-dir docker://${OCP_BASE_REGISTRY_PATH} --v2"; fi
 fi
+if [ ! -z "${AUTH_FILE}" ]; then MIRROR_CMD="${MIRROR_CMD} --authfile ${AUTH_FILE}"; fi
 if [ "${DRY_RUN}" == "true" ]; then MIRROR_CMD="${MIRROR_CMD} --dry-run"; fi
 if [ "${SKIP_TLS_VERIFY}" == "true" ]; then MIRROR_CMD="${MIRROR_CMD} --dest-skip-tls --source-skip-tls"; fi
 
