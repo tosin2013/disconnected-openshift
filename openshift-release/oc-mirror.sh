@@ -57,10 +57,12 @@ mkdir -p ${TARGET_SAVE_PATH}/work-dir
 
 # Create the ImageSetConfiguration file
 cat <<EOF > ${TARGET_SAVE_PATH}/mirror-config.yaml
+---
 kind: ImageSetConfiguration
 apiVersion: mirror.openshift.io/v2alpha1
 mirror:
   platform:
+    graph: false
     architectures:
       - "${ARCHITECTURE}"
     channels:
