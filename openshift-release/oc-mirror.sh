@@ -26,7 +26,7 @@ MIRROR_DIRECTION=${MIRROR_DIRECTION:="download"} # download or upload, only used
 
 # If this is a direct mirror, set the registry and path
 LOCAL_REGISTRY=${LOCAL_REGISTRY:="disconn-harbor.d70.kemo.labs"}
-LOCAL_REGISTRY_PATH_OCP_RELEASE=${LOCAL_REGISTRY_PATH_OCP_RELEASE:="man-mirror/ocp"}
+LOCAL_REGISTRY_PATH_OCP_RELEASE=${LOCAL_REGISTRY_PATH_OCP_RELEASE:=""}
 
 # No need to change these things - probably
 ARCHITECTURE=${ARCHITECTURE:="multi"} # amd64, arm64, multi, s390x, ppc64le
