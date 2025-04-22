@@ -41,14 +41,14 @@ UPSTREAM_PATH="${PRODUCT_REPO}/${RELEASE_NAME}"
 # Check for needed binaries
 if [ ! $(which oc) ]; then echo "oc not found!" && exit 1; fi
 
-echo "> Mirroring OpenShift Release...${OCP_RELEASE}"
-echo "> oc-mirror version: $(oc mirror version)"
+echo "> Mirroring OpenShift Release..."
 echo "> Auth file path: ${AUTH_FILE}"
 echo "> Release Version: ${OCP_RELEASE}"
 echo "> Architecture: ${ARCHITECTURE}"
 echo "> Mirror Method: ${MIRROR_METHOD}"
-echo "> Local Registry: ${LOCAL_REGISTRY}"; fi
-echo "> Save Path: ${TARGET_SAVE_PATH}" && echo "> Mirror Direction: ${MIRROR_DIRECTION}"; fi
+if [ "${MIRROR_METHOD}" != "direct" ]; then echo "> Mirror Direction: ${MIRROR_DIRECTION}"; fi
+echo "> Local Registry: ${LOCAL_REGISTRY}";
+echo "> Save Path: ${TARGET_SAVE_PATH}"
 echo "> Dry Run: ${DRY_RUN}"
 echo "> Skip TLS Verify: ${SKIP_TLS_VERIFY}"
 echo "> XDG_RUNTIME_DIR: ${XDG_RUNTIME_DIR}"
@@ -76,14 +76,15 @@ EOF
 cat ${TARGET_SAVE_PATH}/mirror-config.yaml
 
 MIRROR_CMD="oc mirror ${EXTRA_OC_ARGS} -c ${TARGET_SAVE_PATH}/mirror-config.yaml"
+if [ ! -z "${AUTH_FILE}" ]; then MIRROR_CMD="${MIRROR_CMD} --authfile ${AUTH_FILE}"; fi
+if [ "${SKIP_TLS_VERIFY}" == "true" ]; then MIRROR_CMD="${MIRROR_CMD} --dest-skip-tls --source-skip-tls"; fi
+if [ "${DRY_RUN}" == "true" ]; then MIRROR_CMD="${MIRROR_CMD} --dry-run"; fi
+
 if [ "${MIRROR_METHOD}" == "direct" ]; then MIRROR_CMD="${MIRROR_CMD} --workspace file://${TARGET_SAVE_PATH}/work-dir docker://${OCP_BASE_REGISTRY_PATH} --v2"; fi
 if [ "${MIRROR_METHOD}" == "file" ]; then
   if [ "${MIRROR_DIRECTION}" == "download" ]; then MIRROR_CMD="${MIRROR_CMD} file://${TARGET_SAVE_PATH}/work-dir --v2"; fi
   if [ "${MIRROR_DIRECTION}" == "upload" ]; then MIRROR_CMD="${MIRROR_CMD} --from file://${TARGET_SAVE_PATH}/work-dir docker://${OCP_BASE_REGISTRY_PATH} --v2"; fi
 fi
-if [ ! -z "${AUTH_FILE}" ]; then MIRROR_CMD="${MIRROR_CMD} --authfile ${AUTH_FILE}"; fi
-if [ "${DRY_RUN}" == "true" ]; then MIRROR_CMD="${MIRROR_CMD} --dry-run"; fi
-if [ "${SKIP_TLS_VERIFY}" == "true" ]; then MIRROR_CMD="${MIRROR_CMD} --dest-skip-tls --source-skip-tls"; fi
 
 echo "> Running: ${MIRROR_CMD}"
 $MIRROR_CMD
