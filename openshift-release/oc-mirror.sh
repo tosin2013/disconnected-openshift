@@ -32,7 +32,7 @@ LOCAL_REGISTRY_PATH_OCP_RELEASE=${LOCAL_REGISTRY_PATH_OCP_RELEASE:="man-mirror/o
 ARCHITECTURE=${ARCHITECTURE:="x86_64"} # x86_64, aarch64, s390x, ppc64le
 SKIP_TLS_VERIFY=${SKIP_TLS_VERIFY:="false"}
 OCP_BASE_REGISTRY_PATH="${LOCAL_REGISTRY}/${LOCAL_REGISTRY_PATH_OCP_RELEASE}"
-TARGET_SAVE_PATH=${TARGET_SAVE_PATH:="/tmp/ocp-mirror-${OCP_RELEASE}"} # Only used if MIRROR_METHOD=file
+TARGET_SAVE_PATH=${TARGET_SAVE_PATH:="/tmp/ocp-mirror-${OCP_RELEASE}"}
 PRODUCT_REPO="openshift-release-dev"
 RELEASE_NAME="ocp-release"
 UPSTREAM_REGISTRY=${UPSTREAM_REGISTRY:="quay.io"}
@@ -41,13 +41,14 @@ UPSTREAM_PATH="${PRODUCT_REPO}/${RELEASE_NAME}"
 # Check for needed binaries
 if [ ! $(which oc) ]; then echo "oc not found!" && exit 1; fi
 
-echo "> Mirroring OpenShift Release..."
+echo "> Mirroring OpenShift Release...${OCP_RELEASE}"
+echo "> oc-mirror version: $(oc mirror version)"
 echo "> Auth file path: ${AUTH_FILE}"
 echo "> Release Version: ${OCP_RELEASE}"
 echo "> Architecture: ${ARCHITECTURE}"
 echo "> Mirror Method: ${MIRROR_METHOD}"
-if [ "${MIRROR_METHOD}" == "direct" ]; then echo "> Local Registry: ${LOCAL_REGISTRY}"; fi
-if [ "${MIRROR_METHOD}" == "file" ]; then echo "> Save Path: ${TARGET_SAVE_PATH}" && echo "> Mirror Direction: ${MIRROR_DIRECTION}"; fi
+echo "> Local Registry: ${LOCAL_REGISTRY}"; fi
+echo "> Save Path: ${TARGET_SAVE_PATH}" && echo "> Mirror Direction: ${MIRROR_DIRECTION}"; fi
 echo "> Dry Run: ${DRY_RUN}"
 echo "> Skip TLS Verify: ${SKIP_TLS_VERIFY}"
 
