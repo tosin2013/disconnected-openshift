@@ -1,0 +1,20 @@
+---
+kind: UpdateService
+apiVersion: updateservice.operator.openshift.io/v1
+metadata:
+  name: osus
+  namespace: openshift-update-service
+spec:
+  # One replica should be fine - allegedly, Red Hat only runs 1 to serve the global connected fleet
+  replicas: 1
+  # The OSUS Graph Data Image - this is the default image created by the included Tekton Pipeline
+  graphDataImage: image-registry.openshift-image-registry.svc:5000/openshift-update-service/osus-graph-data:latest
+  # Where OCP Releases have been mirrored to
+  # Note: This is the Index of the release images, they need to be in a separate path from the platform images
+  # Other Notes: You cannot use a pull-through/proxy cache via JFrog for this.  There is a bug with enumerating the 12k+ images in the repo.
+  # https://jfrog.atlassian.net/browse/RTFACT-18971
+  # The workaround is to manually mirror the images for specific releases you want to upgrade to.
+  # For Harbor pull-through/proxy caches, it will try to mirror all 12k+ images in the repo.  You don't want this.
+  # The workaround is to manually mirror the images for specific releases you want to upgrade to.
+  #releases: man-mirror.jfrog.lab.kemo.network/openshift/release-images
+  releases: man-mirror.jfrog.lab.kemo.network/oc-ocp-release
