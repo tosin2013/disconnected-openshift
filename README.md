@@ -37,10 +37,8 @@ This repository is meant to make all that easier.  It features:
 4. [Deploy OpenShift - Disconnected Installation Examples](./installation-examples/)
 5. [Post-Install Configuration (Root CAs, Proxy, Image mirrors, etc)](./post-install-config/)
 6. Operator Management
-7. Creating an Update Graph Container
-8. Using custom CatalogSources
-9. Deploying the OpenShift Update Service Operator
-10. Automate the steps
+7. [Deploying the OpenShift Update Service Operator](./openshift-update-service/)
+8. Automate the steps
 
 ## Additional Resources
 
