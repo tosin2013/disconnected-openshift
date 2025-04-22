@@ -1,5 +1,7 @@
 #!/bin/bash
 
+MIRROR_ENGINE=${MIRROR_ENGINE:="oc"} # oc or oc-mirror
+
 REGISTRY_CONF=""
 if [[ "${WORKSPACES_CONTAINERCONFIG_BOUND}" == "true" ]]; then
     if [[ -f "${WORKSPACES_CONTAINERCONFIG_PATH}/registries.conf" ]]; then
@@ -35,4 +37,8 @@ env
 echo ""
 echo ""
 
-/mirror-release.sh
+if [ "${MIRROR_ENGINE}" == "oc" ]; then
+    /mirror-release.sh
+else
+    /oc-mirror.sh
+fi
