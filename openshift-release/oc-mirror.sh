@@ -65,7 +65,7 @@ if [ "${DELETE_EXISTING_PATH}" == "true" ]; then
     rm -rf ${TARGET_SAVE_PATH}
   fi
 fi
-mkdir -p ${TARGET_SAVE_PATH}/work-dir
+mkdir -p ${TARGET_SAVE_PATH}
 
 # Create the ImageSetConfiguration file
 cat <<EOF > ${TARGET_SAVE_PATH}/mirror-config.yaml
@@ -91,11 +91,14 @@ if [ ! -z "${AUTH_FILE}" ]; then MIRROR_CMD="${MIRROR_CMD} --authfile ${AUTH_FIL
 if [ "${SKIP_TLS_VERIFY}" == "true" ]; then MIRROR_CMD="${MIRROR_CMD} --dest-skip-tls --source-skip-tls"; fi
 if [ "${DRY_RUN}" == "true" ]; then MIRROR_CMD="${MIRROR_CMD} --dry-run"; fi
 
-if [ "${MIRROR_METHOD}" == "direct" ]; then MIRROR_CMD="${MIRROR_CMD} --workspace file://${TARGET_SAVE_PATH}/work-dir docker://${LOCAL_REGISTRY_TARGET} --v2"; fi
+if [ "${MIRROR_METHOD}" == "direct" ]; then MIRROR_CMD="${MIRROR_CMD} --workspace file://${TARGET_SAVE_PATH} docker://${LOCAL_REGISTRY_TARGET} --v2"; fi
 if [ "${MIRROR_METHOD}" == "file" ]; then
-  if [ "${MIRROR_DIRECTION}" == "download" ]; then MIRROR_CMD="${MIRROR_CMD} file://${TARGET_SAVE_PATH}/work-dir --v2"; fi
-  if [ "${MIRROR_DIRECTION}" == "upload" ]; then MIRROR_CMD="${MIRROR_CMD} --from file://${TARGET_SAVE_PATH}/work-dir docker://${LOCAL_REGISTRY_TARGET} --v2"; fi
+  if [ "${MIRROR_DIRECTION}" == "download" ]; then MIRROR_CMD="${MIRROR_CMD} file://${TARGET_SAVE_PATH} --v2"; fi
+  if [ "${MIRROR_DIRECTION}" == "upload" ]; then MIRROR_CMD="${MIRROR_CMD} --from file://${TARGET_SAVE_PATH} docker://${LOCAL_REGISTRY_TARGET} --v2"; fi
 fi
 
 echo "> Running: ${MIRROR_CMD}"
 $MIRROR_CMD
+
+tree ${TARGET_SAVE_PATH}
+cat ${TARGET_SAVE_PATH}/working-dir/cluster-resources/*
