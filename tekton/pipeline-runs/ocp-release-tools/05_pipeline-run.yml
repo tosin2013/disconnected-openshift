@@ -7,8 +7,6 @@ metadata:
     tekton.dev/pipeline: ocp-release-tools
 spec:
   params:
-    - name: VERBOSE
-      value: "true"
     # Destination Image to Push to
     - name: IMAGE
       value: 'image-registry.openshift-image-registry.svc:5000/openshift/ocp-release-tools:latest'
@@ -27,6 +25,8 @@ spec:
       value: "http://proxy.kemo.labs:3129"
     - name: NO_PROXY
       value: ".kemo.labs,.kemo.network,.local,.svc,localhost,127.0.0.1,192.168.0.0/16,172.16.0.0/12,10.0.0.0/8"
+    #- name: VERBOSE
+    #  value: "true"
   pipelineRef:
     name: ocp-release-tools
   taskRunTemplate:

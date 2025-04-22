@@ -33,7 +33,7 @@ spec:
       default: 'quay-quay.quay.svc'
       description: Registry to push to
       type: string
-    - name: LOCAL_REGISTRY_PATH_OCP_RELEASE
+    - name: LOCAL_REGISTRY_BASE_PATH
       default: 'quayadmin/ocp-releases'
       description: Registry path to push to
       type: string
@@ -79,8 +79,8 @@ spec:
           value: "$(params.MIRROR_DIRECTION)"
         - name: LOCAL_REGISTRY
           value: "$(params.LOCAL_REGISTRY)"
-        - name: LOCAL_REGISTRY_PATH_OCP_RELEASE
-          value: "$(params.LOCAL_REGISTRY_PATH_OCP_RELEASE)"
+        - name: LOCAL_REGISTRY_BASE_PATH
+          value: "$(params.LOCAL_REGISTRY_BASE_PATH)"
         - name: TARGET_SAVE_PATH
           value: "$(params.TARGET_SAVE_PATH)"
 

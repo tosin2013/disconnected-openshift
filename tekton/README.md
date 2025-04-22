@@ -15,3 +15,5 @@ There are other supporting assets such as PVCs, PipelineRuns, RBAC, and addition
 ## Helpful Commands
 
 - Clear failed Tekton tasks: `oc -n disconn-tekton delete pipelinerun $(oc -n disconn-tekton get pipelinerun -o jsonpath='{range .items[?(@.status.conditions[*].status=="False")]}{.metadata.name}{"\n"}{end}')`
+
+- Clear Successful Tekton tasks: `oc -n disconn-tekton delete pipelinerun $(oc -n disconn-tekton get pipelinerun -o jsonpath='{range .items[?(@.status.conditions[*].status=="True")]}{.metadata.name}{"\n"}{end}')`

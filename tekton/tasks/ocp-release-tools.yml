@@ -32,7 +32,7 @@ spec:
       type: string
     - name: ARCHITECTURE
       default: 'x86_64'
-      description: OpenShift Release architecture to mirror - x86_64, aarch64, s390x, ppc64le
+      description: OpenShift Release architecture to mirror - x86_64, aarch64, s390x, ppc64le, multi
       type: string
     - name: DRY_RUN
       description: Perform a dry run test or not
@@ -55,11 +55,11 @@ spec:
       description: Direction to mirror when in file mode
       type: string
     - name: LOCAL_REGISTRY
-      default: 'quay-quay.quay.svc'
+      default: ''
       description: Registry to push to
       type: string
-    - name: LOCAL_REGISTRY_PATH_OCP_RELEASE
-      default: 'quayadmin/ocp-releases'
+    - name: LOCAL_REGISTRY_BASE_PATH
+      default: ''
       description: Registry path to push to
       type: string
     - name: TARGET_SAVE_PATH
@@ -110,8 +110,8 @@ spec:
         value: $(params.MIRROR_DIRECTION)
       - name: LOCAL_REGISTRY
         value: $(params.LOCAL_REGISTRY)
-      - name: LOCAL_REGISTRY_PATH_OCP_RELEASE
-        value: $(params.LOCAL_REGISTRY_PATH_OCP_RELEASE)
+      - name: LOCAL_REGISTRY_BASE_PATH
+        value: $(params.LOCAL_REGISTRY_BASE_PATH)
 
       - name: HTTP_PROXY
         value: $(params.HTTP_PROXY)

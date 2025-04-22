@@ -22,13 +22,14 @@ MIRROR_DIRECTION=${MIRROR_DIRECTION:="download"} # download or upload, only used
 
 # If this is a direct mirror, set the registry and path
 LOCAL_REGISTRY=${LOCAL_REGISTRY:="disconn-harbor.d70.kemo.labs"}
-LOCAL_REGISTRY_PATH_OCP_RELEASE=${LOCAL_REGISTRY_PATH_OCP_RELEASE:="man-mirror/ocp"}
+LOCAL_REGISTRY_BASE_PATH=${LOCAL_REGISTRY_BASE_PATH:="openshift"}
+LOCAL_REGISTRY_IMAGES_PATH="${LOCAL_REGISTRY}/${LOCAL_REGISTRY_BASE_PATH}"
+LOCAL_REGISTRY_RELEASE_PATH=${LOCAL_REGISTRY_RELEASE_PATH:="${LOCAL_REGISTRY_IMAGES_PATH}-release"}
 
 # No need to change these things - probably
 ARCHITECTURE=${ARCHITECTURE:="x86_64"} # x86_64, aarch64, s390x, ppc64le
 SKIP_TLS_VERIFY=${SKIP_TLS_VERIFY:="false"}
 OCP_MAJOR_RELEASE="$(echo $OCP_RELEASE | cut -d. -f1).$(echo $OCP_RELEASE | cut -d. -f2)"
-OCP_BASE_REGISTRY_PATH="${LOCAL_REGISTRY}/${LOCAL_REGISTRY_PATH_OCP_RELEASE}"
 TARGET_SAVE_PATH=${TARGET_SAVE_PATH:="/tmp/ocp-mirror-${OCP_RELEASE}"} # Only used if MIRROR_METHOD=file
 PRODUCT_REPO="openshift-release-dev"
 RELEASE_NAME="ocp-release"
@@ -52,12 +53,12 @@ if [ "${MIRROR_METHOD}" == "file" ]; then echo "> Save Path: ${TARGET_SAVE_PATH}
 echo "> Dry Run: ${DRY_RUN}"
 
 MIRROR_CMD="oc adm release mirror ${EXTRA_OC_ARGS} -a ${AUTH_FILE} --from=${UPSTREAM_REGISTRY}/${UPSTREAM_PATH}:${OCP_RELEASE}-${ARCHITECTURE}"
-if [ "${MIRROR_METHOD}" == "direct" ]; then MIRROR_CMD="${MIRROR_CMD} --to=${OCP_BASE_REGISTRY_PATH} --to-release-image=${OCP_BASE_REGISTRY_PATH}:${OCP_RELEASE}-${ARCHITECTURE}"; fi
+if [ "${MIRROR_METHOD}" == "direct" ]; then MIRROR_CMD="${MIRROR_CMD} --to=${LOCAL_REGISTRY_IMAGES_PATH} --to-release-image=${LOCAL_REGISTRY_RELEASE_PATH}:${OCP_RELEASE}-${ARCHITECTURE}"; fi
 if [ "${MIRROR_METHOD}" == "file" ]; then
   if [ "${MIRROR_DIRECTION}" == "download" ]; then MIRROR_CMD="${MIRROR_CMD} --to-dir=${TARGET_SAVE_PATH}"; fi
   if [ "${MIRROR_DIRECTION}" == "upload" ]; then
     MIRROR_CMD="oc image mirror ${EXTRA_OC_ARGS} -a ${AUTH_FILE} --skip-missing --from-dir=${TARGET_SAVE_PATH}"
-    MIRROR_CMD="${MIRROR_CMD} \"file://openshift/release:${OCP_RELEASE}*\" ${LOCAL_REGISTRY}/${LOCAL_REGISTRY_PATH_OCP_RELEASE}"
+    MIRROR_CMD="${MIRROR_CMD} \"file://openshift/release:${OCP_RELEASE}*\" ${LOCAL_REGISTRY}/${LOCAL_REGISTRY_BASE_PATH}"
   fi
 fi
 if [ "${DRY_RUN}" == "true" ]; then MIRROR_CMD="${MIRROR_CMD} --dry-run"; fi

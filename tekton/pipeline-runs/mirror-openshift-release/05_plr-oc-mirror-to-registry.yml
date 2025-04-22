@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1
 kind: PipelineRun
 metadata:
-  generateName: ocp-release-mirror-to-registry-
+  generateName: oc-mirror-to-registry-
   labels:
     tekton.dev/pipeline: ocp-release-mirror-to-registry
 spec:
@@ -10,19 +10,27 @@ spec:
     - name: DRY_RUN
       value: "false"
     - name: OCP_RELEASE
-      value: "4.17.12"
-    #- name: ARCHITECTURE
-    #  value: "multi"
+      value: "4.17.11"
+    - name: ARCHITECTURE
+      value: "multi"
     - name: MIRROR_METHOD
       value: 'direct'
+    - name: MIRROR_ENGINE
+      value: 'oc-mirror'
 
     - name: LOCAL_REGISTRY
+      #value: 'quay-quay-quay.apps.endurance-sno.d70.lab.kemo.network'
+      #value: 'disconn-harbor.d70.kemo.labs'
       value: 'man-mirror.jfrog.lab.kemo.network'
     - name: LOCAL_REGISTRY_BASE_PATH
-      value: 'oc-ocp'
+      value: ''
+      #value: 'ocp/releases'
 
     - name: EXTRA_OC_ARGS
       #value: '--keep-manifest-list=true --print-mirror-instructions=idms'
+      value: '--retry-times 10 --retry-delay 5s'
+    #- name: TLS_VERIFY
+    #  value: 'false'
 
     - name: AUTH_FILE
       value: "/tmp/authsecret/auth.json"
