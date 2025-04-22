@@ -21,7 +21,7 @@ done
 
 # Check for input parameters
 if [ -z "$source_secret" ] || [ -z "$input_endpoint" ] || [ -z "$output_endpoint" ]; then
-  echo "Usage: $0 -s <source_secret> -i <input_endpoint> -o <output_endpoint>"
+  echo "Usage: $0 -s <source_secret_namespace/source_secret_name> -i <input_endpoint> -o <output_endpoint>"
   exit 1
 fi
 
