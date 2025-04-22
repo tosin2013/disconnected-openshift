@@ -1,6 +1,5 @@
 # This will build an image with all the needed things to use the OpenShift installer and client.
 # There are also a few other goodies in here.
-
 ARG TARGETPLATFORM
 
 # For Arm64 you need to use CentOS Stream
