@@ -97,6 +97,23 @@ spec:
 
 You may want to update the global pull secret post-install - to do so is rather easy, just edit the `pull-secret` Secret in the `openshift-config` Namespace.  The easiest way to do this is via the Web UI, selecting "Edit Secret" from the "Actions" drop-down will give you a nice form to edit individual registries in the pull secret.
 
+There are also some handy scripts to help will modifying Pull Secrets:
+
+- `scripts/copy-pull-secret-endpoint.sh` - Take in an Pull Secret type K8s/OCP Secret, checks for an original registry endpoint, copies the auth parameters to another new endpoint.
+- `scripts/copy-secret.sh` - Copy a Secret, maybe from one namespace to another
+- `scripts/join-auths.sh` - Join two pull secret JSON auth files into one
+- `scripts/join-ocp-auth-secrets.sh` - Take two separate Pull Secret type K8s/OCP Secrets, joins them into a new Pull Secret type K8s/OCP Secret
+
+So a common workflow would be:
+
+```bash
+# Copy the Global Pull Secret to the disconn-tekton namespace
+./scripts/copy-secret.sh -i openshift-config/pull-secret -o disconn-tekton/global-pull-secret
+
+# Join the Secret with the one from Pipelines/Internal Image Registry
+./scripts/join-ocp-auth-secrets.sh -n disconn-tekton -s global-pull-secret -s pipeline-internal-reg -o combined-reg-secret
+```
+
 ---
 
 ## Disabling the Insights Operator
