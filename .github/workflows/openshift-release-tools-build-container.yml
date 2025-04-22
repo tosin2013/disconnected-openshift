@@ -14,6 +14,7 @@ on:
       - openshift-release/Containerfile
       - openshift-release/mirror-release.sh
       - openshift-release/entrypoint.sh
+      - openshift-release/oc-mirror.sh
       - .github/workflows/openshift-release-tools-build-container.yml
 
   # Schedule workflow run regularly

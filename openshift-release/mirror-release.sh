@@ -59,7 +59,6 @@ if [ "${MIRROR_METHOD}" == "file" ]; then
     MIRROR_CMD="oc image mirror ${EXTRA_OC_ARGS} -a ${AUTH_FILE} --skip-missing --from-dir=${TARGET_SAVE_PATH}"
     MIRROR_CMD="${MIRROR_CMD} \"file://openshift/release:${OCP_RELEASE}*\" ${LOCAL_REGISTRY}/${LOCAL_REGISTRY_PATH_OCP_RELEASE}"
   fi
-  
 fi
 if [ "${DRY_RUN}" == "true" ]; then MIRROR_CMD="${MIRROR_CMD} --dry-run"; fi
 

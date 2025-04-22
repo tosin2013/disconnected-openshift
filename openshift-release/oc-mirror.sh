@@ -68,6 +68,8 @@ mirror:
         maxVersion: ${OCP_RELEASE}
 EOF
 
+cat ${TARGET_SAVE_PATH}/mirror-config.yaml
+
 MIRROR_CMD="oc mirror ${EXTRA_OC_ARGS} -c ${TARGET_SAVE_PATH}/mirror-config.yaml"
 if [ "${MIRROR_METHOD}" == "direct" ]; then MIRROR_CMD="${MIRROR_CMD} --workspace file://${TARGET_SAVE_PATH}/work-dir docker://${OCP_BASE_REGISTRY_PATH} --v2"; fi
 if [ "${MIRROR_METHOD}" == "file" ]; then
