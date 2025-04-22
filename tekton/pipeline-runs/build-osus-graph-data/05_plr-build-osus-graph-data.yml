@@ -8,8 +8,19 @@ metadata:
     tekton.dev/pipeline: build-osus-graph-data
 spec:
   params:
+    - name: HTTP_PROXY
+      value: "http://proxy.kemo.labs:3129"
+    - name: HTTPS_PROXY
+      value: "http://proxy.kemo.labs:3129"
+    - name: NO_PROXY
+      value: ".kemo.labs,.kemo.network,.local,.svc,localhost,127.0.0.1,192.168.0.0/16,172.16.0.0/12,10.0.0.0/8"
+    # Override Source Git URL
+    - name: URL
+      value: 'https://github.com/kenmoini/disconnected-openshift.git'
+    # Destination Image to Push to
     - name: IMAGE
       value: "image-registry.openshift-image-registry.svc:5000/openshift-update-service/osus-graph-data:latest"
+
   pipelineRef:
     name: build-osus-graph-data
   taskRunTemplate:

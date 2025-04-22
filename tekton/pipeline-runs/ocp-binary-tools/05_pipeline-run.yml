@@ -6,6 +6,26 @@ metadata:
   labels:
     tekton.dev/pipeline: ocp-binary-tools
 spec:
+  params:
+    - name: VERBOSE
+      value: "true"
+    - name: HTTP_PROXY
+      value: "http://proxy.kemo.labs:3129"
+    - name: HTTPS_PROXY
+      value: "http://proxy.kemo.labs:3129"
+    - name: NO_PROXY
+      value: ".kemo.labs,.kemo.network,.local,.svc,localhost,127.0.0.1,192.168.0.0/16,172.16.0.0/12,10.0.0.0/8"
+    # Override Source Git URL
+    - name: URL
+      value: 'https://github.com/kenmoini/disconnected-openshift.git'
+    # Destination Image to Push to
+    - name: IMAGE
+      value: 'image-registry.openshift-image-registry.svc:5000/openshift/ocp-binary-tools:latest'
+    # Buildah things
+    - name: CONTEXT
+      value: binaries/
+    - name: DOCKERFILE
+      value: binaries/Containerfile
   pipelineRef:
     name: ocp-binary-tools
   taskRunTemplate:

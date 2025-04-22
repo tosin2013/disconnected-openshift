@@ -5,9 +5,9 @@ kind: Kustomization
 #namespace: disconn-tekton
 
 resources:
-  - build-ocp-release-tools-container.yml
-  - build-osus-graph-data.yml
-  - ocp-binary-tools.yml
+  - build-container-ocp-binary-tools.yml
+  - build-container-ocp-release-tools.yml
+  - build-container-osus-graph-data.yml
   - ocp-release-mirror-from-dir.yml
   - ocp-release-mirror-to-dir.yml
   - ocp-release-mirror-to-registry.yml
