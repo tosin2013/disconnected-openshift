@@ -65,6 +65,11 @@ if [ "$ARCH" = "x86_64" ] && [ "$OS" = "linux" ]; then
   wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${CHANNEL}/oc-mirror.rhel9.tar.gz
   wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${CHANNEL}/opm-linux-rhel9.tar.gz
   wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${CHANNEL}/ccoctl-linux.tar.gz
+  wget https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/latest/oc-mirror.rhel9.tar.gz
+fi
+# Get additional files for arm64
+if [ "$ARCH" = "arm64" ] && [ "$OS" = "linux" ]; then
+  wget https://mirror.openshift.com/pub/openshift-v4/aarch64/clients/ocp/latest/oc-mirror.rhel9.tar.gz
 fi
 
 # Extract the files
@@ -76,8 +81,8 @@ done
 
 # Normalize names and set some permissions
 mv ${BUTANE_FILENAME} butane
-chmod a+x oc kubectl openshift-install butane
-mv oc kubectl openshift-install butane ..
+chmod a+x oc kubectl openshift-install butane oc-mirror
+mv oc kubectl openshift-install butane oc-mirror ..
 
 # Additional files for x86_64
 if [ "$ARCH" = "x86_64" ]; then
