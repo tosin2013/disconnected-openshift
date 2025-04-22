@@ -10,9 +10,9 @@ spec:
     - name: DRY_RUN
       value: "false"
     - name: OCP_RELEASE
-      value: "4.18.8"
-    - name: ARCHITECTURE
-      value: "multi"
+      value: "4.17.11"
+    #- name: ARCHITECTURE
+    #  value: "multi"
     - name: MIRROR_METHOD
       value: 'direct'
 
@@ -20,10 +20,10 @@ spec:
       #value: 'quay-quay-quay.apps.endurance-sno.d70.lab.kemo.network'
       value: 'disconn-harbor.d70.kemo.labs'
     - name: LOCAL_REGISTRY_PATH_OCP_RELEASE
-      value: 'man-mirror/openshift-releases'
+      value: 'man-mirror/openshift/releases'
 
-    #- name: EXTRA_OC_ARGS
-    #  value: '--insecure'
+    - name: EXTRA_OC_ARGS
+      value: '--keep-manifest-list=true'
     #- name: TLS_VERIFY
     #  value: 'false'
 
