@@ -31,12 +31,17 @@ LOCAL_REGISTRY_PATH_OCP_RELEASE=${LOCAL_REGISTRY_PATH_OCP_RELEASE:=""}
 # No need to change these things - probably
 ARCHITECTURE=${ARCHITECTURE:="multi"} # amd64, arm64, multi, s390x, ppc64le
 SKIP_TLS_VERIFY=${SKIP_TLS_VERIFY:="false"}
-OCP_BASE_REGISTRY_PATH="${LOCAL_REGISTRY}/${LOCAL_REGISTRY_PATH_OCP_RELEASE}"
-TARGET_SAVE_PATH=${TARGET_SAVE_PATH:="/tmp/ocp-mirror-${OCP_RELEASE}"}
+DELETE_EXISTING_PATH=${DELETE_EXISTING_PATH:="true"}
+TARGET_SAVE_PATH=${TARGET_SAVE_PATH:="/tmp/mirror/${OCP_RELEASE}"}
 PRODUCT_REPO="openshift-release-dev"
 RELEASE_NAME="ocp-release"
 UPSTREAM_REGISTRY=${UPSTREAM_REGISTRY:="quay.io"}
 UPSTREAM_PATH="${PRODUCT_REPO}/${RELEASE_NAME}"
+if [ -z "${LOCAL_REGISTRY_PATH_OCP_RELEASE}" ]; then
+  LOCAL_REGISTRY_TARGET="${LOCAL_REGISTRY}"
+else
+  LOCAL_REGISTRY_TARGET="${LOCAL_REGISTRY}/${LOCAL_REGISTRY_PATH_OCP_RELEASE}"
+fi
 
 # Check for needed binaries
 if [ ! $(which oc) ]; then echo "oc not found!" && exit 1; fi
@@ -47,13 +52,19 @@ echo "> Release Version: ${OCP_RELEASE}"
 echo "> Architecture: ${ARCHITECTURE}"
 echo "> Mirror Method: ${MIRROR_METHOD}"
 if [ "${MIRROR_METHOD}" != "direct" ]; then echo "> Mirror Direction: ${MIRROR_DIRECTION}"; fi
-echo "> Local Registry: ${LOCAL_REGISTRY}";
+echo "> Local Registry Target: ${LOCAL_REGISTRY_TARGET}";
 echo "> Save Path: ${TARGET_SAVE_PATH}"
 echo "> Dry Run: ${DRY_RUN}"
 echo "> Skip TLS Verify: ${SKIP_TLS_VERIFY}"
 echo "> XDG_RUNTIME_DIR: ${XDG_RUNTIME_DIR}"
 
 # Make the save path directory
+if [ "${DELETE_EXISTING_PATH}" == "true" ]; then
+  if [ -d "${TARGET_SAVE_PATH}" ]; then
+    echo "> Deleting existing path ${TARGET_SAVE_PATH}"
+    rm -rf ${TARGET_SAVE_PATH}
+  fi
+fi
 mkdir -p ${TARGET_SAVE_PATH}/work-dir
 
 # Create the ImageSetConfiguration file
@@ -80,10 +91,10 @@ if [ ! -z "${AUTH_FILE}" ]; then MIRROR_CMD="${MIRROR_CMD} --authfile ${AUTH_FIL
 if [ "${SKIP_TLS_VERIFY}" == "true" ]; then MIRROR_CMD="${MIRROR_CMD} --dest-skip-tls --source-skip-tls"; fi
 if [ "${DRY_RUN}" == "true" ]; then MIRROR_CMD="${MIRROR_CMD} --dry-run"; fi
 
-if [ "${MIRROR_METHOD}" == "direct" ]; then MIRROR_CMD="${MIRROR_CMD} --workspace file://${TARGET_SAVE_PATH}/work-dir docker://${OCP_BASE_REGISTRY_PATH} --v2"; fi
+if [ "${MIRROR_METHOD}" == "direct" ]; then MIRROR_CMD="${MIRROR_CMD} --workspace file://${TARGET_SAVE_PATH}/work-dir docker://${LOCAL_REGISTRY_TARGET} --v2"; fi
 if [ "${MIRROR_METHOD}" == "file" ]; then
   if [ "${MIRROR_DIRECTION}" == "download" ]; then MIRROR_CMD="${MIRROR_CMD} file://${TARGET_SAVE_PATH}/work-dir --v2"; fi
-  if [ "${MIRROR_DIRECTION}" == "upload" ]; then MIRROR_CMD="${MIRROR_CMD} --from file://${TARGET_SAVE_PATH}/work-dir docker://${OCP_BASE_REGISTRY_PATH} --v2"; fi
+  if [ "${MIRROR_DIRECTION}" == "upload" ]; then MIRROR_CMD="${MIRROR_CMD} --from file://${TARGET_SAVE_PATH}/work-dir docker://${LOCAL_REGISTRY_TARGET} --v2"; fi
 fi
 
 echo "> Running: ${MIRROR_CMD}"
