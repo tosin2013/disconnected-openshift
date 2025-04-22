@@ -75,8 +75,8 @@ fi
 # Extract the files
 for t in *.tar.gz; do
   tar zxvf $t
-  rm -f $t
-  rm -f README.md
+  rm -vf $t
+  rm -vf README.md
 done
 
 # Normalize names and set some permissions
@@ -87,8 +87,8 @@ mv oc kubectl openshift-install butane oc-mirror ..
 # Additional files for x86_64
 if [ "$ARCH" = "x86_64" ]; then
   mv opm-rhel9 opm
-  chmod a+x oc-mirror opm ccoctl
-  mv oc-mirror opm ccoctl ..
+  chmod a+x opm ccoctl
+  mv opm ccoctl ..
 fi
 
 # Clean up
