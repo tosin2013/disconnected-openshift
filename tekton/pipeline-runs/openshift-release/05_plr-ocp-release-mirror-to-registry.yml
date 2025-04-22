@@ -15,15 +15,19 @@ spec:
     #  value: "multi"
     - name: MIRROR_METHOD
       value: 'direct'
+    - name: MIRROR_ENGINE
+      value: 'oc-mirror'
 
     - name: LOCAL_REGISTRY
       #value: 'quay-quay-quay.apps.endurance-sno.d70.lab.kemo.network'
-      value: 'disconn-harbor.d70.kemo.labs'
+      #value: 'disconn-harbor.d70.kemo.labs'
+      value: 'man-mirror.jfrog.lab.kemo.network'
     - name: LOCAL_REGISTRY_PATH_OCP_RELEASE
-      value: 'man-mirror/openshift/releases'
+      value: 'ocp/releases'
 
     - name: EXTRA_OC_ARGS
-      value: '--keep-manifest-list=true'
+      #value: '--keep-manifest-list=true --print-mirror-instructions=idms'
+      value: '-vvvv'
     #- name: TLS_VERIFY
     #  value: 'false'
 

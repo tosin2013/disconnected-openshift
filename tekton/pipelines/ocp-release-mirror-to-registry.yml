@@ -25,6 +25,10 @@ spec:
       description: Extra prepended arguments to the oc command
       default: ''
       type: string
+    - name: MIRROR_ENGINE
+      default: 'oc'
+      description: The engine to use for mirroring - either oc or oc-mirror
+      type: string
     - name: MIRROR_METHOD
       default: 'direct'
       description: Method to mirror - either direct or file
@@ -71,6 +75,8 @@ spec:
           value: "$(params.DRY_RUN)"
         - name: EXTRA_OC_ARGS
           value: "$(params.EXTRA_OC_ARGS)"
+        - name: MIRROR_ENGINE
+          value: "$(params.MIRROR_ENGINE)"
         - name: MIRROR_METHOD
           value: "$(params.MIRROR_METHOD)"
         - name: LOCAL_REGISTRY

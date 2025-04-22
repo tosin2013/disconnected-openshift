@@ -52,7 +52,7 @@ spec:
     - name: buildah-disconnected
       params:
         - name: IMAGE
-          value: 'image-registry.openshift-image-registry.svc:5000/openshift/ocp-tools:latest'
+          value: 'image-registry.openshift-image-registry.svc:5000/openshift/ocp-binary-tools:latest'
         - name: DOCKERFILE
           value: binaries/Containerfile
         - name: BUILD_ARGS
