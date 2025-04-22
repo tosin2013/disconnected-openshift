@@ -100,5 +100,10 @@ fi
 echo "> Running: ${MIRROR_CMD}"
 $MIRROR_CMD
 
+echo "Created directory structure:"
+echo "--------------------------------"
 tree ${TARGET_SAVE_PATH}
+
+echo "Cluster resources:"
+echo "--------------------------------"
 cat ${TARGET_SAVE_PATH}/working-dir/cluster-resources/*
