@@ -2,9 +2,9 @@
 # There are also a few other goodies in here.
 ARG TARGETPLATFORM
 
-# For Arm64 you need to use CentOS Stream
-FROM registry.access.redhat.com/ubi9/ubi:9.5-1744101466
-#FROM quay.io/centos/centos:stream9
+# For Arm64 you need to use CentOS Stream - NMState is not available in UBI9
+#FROM registry.access.redhat.com/ubi9/ubi:9.5-1744101466
+FROM quay.io/centos/centos:stream9
 
 USER 0
 
