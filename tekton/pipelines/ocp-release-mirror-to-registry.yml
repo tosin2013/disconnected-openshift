@@ -21,6 +21,10 @@ spec:
       description: Perform a dry run test or not
       default: 'true'
       type: string
+    - name: MAKE_SIGNATURE_CONFIGMAP
+      description: Create the Signature ConfigMap for the target release
+      default: 'false'
+      type: string
     - name: EXTRA_OC_ARGS
       description: Extra prepended arguments to the oc command
       default: ''
@@ -73,6 +77,8 @@ spec:
           value: "$(params.AUTH_FILE)"
         - name: DRY_RUN
           value: "$(params.DRY_RUN)"
+        - name: MAKE_SIGNATURE_CONFIGMAP
+          value: "$(params.MAKE_SIGNATURE_CONFIGMAP)"
         - name: EXTRA_OC_ARGS
           value: "$(params.EXTRA_OC_ARGS)"
         - name: MIRROR_ENGINE

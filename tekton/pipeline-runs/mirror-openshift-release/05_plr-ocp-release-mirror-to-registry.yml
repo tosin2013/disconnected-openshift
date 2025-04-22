@@ -9,8 +9,10 @@ spec:
   params:
     - name: DRY_RUN
       value: "false"
+    - name: MAKE_SIGNATURE_CONFIGMAP
+      value: "true"
     - name: OCP_RELEASE
-      value: "4.17.12"
+      value: "4.17.11"
     #- name: ARCHITECTURE
     #  value: "multi"
     - name: MIRROR_METHOD
@@ -22,7 +24,7 @@ spec:
       value: 'oc-ocp'
 
     - name: EXTRA_OC_ARGS
-      #value: '--keep-manifest-list=true --print-mirror-instructions=idms'
+      value: '--keep-manifest-list=true --print-mirror-instructions=idms'
 
     - name: AUTH_FILE
       value: "/tmp/authsecret/auth.json"
