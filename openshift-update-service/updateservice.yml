@@ -16,5 +16,4 @@ spec:
   # The workaround is to manually mirror the images for specific releases you want to upgrade to.
   # For Harbor pull-through/proxy caches, it will try to mirror all 12k+ images in the repo.  You don't want this.
   # The workaround is to manually mirror the images for specific releases you want to upgrade to.
-  #releases: man-mirror.jfrog.lab.kemo.network/openshift/release-images
-  releases: man-mirror.jfrog.lab.kemo.network/oc-ocp-release
+  releases: man-mirror.jfrog.lab.kemo.network/openshift/release-images
