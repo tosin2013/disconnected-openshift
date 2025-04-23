@@ -84,3 +84,9 @@ DRY_RUN="false" \
 ```
 
 This ConfigMap needs to be distributed to the various clusters consuming your disconnected OSUS instance.  This could be done via ACM/GitOps without much adaptation.
+
+## Common Issues
+
+## oc adm release info: filtered all images from manifest lest
+
+If you see something like `error: unable to read image man-mirror.jfrog.lab.kemo.network/openshift/release-images:4.17.11-multi: filtered all images from manifest list` then make sure the architecture you're querying for is supported by your client's architecture - ie, this command doesn't work on Apple Silicon to a registry that only has x86_64 images mirrored.
