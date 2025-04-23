@@ -79,10 +79,11 @@ fi
 
 # Construct the YAML file
 
-LABEL_STR='"release.openshift.io/verification-signatures": "", "source-path": "'${LOCAL_REGISTRY_RELEASE_PATH}'", "release-version": "'${OCP_RELEASE}'", "source-registry": "'${LOCAL_REGISTRY}'", "source-image": "'${IMAGE}'"' # so labels can't have slashes in the key or value
+LABEL_STR='"release.openshift.io/verification-signatures": "", "release-version": "'${OCP_RELEASE}'", "source-registry": "'${LOCAL_REGISTRY}'", "source-image": "'${IMAGE}'"'
+ANNOTATION_STR='"source-path": "'${LOCAL_REGISTRY_RELEASE_PATH}'"' # so labels can't have slashes in the key or value
 oc create configmap sha256-${DIGEST_TAG_SHASUM} -n openshift-config-managed --from-file=sha256-${DIGEST_TAG_SHASUM}-1=/tmp/ocp-sig-1-${OCP_RELEASE}/signature-1 --dry-run=client -o json > /tmp/ocp-sig-1-${OCP_RELEASE}/init-configmap.json
-jq ".metadata.labels |= . + {$LABEL_STR}" /tmp/ocp-sig-1-${OCP_RELEASE}/init-configmap.json > /tmp/ocp-sig-1-${OCP_RELEASE}/configmap.json
-#jq ".metadata.annotations |= . + {$ANNOTATION_STR}" /tmp/ocp-sig-1-${OCP_RELEASE}/labeled-configmap.json > /tmp/ocp-sig-1-${OCP_RELEASE}/configmap.json
+jq ".metadata.labels |= . + {$LABEL_STR}" /tmp/ocp-sig-1-${OCP_RELEASE}/init-configmap.json > /tmp/ocp-sig-1-${OCP_RELEASE}/labeled-configmap.json
+jq ".metadata.annotations |= . + {$ANNOTATION_STR}" /tmp/ocp-sig-1-${OCP_RELEASE}/labeled-configmap.json > /tmp/ocp-sig-1-${OCP_RELEASE}/configmap.json
 
 cat /tmp/ocp-sig-1-${OCP_RELEASE}/configmap.json
 
