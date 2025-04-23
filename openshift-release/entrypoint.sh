@@ -1,10 +1,22 @@
 #!/bin/bash
 
 VERBOSE=${VERBOSE:="false"}
-MAKE_SIGNATURE_CONFIGMAP=${MAKE_SIGNATURE_CONFIGMAP:="false"}
 if [[ "${VERBOSE}" == "true" ]]; then set -x; fi
 
+MAKE_SIGNATURE_CONFIGMAP=${MAKE_SIGNATURE_CONFIGMAP:="false"}
+DELETE_EXISTING_PATH=${DELETE_EXISTING_PATH:="true"}
+OCP_RELEASE=${OCP_RELEASE:="4.17.16"}
+TARGET_SAVE_PATH=${TARGET_SAVE_PATH:="/tmp/mirror/${OCP_RELEASE}"}
 MIRROR_ENGINE=${MIRROR_ENGINE:="oc"} # oc or oc-mirror
+
+# Make the save path directory
+if [ "${DELETE_EXISTING_PATH}" == "true" ]; then
+  if [ -d "${TARGET_SAVE_PATH}" ]; then
+    echo "> Deleting existing path ${TARGET_SAVE_PATH}"
+    rm -rf ${TARGET_SAVE_PATH}/*
+  fi
+fi
+mkdir -p ${TARGET_SAVE_PATH}
 
 REGISTRY_CONF=""
 if [[ "${WORKSPACES_CONTAINERCONFIG_BOUND}" == "true" ]]; then

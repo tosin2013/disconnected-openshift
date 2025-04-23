@@ -31,7 +31,6 @@ LOCAL_REGISTRY_BASE_PATH=${LOCAL_REGISTRY_BASE_PATH:=""}
 # No need to change these things - probably
 ARCHITECTURE=${ARCHITECTURE:="multi"} # amd64, arm64, multi, s390x, ppc64le
 SKIP_TLS_VERIFY=${SKIP_TLS_VERIFY:="false"}
-DELETE_EXISTING_PATH=${DELETE_EXISTING_PATH:="true"}
 TARGET_SAVE_PATH=${TARGET_SAVE_PATH:="/tmp/mirror/${OCP_RELEASE}"}
 PRODUCT_REPO="openshift-release-dev"
 RELEASE_NAME="ocp-release"
@@ -57,15 +56,6 @@ echo "> Save Path: ${TARGET_SAVE_PATH}"
 echo "> Dry Run: ${DRY_RUN}"
 echo "> Skip TLS Verify: ${SKIP_TLS_VERIFY}"
 echo "> XDG_RUNTIME_DIR: ${XDG_RUNTIME_DIR}"
-
-# Make the save path directory
-if [ "${DELETE_EXISTING_PATH}" == "true" ]; then
-  if [ -d "${TARGET_SAVE_PATH}" ]; then
-    echo "> Deleting existing path ${TARGET_SAVE_PATH}"
-    rm -rf ${TARGET_SAVE_PATH}
-  fi
-fi
-mkdir -p ${TARGET_SAVE_PATH}
 
 # Create the ImageSetConfiguration file
 cat <<EOF > ${TARGET_SAVE_PATH}/mirror-config.yaml
