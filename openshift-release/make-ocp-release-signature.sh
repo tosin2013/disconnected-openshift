@@ -13,8 +13,8 @@ fi
 DRY_RUN=${DRY_RUN:="true"}
 SKIP_TLS_VERIFY=${SKIP_TLS_VERIFY:="false"}
 LOOKUP_MODE=${LOOKUP_MODE:="offline"} #online for curl+release, offline for oc/container things
-LOCAL_REGISTRY=${LOCAL_REGISTRY:="quay.io"}
-LOCAL_REGISTRY_RELEASE_PATH=${LOCAL_REGISTRY_RELEASE_PATH:="openshift-release-dev/ocp-release"}
+LOCAL_REGISTRY=${LOCAL_REGISTRY:=""} # eg quay.io
+LOCAL_REGISTRY_RELEASE_PATH=${LOCAL_REGISTRY_RELEASE_PATH:=""} # eg openshift-release-dev/ocp-release
 ARCHITECTURE=${ARCHITECTURE:="x86_64"}
 
 # Can't remember what this does?
