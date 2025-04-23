@@ -89,12 +89,16 @@ cat /tmp/ocp-sig-1-${OCP_RELEASE}/configmap.json
 
 oc apply --dry-run=client -o yaml -f /tmp/ocp-sig-1-${OCP_RELEASE}/configmap.json > /tmp/ocp-sig-1-${OCP_RELEASE}/configmap.yml
 
+cat /tmp/ocp-sig-1-${OCP_RELEASE}/configmap.yml
+
 if [ "${DRY_RUN}" == "true" ]; then
   echo "DRY RUN: Not applying configmap"
-  cat /tmp/ocp-sig-1-${OCP_RELEASE}/configmap.yml
   exit 0
 else
   oc apply -f /tmp/ocp-sig-1-${OCP_RELEASE}/configmap.yml
+  oc label configmap sha256-${DIGEST_TAG_SHASUM} -n openshift-config-managed -l release-version="${OCP_RELEASE}"
+  oc label configmap sha256-${DIGEST_TAG_SHASUM} -n openshift-config-managed -l source-registry="${LOCAL_REGISTRY}"
+  oc label configmap sha256-${DIGEST_TAG_SHASUM} -n openshift-config-managed -l source-image="${IMAGE}"
 fi
 
 # Clean up
