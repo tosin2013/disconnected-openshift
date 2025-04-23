@@ -79,7 +79,13 @@ fi
 
 # Construct the YAML file
 set -x
-oc create configmap sha256-${DIGEST_TAG_SHASUM} -n openshift-config-managed --from-file=sha256-${DIGEST_TAG_SHASUM}-1=/tmp/ocp-sig-1-${OCP_RELEASE}/signature-1 --dry-run=client -o yaml | yq -rM '.metadata += {"labels": {"release.openshift.io/verification-signatures": "", "release-version": "'${OCP_RELEASE}'", "source-registry": "'${LOCAL_REGISTRY}'", "source-image": "'${IMAGE}'", "source-path": "'${LOCAL_REGISTRY_RELEASE_PATH}'"}}' > /tmp/ocp-sig-1-${OCP_RELEASE}/configmap.yml
+oc create configmap sha256-${DIGEST_TAG_SHASUM} -n openshift-config-managed --from-file=sha256-${DIGEST_TAG_SHASUM}-1=/tmp/ocp-sig-1-${OCP_RELEASE}/signature-1 --dry-run=client -o yaml \
+ | yq -rM '.metadata += {"labels": {"release.openshift.io/verification-signatures": ""}}' \
+ | yq -rM '.metadata += {"labels": {"release-version": "'${OCP_RELEASE}'"}}' \
+ | yq -rM '.metadata += {"labels": {"source-registry": "'${LOCAL_REGISTRY}'"}}' \
+ | yq -rM '.metadata += {"labels": {"source-image": "'${IMAGE}'"}}' \
+ | yq -rM '.metadata += {"labels": {"source-path": "'${LOCAL_REGISTRY_RELEASE_PATH}'"}}' \
+  > /tmp/ocp-sig-1-${OCP_RELEASE}/configmap.yml
 
 if [ "${DRY_RUN}" == "true" ]; then
   echo "DRY RUN: Not applying configmap"
