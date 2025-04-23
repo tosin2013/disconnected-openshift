@@ -11,6 +11,7 @@ if [ -z "${OCP_RELEASE}" ]; then
 fi
 
 DRY_RUN=${DRY_RUN:="true"}
+VERBOSE=${VERBOSE:="true"}
 SKIP_TLS_VERIFY=${SKIP_TLS_VERIFY:="false"}
 LOOKUP_MODE=${LOOKUP_MODE:="offline"} #online for curl+release, offline for oc/container things
 LOCAL_REGISTRY=${LOCAL_REGISTRY:=""} # eg quay.io
@@ -24,25 +25,33 @@ else
   IMAGE="${OCP_RELEASE}"
 fi
 
+CURL_OPTIONS="-s"
+OC_OPTIONS=""
+if [ "${VERBOSE}" == "true" ]; then
+  CURL_OPTIONS="-vvvv"
+fi
+if [ "${SKIP_TLS_VERIFY}" == "true" ]; then
+  CURL_OPTIONS="${CURL_OPTIONS} -k"
+  OC_OPTIONS="${OC_OPTIONS} --insecure=true"
+fi
+
 echo "=== Creating signature ConfigMap ==="
+echo "> DRY RUN: ${DRY_RUN}"
+echo "> VERBOSE: ${VERBOSE}"
+echo "> SKIP TLS VERIFY: ${SKIP_TLS_VERIFY}"
 echo "> OCP RELEASE: ${OCP_RELEASE}"
 echo "> ARCHITECTURE: ${ARCHITECTURE}"
+echo "> LOOKUP MODE: ${LOOKUP_MODE}"
+echo "> LOCAL REGISTRY: ${LOCAL_REGISTRY}"
+echo "> LOCAL REGISTRY RELEASE PATH: ${LOCAL_REGISTRY_RELEASE_PATH}"
 echo "> ENDPOINT: ${LOCAL_REGISTRY}/${LOCAL_REGISTRY_RELEASE_PATH}"
 echo "> IMAGE: ${IMAGE}"
 
 # Get the digest tag from the release info
 if [ "${LOOKUP_MODE}" == "online" ]; then
-  if [ "${SKIP_TLS_VERIFY}" == "true" ]; then
-    RELEASE_INFO=$(curl -sk -H "Accept: text/plain" https://mirror.openshift.com/pub/openshift-v4/${ARCHITECTURE}/clients/ocp/${OCP_RELEASE}/release.txt)
-  else
-    RELEASE_INFO=$(curl -s -H "Accept: text/plain" https://mirror.openshift.com/pub/openshift-v4/${ARCHITECTURE}/clients/ocp/${OCP_RELEASE}/release.txt)
-  fi
+  RELEASE_INFO=$(curl ${CURL_OPTIONS} -H "Accept: text/plain" https://mirror.openshift.com/pub/openshift-v4/${ARCHITECTURE}/clients/ocp/${OCP_RELEASE}/release.txt)
 else
-  if [ "${SKIP_TLS_VERIFY}" == "true" ]; then
-    RELEASE_INFO=$(oc adm release info --insecure=true ${LOCAL_REGISTRY}/${LOCAL_REGISTRY_RELEASE_PATH}:${IMAGE})
-  else
-    RELEASE_INFO=$(oc adm release info ${LOCAL_REGISTRY}/${LOCAL_REGISTRY_RELEASE_PATH}:${IMAGE})
-  fi
+  RELEASE_INFO=$(oc adm release info ${OC_OPTIONS} ${LOCAL_REGISTRY}/${LOCAL_REGISTRY_RELEASE_PATH}:${IMAGE})
 fi
 
 if [ $? -ne 0 ]; then
@@ -61,12 +70,7 @@ echo "> DIGEST TAG SHASUM: $DIGEST_TAG_SHASUM"
 mkdir -p /tmp/ocp-sig-1-${OCP_RELEASE}
 
 # Download the signature file
-if [ "${SKIP_TLS_VERIFY}" == "true" ]; then
-  curl -sk -o /tmp/ocp-sig-1-${OCP_RELEASE}/signature-1 https://mirror.openshift.com/pub/openshift-v4/signatures/openshift-release-dev/ocp-release/sha256%3D${DIGEST_TAG_SHASUM}/signature-1
-else
-  curl -s -o /tmp/ocp-sig-1-${OCP_RELEASE}/signature-1 https://mirror.openshift.com/pub/openshift-v4/signatures/openshift-release-dev/ocp-release/sha256%3D${DIGEST_TAG_SHASUM}/signature-1
-fi
-
+curl ${CURL_OPTIONS} -o /tmp/ocp-sig-1-${OCP_RELEASE}/signature-1 https://mirror.openshift.com/pub/openshift-v4/signatures/openshift-release-dev/ocp-release/sha256%3D${DIGEST_TAG_SHASUM}/signature-1
 if [ $? -ne 0 ]; then
   echo "Failed to download the signature file. Please check the URL."
   exit 1
