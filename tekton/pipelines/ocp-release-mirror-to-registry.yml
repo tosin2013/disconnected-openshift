@@ -68,6 +68,7 @@ spec:
       type: string
   tasks:
     - name: ocp-release-mirror-to-registry
+      retries: 1
       params:
         - name: OCP_RELEASE
           value: "$(params.OCP_RELEASE)"

@@ -12,9 +12,12 @@ spec:
     - name: MAKE_SIGNATURE_CONFIGMAP
       value: "true"
     - name: OCP_RELEASE
-      value: "4.17.16"
+      #value: "4.17.11"
+      #value: "4.17.12"
+      #value: "4.17.16"
+      value: "4.17.20"
     - name: ARCHITECTURE
-      value: "multi"
+      value: "amd64" # amd64 for oc-mirror instead of x86_64
     - name: MIRROR_METHOD
       value: 'direct'
     - name: MIRROR_ENGINE
