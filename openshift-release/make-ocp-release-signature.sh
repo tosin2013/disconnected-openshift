@@ -80,7 +80,12 @@ fi
 # Construct the YAML file
 set -x
 LABEL_STR='"release.openshift.io/verification-signatures": "", "release-version": "'${OCP_RELEASE}'", "source-registry": "'${LOCAL_REGISTRY}'", "source-image": "'${IMAGE}'", "source-path": "'${LOCAL_REGISTRY_RELEASE_PATH}'"'
-oc create configmap sha256-${DIGEST_TAG_SHASUM} -n openshift-config-managed --from-file=sha256-${DIGEST_TAG_SHASUM}-1=/tmp/ocp-sig-1-${OCP_RELEASE}/signature-1 --dry-run=client -o json | jq '.metadata.labels={'$LABEL_STR'}' | oc apply --dry-run=client -o yaml -f - > /tmp/ocp-sig-1-${OCP_RELEASE}/configmap.yml
+oc create configmap sha256-${DIGEST_TAG_SHASUM} -n openshift-config-managed --from-file=sha256-${DIGEST_TAG_SHASUM}-1=/tmp/ocp-sig-1-${OCP_RELEASE}/signature-1 --dry-run=client -o json > /tmp/ocp-sig-1-${OCP_RELEASE}/init-configmap.json
+jq ".metadata.labels |= . + {$LABEL_STR}" /tmp/ocp-sig-1-${OCP_RELEASE}/init-configmap.json > /tmp/ocp-sig-1-${OCP_RELEASE}/configmap.json
+
+cat /tmp/ocp-sig-1-${OCP_RELEASE}/configmap.json
+
+oc apply --dry-run=client -o yaml -f /tmp/ocp-sig-1-${OCP_RELEASE}/configmap.json > /tmp/ocp-sig-1-${OCP_RELEASE}/configmap.yml
 
 if [ "${DRY_RUN}" == "true" ]; then
   echo "DRY RUN: Not applying configmap"
