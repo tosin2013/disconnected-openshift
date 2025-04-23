@@ -96,7 +96,7 @@ if [ "${DRY_RUN}" == "true" ]; then
   exit 0
 else
   oc apply -f /tmp/ocp-sig-1-${OCP_RELEASE}/configmap.yml
-  oc label configmap sha256-${DIGEST_TAG_SHASUM} -n openshift-config-managed -l release-version="${OCP_RELEASE}" -l source-registry="${LOCAL_REGISTRY}" -l source-image="${IMAGE}" --overwrite
+  oc label --overwrite configmap sha256-${DIGEST_TAG_SHASUM} -n openshift-config-managed release-version="${OCP_RELEASE}" source-registry="${LOCAL_REGISTRY}" source-image="${IMAGE}"
 fi
 
 # Clean up
