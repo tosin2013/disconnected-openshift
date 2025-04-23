@@ -18,6 +18,10 @@ LOCAL_REGISTRY=${LOCAL_REGISTRY:=""} # eg quay.io
 LOCAL_REGISTRY_RELEASE_PATH=${LOCAL_REGISTRY_RELEASE_PATH:="openshift/release-images"} # eg openshift-release-dev/ocp-release
 ARCHITECTURE=${ARCHITECTURE:="x86_64"}
 
+if  [ "${ARCHITECTURE}" == "amd64" ]; then
+  ARCHITECTURE="x86_64"
+fi
+
 # Can't remember what this does?
 if [[ $OCP_RELEASE =~ "4." ]]; then
   IMAGE="${OCP_RELEASE}-${ARCHITECTURE}"

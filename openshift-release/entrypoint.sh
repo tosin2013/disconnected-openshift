@@ -53,11 +53,19 @@ env
 echo ""
 echo ""
 
-if [ "${MIRROR_ENGINE}" == "oc" ]; then
+case "${MIRROR_ENGINE}" in
+  oc)
     /mirror-release.sh
-else
+    ;;
+
+  oc-mirror)
     /oc-mirror.sh
-fi
+    ;;
+
+  operators)
+    /mirror-operators.sh
+    ;;
+esac
 
 if [[ "${MAKE_SIGNATURE_CONFIGMAP}" == "true" ]]; then
     /make-ocp-release-signature.sh ${OCP_RELEASE}
