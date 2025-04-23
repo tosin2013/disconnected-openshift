@@ -87,7 +87,7 @@ jq ".metadata.annotations |= . + {$ANNOTATION_STR}" /tmp/ocp-sig-1-${OCP_RELEASE
 
 cat /tmp/ocp-sig-1-${OCP_RELEASE}/configmap.json
 
-oc apply --dry-run=client -o yaml -f /tmp/ocp-sig-1-${OCP_RELEASE}/configmap.json > /tmp/ocp-sig-1-${OCP_RELEASE}/configmap.yml
+oc create --dry-run=client -o yaml -f /tmp/ocp-sig-1-${OCP_RELEASE}/configmap.json > /tmp/ocp-sig-1-${OCP_RELEASE}/configmap.yml
 
 cat /tmp/ocp-sig-1-${OCP_RELEASE}/configmap.yml
 
@@ -96,7 +96,7 @@ if [ "${DRY_RUN}" == "true" ]; then
   exit 0
 else
   oc apply -f /tmp/ocp-sig-1-${OCP_RELEASE}/configmap.yml
-  oc label --overwrite configmap sha256-${DIGEST_TAG_SHASUM} -n openshift-config-managed release-version="${OCP_RELEASE}" source-registry="${LOCAL_REGISTRY}" source-image="${IMAGE}"
+  #oc label --overwrite configmap sha256-${DIGEST_TAG_SHASUM} -n openshift-config-managed release-version="${OCP_RELEASE}" source-registry="${LOCAL_REGISTRY}" source-image="${IMAGE}"
 fi
 
 # Clean up
