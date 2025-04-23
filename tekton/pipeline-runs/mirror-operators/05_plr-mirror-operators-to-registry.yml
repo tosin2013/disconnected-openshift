@@ -11,11 +11,13 @@ spec:
       value: "false"
     - name: MIRROR_METHOD
       value: 'direct'
+    - name: MIRROR_ENGINE
+      value: 'operators'
 
     - name: SOURCE_OPERATOR_INDEX
       value: registry.redhat.io/redhat/redhat-operator-index:v4.17
     - name: TARGET_OPERATOR_INDEX
-      value: "man-mirror.jfrog.lab.kemo.network/openshift/operators"
+      value: "man-mirror.jfrog.lab.kemo.network/operators/redhat-operators"
 
     - name: OPERATOR_LIST
       value: "aws-load-balancer-operator 3scale-operator node-observability-operator"

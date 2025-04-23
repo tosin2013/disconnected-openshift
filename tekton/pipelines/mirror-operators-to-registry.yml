@@ -80,6 +80,8 @@ spec:
           value: "$(params.DRY_RUN)"
         - name: EXTRA_OC_ARGS
           value: "$(params.EXTRA_OC_ARGS)"
+        - name: MIRROR_ENGINE
+          value: "$(params.MIRROR_ENGINE)"
         - name: MIRROR_METHOD
           value: "$(params.MIRROR_METHOD)"
         - name: MIRROR_DIRECTION
