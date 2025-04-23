@@ -17,5 +17,7 @@ This means that any external images can be transparently pulled in without inter
 - [Configure Harbor to work as a Pull-through/Proxy Cache](./pullthrough-proxy-cache-harbor.md)
 - [Configure JFrog to work as a Pull-through/Proxy Cache](./pullthrough-proxy-cache-jfrog.md)
 
+Note that JFrog may not be a perfect pull-through/proxy cache - when being used for OpenShift releases via OSUS, it will hit a limit on the number of image tags that JFrog can proxy: https://jfrog.atlassian.net/browse/RTFACT-18971
+
 ---
 
