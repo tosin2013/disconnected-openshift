@@ -11,7 +11,7 @@ BUTANE_CHANNEL=${BUTANE_CHANNEL:="latest"} # latest, v0.23.0-0, etc
 if [ -z "$TARGETPLATFORM" ]; then
   ARCH=$(arch)
   OS=$(uname -o | sed 's|GNU/L|l|')
-  TARGETPLATFORM="$OS/$ARCH"
+  TARGETPLATFORM="${OS,}/${ARCH,}"
 fi
 
 # Set the filenames based on the platform - it's not really a standard...
@@ -20,18 +20,21 @@ if [ "$TARGETPLATFORM" = "linux/amd64" ] || [ "$TARGETPLATFORM" = "linux/x86_64"
   IARCH=amd64
   OPENSHIFT_INSTALL_FILENAME=openshift-install-linux
   OPENSHIFT_CLIENT_FILENAME=openshift-client-linux
+  YQ_BIN_NAME=yq_linux_amd64
   BUTANE_FILENAME=butane-${IARCH}
 elif [ "$TARGETPLATFORM" = "linux/arm64" ] || [ "$TARGETPLATFORM" = "linux/aarch64" ]; then
   ARCH=arm64
   IARCH=aarch64
   OPENSHIFT_INSTALL_FILENAME=openshift-install-linux-arm64
   OPENSHIFT_CLIENT_FILENAME=openshift-client-linux-arm64
+  YQ_BIN_NAME=yq_linux_arm64
   BUTANE_FILENAME=butane-${IARCH}
-elif [ "$TARGETPLATFORM" = "Darwin/arm64" ] || [ "$TARGETPLATFORM" = "Darwin/aarch64" ]; then
+elif [ "$TARGETPLATFORM" = "darwin/arm64" ] || [ "$TARGETPLATFORM" = "darwin/aarch64" ]; then
   ARCH=arm64
   IARCH=aarch64
   OPENSHIFT_INSTALL_FILENAME=openshift-install-mac-arm64
   OPENSHIFT_CLIENT_FILENAME=openshift-client-mac-arm64
+  YQ_BIN_NAME=yq_darwin_arm64
   # Butane doesn't have a darwin build for arm64?
   BUTANE_FILENAME=butane-darwin-amd64
 else
@@ -59,6 +62,7 @@ cd $DEST_DIR/ocpbintmp
 wget https://mirror.openshift.com/pub/openshift-v4/clients/butane/${BUTANE_CHANNEL}/${BUTANE_FILENAME}
 wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${CHANNEL}/${OPENSHIFT_INSTALL_FILENAME}.tar.gz
 wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${CHANNEL}/${OPENSHIFT_CLIENT_FILENAME}.tar.gz
+wget https://github.com/mikefarah/yq/releases/latest/download/${YQ_BIN_NAME} -O yq
 
 # Get additional files for x86_64 - rather things that don't have an Arm64 build
 if [ "$ARCH" = "x86_64" ] && [ "$OS" = "linux" ]; then
@@ -81,8 +85,8 @@ done
 
 # Normalize names and set some permissions
 mv ${BUTANE_FILENAME} butane
-chmod a+x oc kubectl openshift-install butane oc-mirror
-mv oc kubectl openshift-install butane oc-mirror ..
+chmod a+x oc kubectl openshift-install butane oc-mirror yq
+mv oc kubectl openshift-install butane oc-mirror yq ..
 
 # Additional files for x86_64
 if [ "$ARCH" = "x86_64" ]; then
