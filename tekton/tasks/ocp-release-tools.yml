@@ -22,10 +22,7 @@ metadata:
 spec:
   description: Task that can execute the script needed to mirror OpenShift Releases
   params:
-    - name: AUTH_FILE
-      default: '/tmp/authfile/auth.json'
-      description: Path to authentication file to use for pulling/pushing images
-      type: string
+    # OpenShift Release Mirroring
     - name: OCP_RELEASE
       default: '4.17.16'
       description: OpenShift Release version to mirror
@@ -33,10 +30,6 @@ spec:
     - name: ARCHITECTURE
       default: 'x86_64'
       description: OpenShift Release architecture to mirror - x86_64, aarch64, s390x, ppc64le, multi
-      type: string
-    - name: DRY_RUN
-      description: Perform a dry run test or not
-      default: 'true'
       type: string
     - name: MAKE_SIGNATURE_CONFIGMAP
       description: Create the Signature ConfigMap for the target release
@@ -66,11 +59,44 @@ spec:
       default: ''
       description: Registry path to push to
       type: string
+    
+    # Operator Index Mirroring
+    - name: SOURCE_OPERATOR_INDEX
+      default: ''
+      description: Source operator index to mirror
+      type: string
+    - name: TARGET_OPERATOR_INDEX
+      default: ''
+      description: Target operator index to mirror to
+      type: string
+    - name: OPERATOR_LIST
+      default: ''
+      description: List of operators to mirror
+      type: string
+
+    # General Parameters
+    - name: AUTH_FILE
+      default: '/tmp/authfile/auth.json'
+      description: Path to authentication file to use for pulling/pushing images
+      type: string
+    - name: DRY_RUN
+      description: Perform a dry run test or not
+      default: 'true'
+      type: string
     - name: TARGET_SAVE_PATH
       default: '/tmp/mirror'
+      description: Where to save things to, even if just temporarily.
+      type: string
+    - name: TLS_VERIFY
+      default: 'true'
+      description: Sets the TLS verification flag, `true` is recommended.
+      type: string
+    - name: VERBOSE
+      default: 'false'
       description: Turns on verbose logging, all commands executed will be printed out.
       type: string
 
+    # Proxy Parameters
     - name: HTTP_PROXY
       default: ''
       description: HTTP proxy server (non-TLS requests).
@@ -83,27 +109,13 @@ spec:
       default: ''
       description: Opt out of proxying HTTP/HTTPS requests.
       type: string
-    - name: TLS_VERIFY
-      default: 'true'
-      description: Sets the TLS verification flag, `true` is recommended.
-      type: string
-    - name: VERBOSE
-      default: 'false'
-      description: Turns on verbose logging, all commands executed will be printed out.
-      type: string
   stepTemplate:
     computeResources: {}
     env:
-      - name: AUTH_FILE
-        value: $(params.AUTH_FILE)
-      - name: TARGET_SAVE_PATH
-        value: $(params.TARGET_SAVE_PATH)
       - name: OCP_RELEASE
         value: $(params.OCP_RELEASE)
       - name: ARCHITECTURE
         value: $(params.ARCHITECTURE)
-      - name: DRY_RUN
-        value: $(params.DRY_RUN)
       - name: MAKE_SIGNATURE_CONFIGMAP
         value: $(params.MAKE_SIGNATURE_CONFIGMAP)
       - name: EXTRA_OC_ARGS
@@ -119,6 +131,29 @@ spec:
       - name: LOCAL_REGISTRY_BASE_PATH
         value: $(params.LOCAL_REGISTRY_BASE_PATH)
 
+      - name: SOURCE_OPERATOR_INDEX
+        value: $(params.SOURCE_OPERATOR_INDEX)
+      - name: TARGET_OPERATOR_INDEX
+        value: $(params.TARGET_OPERATOR_INDEX)
+      - name: OPERATOR_LIST
+        value: $(params.OPERATOR_LIST)
+
+      - name: AUTH_FILE
+        value: $(params.AUTH_FILE)
+      - name: DRY_RUN
+        value: $(params.DRY_RUN)
+      - name: TARGET_SAVE_PATH
+        value: $(params.TARGET_SAVE_PATH)
+
+      - name: PARAMS_TLS_VERIFY
+        value: $(params.TLS_VERIFY)
+      - name: PARAMS_VERBOSE
+        value: $(params.VERBOSE)
+      - name: TLS_VERIFY
+        value: $(params.TLS_VERIFY)
+      - name: VERBOSE
+        value: $(params.VERBOSE)
+
       - name: HTTP_PROXY
         value: $(params.HTTP_PROXY)
       - name: HTTPS_PROXY
@@ -131,10 +166,6 @@ spec:
         value: $(params.HTTPS_PROXY)
       - name: no_proxy
         value: $(params.NO_PROXY)
-      - name: PARAMS_TLS_VERIFY
-        value: $(params.TLS_VERIFY)
-      - name: PARAMS_VERBOSE
-        value: $(params.VERBOSE)
 
       - name: WORKSPACES_SAVEPATH_BOUND
         value: $(workspaces.savepath.bound)

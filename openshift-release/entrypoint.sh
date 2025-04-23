@@ -9,6 +9,11 @@ OCP_RELEASE=${OCP_RELEASE:="4.17.16"}
 TARGET_SAVE_PATH=${TARGET_SAVE_PATH:="/tmp/mirror/${OCP_RELEASE}"}
 MIRROR_ENGINE=${MIRROR_ENGINE:="oc"} # oc or oc-mirror
 
+# Variables for mirroring Operators
+SOURCE_OPERATOR_INDEX=${SOURCE_OPERATOR_INDEX:=""}
+TARGET_OPERATOR_INDEX=${TARGET_OPERATOR_INDEX:=""}
+OPERATOR_LIST=${OPERATOR_LIST:=""}
+
 # Make the save path directory
 if [ "${DELETE_EXISTING_PATH}" == "true" ]; then
   if [ -d "${TARGET_SAVE_PATH}" ]; then
@@ -63,7 +68,7 @@ case "${MIRROR_ENGINE}" in
     ;;
 
   operators)
-    /mirror-operators.sh
+    /mirror-operators.sh ${SOURCE_OPERATOR_INDEX} ${TARGET_OPERATOR_INDEX} ${OPERATOR_LIST}
     ;;
 esac
 
