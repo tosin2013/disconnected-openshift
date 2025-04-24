@@ -21,6 +21,13 @@ There are common concerns listed right below, and then there are some specific c
   - [Pull Secret \& Release Images](#pull-secret--release-images)
   - [NTP](#ntp-1)
   - [Outbound Proxy Configuration](#outbound-proxy-configuration)
+- [ACM Assisted Service/Hive Examples](#acm-assisted-servicehive-examples)
+  - [AgentClusterInstall - Proxy Configuration](#agentclusterinstall---proxy-configuration)
+  - [ClusterDeployment - Additional Trust Bundle](#clusterdeployment---additional-trust-bundle)
+  - [ClusterDeployment - Pull Secret](#clusterdeployment---pull-secret)
+  - [InfraEnv - Pull Secret](#infraenv---pull-secret)
+  - [InfraEnv - Outbound Proxy](#infraenv---outbound-proxy)
+  - [InfraEnv - NTP](#infraenv---ntp)
 
 ## Common/General Disconnected Configuration
 
@@ -586,4 +593,112 @@ spec:
     httpProxy: http://proxy.kemo.labs:3128
     httpsProxy: http://proxy.kemo.labs:3128
     noProxy: '.kemo.labs,.kemo.network,.local,.svc,localhost,127.0.0.1,192.168.0.0/16,172.16.0.0/12,10.0.0.0/8'
-````
+```
+
+## ACM Assisted Service/Hive Examples
+
+### AgentClusterInstall - Proxy Configuration
+
+When using the Host Inventory AgentClusterInstall, you'll need to define an outbound proxy if that's how you rock and roll:
+
+```yaml
+---
+apiVersion: extensions.hive.openshift.io/v1beta1
+kind: AgentClusterInstall
+metadata:
+  name: cluster-name
+spec:
+  proxy:
+    httpProxy: http://proxy.kemo.labs:3129
+    httpsProxy: http://proxy.kemo.labs:3129
+    noProxy: '.kemo.labs,.kemo.network,192.168.0.0/16,172.16.0.0/12,10.0.0.0/8,localhost,127.0.0.1,.svc,.local'
+```
+
+### ClusterDeployment - Additional Trust Bundle
+
+When using Host Inventory deployments, your ClusterDeployment needs to be configured for extra Root CAs in the typical ConfigMap:
+
+```yaml
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: root-ca-in-a-secret-lol
+stringData:
+  tls-ca-bundle.pem: |
+    -----BEGIN CERTIFICATE-----
+    MII...
+    -----END CERTIFICATE-----
+---
+apiVersion: hive.openshift.io/v1
+kind: ClusterDeployment
+metadata:
+  name: cluster-name
+spec:
+  certificateBundles:
+    - name: root-ca-in-a-secret-lol
+      certificateSecretRef:
+        name: root-ca-in-a-secret-lol
+```
+
+### ClusterDeployment - Pull Secret
+
+The ClusterDeployment holds Pull Secret configuration that's used by the nodes when they boot.
+
+```yaml
+---
+apiVersion: hive.openshift.io/v1
+kind: ClusterDeployment
+metadata:
+  name: cluster-name
+spec:
+  pullSecretRef:
+    name: private-pull-secret
+```
+
+### InfraEnv - Pull Secret
+
+The InfraEnv holds Pull Secret configuration that's used by the nodes when they boot.
+
+```yaml
+---
+apiVersion: agent-install.openshift.io/v1beta1
+kind: InfraEnv
+metadata:
+  name: cluster-name
+spec:
+  pullSecretRef:
+    name: private-pull-secret
+```
+
+### InfraEnv - Outbound Proxy
+
+The InfraEnv has additional Outbound Proxy configuration that's used by the nodes when they boot.
+
+```yaml
+---
+apiVersion: agent-install.openshift.io/v1beta1
+kind: InfraEnv
+metadata:
+  name: cluster-name
+spec:
+  proxy:
+    httpProxy: http://proxy.kemo.labs:3129
+    httpsProxy: http://proxy.kemo.labs:3129
+    noProxy: '.kemo.labs,.kemo.network,192.168.0.0/16,172.16.0.0/12,10.0.0.0/8,localhost,127.0.0.1,.svc,.local'
+```
+
+### InfraEnv - NTP
+
+The InfraEnv can override what NTP sources are used for the systems at boot/install.
+
+```yaml
+---
+apiVersion: agent-install.openshift.io/v1beta1
+kind: InfraEnv
+metadata:
+  name: cluster-name
+spec:
+  additionalNTPSources:
+    - ntp.kemo.com
+```
