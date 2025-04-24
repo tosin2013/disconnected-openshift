@@ -3,3 +3,6 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: disconn-tekton
+  annotations:
+    operator.tekton.dev/prune.resources: "taskrun, pipelinerun"
+    operator.tekton.dev/prune.keep-since: '1440'
