@@ -49,9 +49,9 @@ In this repository you'll find some supporting resources to make mirroring OpenS
 - **OpenShift Release Tools** - Container built on top of the OpenShift Binary Tools container, has extra binaries/scripts that help with mirroring OpenShift Release Images, Operators, etc.
   - [Container](../openshift-release/Containerfile)
   - [GitHub Action](../.github/workflows/openshift-release-tools-build-container.yml)
-  - [oc Helper Script](../openshift-release/mirror-release.sh) - Mirroring via `oc`
-  - [oc-mirror Helper Script](../openshift-release/oc-mirror.sh) - Mirroring via `oc-mirror` v2
-  - [OCP Release Signature Helper Script](../openshift-release/make-ocp-release-signature.sh) - After mirroring a release, the Red Hat public key that signs it needs to be added as a ConfigMap before it can be used by a cluster for an update.  This script generates those ConfigMaps.
+  - [oc Helper Script](../openshift-release/container_root/mirror-release.sh) - Mirroring via `oc`
+  - [oc-mirror Helper Script](../openshift-release/container_root/oc-mirror.sh) - Mirroring via `oc-mirror` v2
+  - [OCP Release Signature Helper Script](../openshift-release/container_root/make-ocp-release-signature.sh) - After mirroring a release, the Red Hat public key that signs it needs to be added as a ConfigMap before it can be used by a cluster for an update.  This script generates those ConfigMaps.
 - **Tekton Assets** - Set of things that help make Tekton work in disconnected networks.
   - [Task, buildah-disconnected](../tekton/tasks/buildah-disconnected.yml) - Additional configuration for disconnected networks when using buildah to build images
   - [Task, skopeo-copy-disconnected](../tekton/tasks/skopeo-copy-disconnected.yml) - Additional configuration for disconnected networks when using skopeo
