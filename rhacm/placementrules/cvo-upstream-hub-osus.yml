@@ -1,0 +1,9 @@
+---
+apiVersion: apps.open-cluster-management.io/v1
+kind: PlacementRule
+metadata:
+  name: cvo-upstream-hub-osus
+spec:
+  clusterSelector:
+    matchLabels:
+      'cvo-upstream-hub-osus': 'true'

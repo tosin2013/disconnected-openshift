@@ -1,0 +1,13 @@
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: PlacementBinding
+metadata:
+  name: cvo-upstream-hub-osus
+placementRef:
+  name: cvo-upstream-hub-osus
+  apiGroup: apps.open-cluster-management.io
+  kind: PlacementRule
+subjects:
+  - name: cvo-upstream-hub-osus
+    apiGroup: policy.open-cluster-management.io
+    kind: Policy
