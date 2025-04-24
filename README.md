@@ -17,10 +17,10 @@ This repository is meant to make all that easier.  It features:
 - Custom Root CA helpers for Outbound HTTP Proxies that do SSL MitM!
 - Private image registry pointers!
 - Multi-arch and FIPS examples where available!
-- Disconnected Installation examples!
+- [Disconnected Installation Configuration](./installation-examples/) examples!
 - [Azure DevOps Pipelines](./.azure/), [GitHub Actions](./.github/workflows/), Ansible Automation/[EEs](./execution-environments/), and/or [Tekton](./tekton/) Pipelines when/where available!
 - [RHACM Policy examples](./rhacm/) for distributing disconnected configuration!
-- Stuff for [ACM](./rhacm/README.md#acm-disconnected-configuration), Ansible, DevSpaces, OpenShift AI, [Quay](./quay/), [OpenShift Virtualization](./docs/openshift-virtualization.md), and more!
+- Stuff for [ACM](./rhacm/README.md#acm-disconnected-configuration), Ansible, [DevSpaces](./docs/devspaces.md), [OpenShift AI](./docs/openshift-ai.md), [Quay](./quay/), [OpenShift Virtualization](./docs/openshift-virtualization.md), and more!
 
 ## Prerequisites
 
