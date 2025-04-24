@@ -18,9 +18,9 @@ This repository is meant to make all that easier.  It features:
 - Private image registry pointers!
 - Multi-arch and FIPS examples where available!
 - Disconnected Installation examples!
-- Azure DevOps Pipelines, GitHub Actions, Ansible Automation/EEs, and/or Tekton Pipelines when/where available!
-- RHACM Policy examples for distributing disconnected configuration!
-- Stuff for ACM, Ansible, DevSpaces, OpenShift AI, Quay, Virtualization, and more!
+- [Azure DevOps Pipelines](./.azure/), [GitHub Actions](./.github/workflows/), Ansible Automation/[EEs](./execution-environments/), and/or [Tekton](./tekton/) Pipelines when/where available!
+- [RHACM Policy examples](./rhacm/) for distributing disconnected configuration!
+- Stuff for [ACM](./rhacm/README.md#acm-disconnected-configuration), Ansible, DevSpaces, OpenShift AI, [Quay](./quay/), [OpenShift Virtualization](./docs/openshift-virtualization.md), and more!
 
 ## Prerequisites
 
@@ -45,10 +45,12 @@ This repository is meant to make all that easier.  It features:
 - [Extras](./extras/) - Small helpful quick references eg deploying an NGINX container on Podman, and a HTTP server that will automatically mirror assets.
 - [Tekton Resources](./tekton/) - Build containers in disconnect environments, run mirroring pipelines
 - [Ansible EDA + Tekton Pipeline](./docs/deploy-aap-on-openshift.md) for automatically mirroring images from ImagePullBackoff events
-- [Dev/Test Quay on OpenShift](./quay/) - A quick way to deploy Quay via the Operator on OpenShift for some quick testing, not configured for production.
+- [Dev/Test JFrog Container Registry on Podman](./docs/deploy-jfrog-podman.md) - A easy/quick way to deploy JCR with little more than a RHEL VM and Podman .
 - [Dev/Test Harbor on Podman](./docs/deploy-harbor-podman-compose.md) - A easy/quick way to deploy Harbor with little more than a RHEL VM and Podman Compose.
+- [Dev/Test Quay on OpenShift](./quay/) - A quick way to deploy Quay via the Operator on OpenShift for some quick testing, not configured for production - or anything really.
 - [Configure Pull-through Proxy Cache, Harbor](./docs/pullthrough-proxy-cache-harbor.md) - Guide to setup Harbor to act as a Pull-through/Proxy Cache.
 - [Configure Pull-through Proxy Cache, JFrog](./docs/pullthrough-proxy-cache-jfrog.md) - Guide to setup JFrog to act as a Pull-through/Proxy Cache.
+- [Deploy a Squid Outbound HTTP Proxy](https://kenmoini.com/post/2024/05/outbound-squid-proxy/)
 
 ---
 
@@ -85,4 +87,4 @@ Also, in earnest, there are still a few switches to flip with a Pull-through/Pro
 - Adjust for things like OpenShift Virt that doesn't use the global mirror config
 - Run an OpenShift Update Service instance
 
-But that's a much shorter list than all the other mirroring stuff.  If you can use a local proxy cache and an Outbound HTTP Proxy, then you can even skip the OSUS instance - really with an Outbound HTTP Proxy you can skip most of this stuff though.
+But that's a much shorter list than all the other manual mirroring stuff.  If you can use a local proxy cache and an Outbound HTTP Proxy, then you can even skip the OSUS instance - really with an Outbound HTTP Proxy you can skip most of this stuff though.
