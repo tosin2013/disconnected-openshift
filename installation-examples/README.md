@@ -527,6 +527,7 @@ spec:
   release:
     # Disconnected/Mirror registry
     image: quay-ptc.jfrog.lab.kemo.network/openshift-release-dev/ocp-release:4.17.12-x86_64
+  channel: stable-4.17
   # Make sure the Pull Secret has access to all registries, Red Hat and private
   pullSecret:
     name: pull-secret
@@ -586,13 +587,16 @@ metadata:
   labels:
     "cluster.open-cluster-management.io/clusterset": 'default'
 spec:
+  configuration:
   # ========================================================================================
   # Outbound Proxy Configuration
   # ========================================================================================
-  proxy:
-    httpProxy: http://proxy.kemo.labs:3128
-    httpsProxy: http://proxy.kemo.labs:3128
-    noProxy: '.kemo.labs,.kemo.network,.local,.svc,localhost,127.0.0.1,192.168.0.0/16,172.16.0.0/12,10.0.0.0/8'
+    proxy:
+      httpProxy: http://proxy.kemo.labs:3128
+      httpsProxy: http://proxy.kemo.labs:3128
+      noProxy: '.kemo.labs,.kemo.network,.local,.svc,localhost,127.0.0.1,192.168.0.0/16,172.16.0.0/12,10.0.0.0/8'
+      trustedCA:
+        name: user-ca-bundle
 ```
 
 ## ACM Assisted Service/Hive Examples
