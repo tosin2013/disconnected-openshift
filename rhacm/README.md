@@ -8,6 +8,14 @@ You can find an example of an ACM Policy that will configure your targeted clust
 
 Simply install ACM, run `oc apply -k rhacm/`, and if your OSUS instance is running on that same ACM Hub then any cluster with the `cvo-upstream-hub-osus=true` label will have its ClusterVersion CR configured to use that OSUS instance.
 
+## HCP CVO Upstream Policy Example
+
+Hosted Control Plane clusters have a different set of configuration to set for things - for instance, the OSUS Update Server upstream server is defined in the HostedCluster CR, not the ClusterVersion CR because that's managed by the Hosting Cluster.
+
+You can find an example of an ACM Policy that will enforce the Hub cluster deployed OSUS endpoint to be set for the `.spec.upstreamServer` parameter in any HostedCluster CRs.
+
+Apply the `hcp-upstream-hub-osus=true` label to any Hosting Clusters and the HostedCluster CRs on them will have the OSUS endpoint enforced.  This Policy is included in the deployment of the other Policy during the `oc apply -k rhacm/` step.
+
 ---
 
 ## ACM Disconnected Configuration

@@ -1,0 +1,13 @@
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: PlacementBinding
+metadata:
+  name: hcp-upstream-hub-osus
+placementRef:
+  name: hcp-upstream-hub-osus
+  apiGroup: apps.open-cluster-management.io
+  kind: PlacementRule
+subjects:
+  - name: hcp-upstream-hub-osus
+    apiGroup: policy.open-cluster-management.io
+    kind: Policy

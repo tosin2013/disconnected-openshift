@@ -1,0 +1,9 @@
+---
+apiVersion: apps.open-cluster-management.io/v1
+kind: PlacementRule
+metadata:
+  name: hcp-upstream-hub-osus
+spec:
+  clusterSelector:
+    matchLabels:
+      'hcp-upstream-hub-osus': 'true'

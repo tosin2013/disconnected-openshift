@@ -1,0 +1,34 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  name: hcp-upstream-hub-osus
+  annotations:
+    policy.open-cluster-management.io/standards: NIST SP 800-53
+    policy.open-cluster-management.io/categories: CM Configuration Management
+    policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
+spec:
+  # Remove the default remediation below to enforce the policies.
+  #remediationAction: inform
+  disabled: false
+  policy-templates:
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: set-hostedcluster-upstream
+        spec:
+          remediationAction: enforce
+          severity: low
+          object-templates-raw: |
+            {{- /* find the MultiClusterEngineHCP HostedClusters */ -}}
+            {{- range $hc := (lookup "hypershift.openshift.io/v1beta1" "HostedCluster" "" "").items }}
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: hypershift.openshift.io/v1beta1
+                kind: HostedCluster
+                metadata:
+                  name: {{ $hc.metadata.name }}
+                  namespace: {{ $hc.metadata.namespace }}
+                spec:
+                  updateService: https://{{hub (lookup "route.openshift.io/v1" "Route" "openshift-update-service" "osus-route").spec.host hub}}/api/upgrades_info/v1/graph
+            {{- end }}

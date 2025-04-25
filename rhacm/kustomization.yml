@@ -7,5 +7,8 @@ namespace: openshift-update-service
 resources:
   - mcsb/global.yml
   - placementbindings/cvo-upstream-hub-osus.yml
+  - placementbindings/hcp-upstream-hub-osus.yml
   - placementrules/cvo-upstream-hub-osus.yml
+  - placementrules/hcp-upstream-hub-osus.yml
   - policies/cvo-upstream-hub-osus.yml
+  - policies/hcp-upstream-hub-osus.yml
