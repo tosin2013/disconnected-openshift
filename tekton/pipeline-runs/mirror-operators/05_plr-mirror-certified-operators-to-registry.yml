@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1
 kind: PipelineRun
 metadata:
-  generateName: mirror-operators-to-registry-
+  generateName: mirror-rh-operators-to-registry-
   labels:
     tekton.dev/pipeline: mirror-operators-to-registry
 spec:
@@ -20,7 +20,7 @@ spec:
       value: "man-mirror.jfrog.lab.kemo.network/operators/redhat-operators"
 
     - name: OPERATOR_LIST
-      value: "aws-load-balancer-operator 3scale-operator node-observability-operator"
+      value: "advanced-cluster-management ansible-automation-platform-operator cincinnati-operator devspaces devworkspace-operator kubernetes-nmstate-operator kubevirt-hyperconverged rhods-operator local-storage-operator lvms-operator metallb-operator mtv-operator multicluster-engine nfd ocs-client-operator odf-operator openshift-gitops-operator openshift-pipelines-operator-rh quay-operator redhat-oadp-operator rhods-operator rhacs-operator"
 
     - name: EXTRA_OC_ARGS
       value: '--retry-times 10 --retry-delay 5s'
