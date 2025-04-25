@@ -1,4 +1,17 @@
 ---
+kind: ServiceAccount
+apiVersion: v1
+metadata:
+  name: pipeline
+  annotations:
+    openshift.io/internal-registry-pull-secret-ref: pipeline-internal-reg
+secrets:
+  - name: pipeline-internal-reg
+imagePullSecrets:
+  - name: pipeline-internal-reg
+# =================================================================================
+# Internal Registry RBAC
+---
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
@@ -26,17 +39,8 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
   name: 'system:image-pusher'
----
-kind: ServiceAccount
-apiVersion: v1
-metadata:
-  name: pipeline
-  annotations:
-    openshift.io/internal-registry-pull-secret-ref: pipeline-internal-reg
-secrets:
-  - name: pipeline-internal-reg
-imagePullSecrets:
-  - name: pipeline-internal-reg
+# =================================================================================
+# Manage ConfigMaps RBAC
 ---
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
@@ -69,3 +73,71 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
   name: manage-configmaps
+# =================================================================================
+# CatalogSource RBAC
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: manage-catalogsources
+rules:
+  - verbs:
+      - create
+      - get
+      - list
+      - delete
+      - deletecollection
+      - patch
+      - update
+    apiGroups:
+      - operators.coreos.com
+    resources:
+      - catalogsources
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: allow-pipelines-create-catalogsources
+  namespace: openshift-marketplace
+subjects:
+  - kind: ServiceAccount
+    name: pipeline
+    namespace: disconn-tekton
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: manage-catalogsources
+# =================================================================================
+# IDMS/ITMS RBAC
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: manage-idms-itms
+rules:
+  - verbs:
+      - create
+      - get
+      - list
+      - delete
+      - deletecollection
+      - patch
+      - update
+    apiGroups:
+      - config.openshift.io
+    resources:
+      - imagedigestmirrorsets
+      - imagetagmirrorsets
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: allow-pipelines-create-idms-itms
+subjects:
+  - kind: ServiceAccount
+    name: pipeline
+    namespace: disconn-tekton
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: manage-idms-itms
