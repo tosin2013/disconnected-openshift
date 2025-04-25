@@ -6,12 +6,27 @@ As of AAP 2.5, everything is deployed via the AnsibleAutomationPlatform CR.  For
 
 ```yaml
 ---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ca-bundle
+  namespace: aap
+stringData:
+  bundle-ca.crt: |
+    -----BEGIN CERTIFICATE-----
+    MIIG3...
+    -----END CERTIFICATE-----
+    -----BEGIN CERTIFICATE-----
+    MIIG3...
+    -----END CERTIFICATE-----
+---
 apiVersion: aap.ansible.com/v1alpha1
 kind: AnsibleAutomationPlatform
 metadata:
   name: aap
   namespace: aap
 spec:
+  bundle_cacert_secret: ca-bundle
   api:
     log_level: INFO
     replicas: 1
@@ -138,11 +153,11 @@ These manifests will create a new ServiceAccount, and a Token for it.  There are
 2. Do the subscription thing
 3. Create a new Organization/Teams/Groups/Users/Auth Providers if you want
 4. Create a new **Execution Environment**, named `auto-mirror-image` with the EE image, eg `quay.io/kenmoini/ee-auto-mirror-image:latest`
-5. Create a new **Decision Environment**, named `auto-mirror-iamge`, with the DE image, eg `quay.io/kenmoini/de-auto-mirror-image:latest`
+5. Create a new **Decision Environment**, named `auto-mirror-image`, with the DE image, eg `quay.io/kenmoini/de-auto-mirror-image:latest`
 6. Create a **Project** under **both** Automation Execution (Controller) and Automation Decision (EDA) - give it a name, point it to the fork of this repo, eg `https://gitea.apps.kemo.labs/kenmoini/disconnected-openshift.git`
   - **Note:** If you need to set Outbound HTTP Proxy configuration, do so with the environmental variable settings in Settings > Job.  Might be handy to also set `GIT_SSL_NO_VERIFY: 'true'`
 7. Create a series of **Job Templates** under Automation Execution, one for the decision playbook and another for the execution playbook.  Make sure to enable "Prompt on Launch" for Extra Variables
-8. Stitch those two Job Templates together in a **Workflow Template**.  Make sure "Prompt on launch" is checked for Extra Variables.  Add the extra variables `target_repo: disconn-harbor.d70.kemo.labs/man-mirror` and `substringParts: 1` and adjust accordingly.  The substringParts says how many slash-delimited parts of the source repository to remove from what is appended to the target_repo.
+8. Stitch those two Job Templates together in a **Workflow Template** called `Automatically Mirror Images`.  Make sure "Prompt on launch" is checked for Extra Variables.  Add the extra variables `target_repo: disconn-harbor.d70.kemo.labs/man-mirror` and `substringParts: 1` and adjust accordingly.  The substringParts says how many slash-delimited parts of the source repository to remove from what is appended to the target_repo.
 9. Create an **OAuth Application** under Access Management.  Password grand type, Public Client.
 10. Under Users > (you) > Tokens, **make a Token** with that Application and a Write scope.
 11. Take that User Token and create a new Red Hat Ansible Automation Platform type **EDA Credential** in Automation Decisions > Infrastructure > Credentials.
@@ -223,7 +238,7 @@ Next configure Alertmanager - in the OpenShift Administrative Web UI, navigate t
 receivers:
 - name: "eda-auto-mirror-images"
   webhook_configs:
-    - url: 'http://automatically-mirror-images.aap.svc:8000/endpoint'
+    - url: 'http://auto-mirror-image.aap.svc:8000/endpoint'
 
 route:
   routes:
