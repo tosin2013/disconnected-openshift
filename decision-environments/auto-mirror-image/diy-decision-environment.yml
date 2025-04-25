@@ -38,5 +38,7 @@ additional_build_steps:
     - VOLUME /runner
     - WORKDIR /runner
     - ENV HOME=/home/runner
+    - COPY container_root/ /
+    - RUN update-ca-certificates
 options:
   package_manager_path: /usr/bin/microdnf
