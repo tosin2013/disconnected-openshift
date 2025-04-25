@@ -18,6 +18,9 @@ EXTRA_OC_ARGS=${EXTRA_OC_ARGS:=""}
 
 MIRROR_METHOD=${MIRROR_METHOD:="direct"} # direct or file
 MIRROR_DIRECTION=${MIRROR_DIRECTION:="download"} # download or upload, only used when MIRROR_METHOD=file
+APPLY_CATALOGSOURCES=${APPLY_CATALOGSOURCES:="false"}
+APPLY_IDMS=${APPLY_IDMS:="false"}
+CONVERT_IDMS_TO_ITMS=${CONVERT_IDMS_TO_ITMS:="false"}
 
 # No need to change these things - probably
 SKIP_TLS_VERIFY=${SKIP_TLS_VERIFY:="false"}
@@ -95,3 +98,19 @@ tree ${TARGET_SAVE_PATH}
 echo "Cluster resources:"
 echo "--------------------------------"
 cat ${TARGET_SAVE_PATH}/working-dir/cluster-resources/*
+
+
+if [[ "${APPLY_CATALOGSOURCES}" == "true" ]]; then
+    oc apply -f ${TARGET_SAVE_PATH}/working-dir/cluster-resources/cs-*.yaml
+    #oc apply -f ${TARGET_SAVE_PATH}/working-dir/cluster-resources/cc-*.yaml #???
+fi
+
+if [[ "${APPLY_IDMS}" == "true" ]]; then
+    oc apply -f ${TARGET_SAVE_PATH}/working-dir/cluster-resources/idms-oc-mirror.yaml
+fi
+
+if [[ "${CONVERT_IDMS_TO_ITMS}" == "true" ]]; then
+    sed 's/Digest/Tag/g' ${TARGET_SAVE_PATH}/working-dir/cluster-resources/idms-oc-mirror.yaml > ${TARGET_SAVE_PATH}/working-dir/cluster-resources/idms-oc-mirror-itms.yaml
+    sed 's/digest/tag/g' ${TARGET_SAVE_PATH}/working-dir/cluster-resources/idms-oc-mirror-itms.yaml > ${TARGET_SAVE_PATH}/working-dir/cluster-resources/itms-oc-mirror.yaml
+    oc apply -f ${TARGET_SAVE_PATH}/working-dir/cluster-resources/itms-oc-mirror.yaml
+fi
