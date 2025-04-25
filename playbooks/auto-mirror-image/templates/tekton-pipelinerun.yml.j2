@@ -30,18 +30,18 @@ spec:
 
     - name: authsecret
       secret:
-        secretName: container-reg-auth
+        secretName: {{ pull_secret_name | default('container-reg-auth') }}
 
 # Optional in case you're pulling from a private repository and/or need to use a proxy
     - configMap:
         items:
           - key: registries.conf
             path: registries.conf
-        name: mirror-registry-config
+        name: {{ mirror_registry_configmap_name | default('mirror-registry-config') }}
       name: containerconfig
     - configMap:
         items:
           - key: ca-bundle.crt
             path: ca-bundle.crt
-        name: root-ca-certs
+        name: {{ root_bundle_configmap_name | default('root-ca-certs') }}
       name: root-ca-certs
