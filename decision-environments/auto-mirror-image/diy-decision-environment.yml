@@ -28,6 +28,7 @@ dependencies:
     - gcc [platform:rpm]
     - pkgconf-pkg-config [platform:rpm]
     - systemd-devel [platform:rpm]
+    - krb5-devel [platform:rpm]
   python_interpreter:
     package_system: "python3.11"
     python_path: "/usr/bin/python3.11"
