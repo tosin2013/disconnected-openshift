@@ -19,9 +19,17 @@ spec:
     - name: TARGET_OPERATOR_INDEX
       value: "man-mirror.jfrog.lab.kemo.network/operators/redhat-operators"
 
+    # This list of operators takes about 1.1TB of space
+    # and takes about 2.5 hours to mirror
     - name: OPERATOR_LIST
       value: "advanced-cluster-management ansible-automation-platform-operator cincinnati-operator devspaces devworkspace-operator kubernetes-nmstate-operator kubevirt-hyperconverged rhods-operator local-storage-operator lvms-operator metallb-operator mtv-operator multicluster-engine nfd ocs-client-operator odf-operator openshift-gitops-operator openshift-pipelines-operator-rh quay-operator redhat-oadp-operator rhods-operator rhacs-operator"
 
+    - name: APPLY_CATALOGSOURCES
+      value: "true"
+    - name: APPLY_IDMS
+      value: "true"
+    - name: CONVERT_IDMS_TO_ITMS
+      value: "true"
     - name: EXTRA_OC_ARGS
       value: '--retry-times 10 --retry-delay 5s'
 
