@@ -1,6 +1,6 @@
 # Red Hat CoreOS
 
-> Cloud platform guidance is omitted - if you're doing disconnected deployments in the cloud and can't use the build-in AMIs/VMIs you have different kinds of problems I don't want any part of.
+> Cloud platform guidance is omitted - if you're doing disconnected deployments in the cloud and can't use the built-in AMIs/VMIs you have different kinds of problems I don't want any part of.
 
 One of the major things you'll need to deploy OpenShift in a disconnected environment are the RHCOS boot/install assets.
 
@@ -30,6 +30,8 @@ No other RHCOS media is needed!  When you execute the `openshift-install agent` 
 *Assisted Installer cloud service?!?! In a disconnected environment?!?!  wot in tarnation*
 
 Well, if all you have is an allow-list/outbound proxy, then it'll work - but you still don't need to mirror any other RHCOS assets for the Assisted Installer, it'll generate the only ISO you'll need to boot systems with.
+
+You can also define additional trusted Root CAs and an Outbound Proxy to be used for nodes to communicate with the hosted cloud service for installation.  Post install you could "disconnect" your cluster by removing the Proxy configuration.
 
 ## IPI/UPI, ACM IPI via Hive
 
