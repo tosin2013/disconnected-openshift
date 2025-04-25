@@ -99,6 +99,10 @@ With that, you should see your available OpenShift releases for upgrades as long
 
 ## Debugging
 
+### Unable to retrieve available updates x509: certificate signed by unknown authority
+
+In case you configure the OSUS endpoint with a cluster and it comes back complaining about not being able to validate cert CA then you need to make sure that you have your `user-ca-bundle` ConfigMap in the `openshift-config` namespace created with your Root CA certs, and it defined in the cluster-wide Proxy CR at `.spec.trustedCA.name`, even if you're not using an outbound proxy - CVO consumes it.
+
 ### 'release-manifests/release-metadata' not found
 
 If you deploy the OSUS instance and you see error messages in the Pod logs along the lines of `Could not assemble metadata from layer (sha256:xyz): 'release-manifests/release-metadata' not found` then it could be two things:
