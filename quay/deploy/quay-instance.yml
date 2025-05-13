@@ -20,11 +20,27 @@ spec:
       managed: true
     - kind: mirror
       managed: true
+      #overrides:
+      #  env:
+      #    - name: HTTP_PROXY
+      #      value: http://proxy.kemo.labs:3129
+      #    - name: HTTPS_PROXY
+      #      value: http://proxy.kemo.labs:3129
+      #    - name: NO_PROXY
+      #      value: '.local,.svc,localhost,127.0.0.1,10.0.0.0/8,172.16.0.0/23,192.168.0.0/16,.kemo.network,.kemo.labs'
     - kind: monitoring
       managed: true
     - kind: tls
       managed: true
     - kind: quay
       managed: true
+      #overrides:
+      #  env:
+      #    - name: HTTP_PROXY
+      #      value: http://proxy.kemo.labs:3129
+      #    - name: HTTPS_PROXY
+      #      value: http://proxy.kemo.labs:3129
+      #    - name: NO_PROXY
+      #      value: '.local,.svc,localhost,127.0.0.1,10.0.0.0/8,172.16.0.0/23,192.168.0.0/16,.kemo.network,.kemo.labs'
     - kind: clairpostgres
       managed: true
