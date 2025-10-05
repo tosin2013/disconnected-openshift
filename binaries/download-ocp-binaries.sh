@@ -84,16 +84,13 @@ for t in *.tar.gz; do
 done
 
 # Normalize names and set some permissions
-mv ${BUTANE_FILENAME} butane
-chmod a+x oc kubectl openshift-install butane oc-mirror yq
-mv oc kubectl openshift-install butane oc-mirror yq ..
-
-# Additional files for x86_64
 if [ "$ARCH" = "x86_64" ]; then
   mv opm-rhel9 opm
-  chmod a+x opm ccoctl
-  mv opm ccoctl ..
 fi
+mv ${BUTANE_FILENAME} butane
+
+chmod a+x *
+mv * ..
 
 # Clean up
 cd ..
