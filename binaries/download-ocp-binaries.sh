@@ -9,9 +9,9 @@ BUTANE_CHANNEL=${BUTANE_CHANNEL:="latest"} # latest, v0.23.0-0, etc
 
 # Set the target platform if not set
 if [ -z "$TARGETPLATFORM" ]; then
-  ARCH=$(arch)
-  OS=$(uname -o | sed 's|GNU/L|l|')
-  TARGETPLATFORM="${OS,}/${ARCH,}"
+  ARCH=$(arch | tr '[:upper:]' '[:lower:]')
+  OS=$(uname -o | sed 's|GNU/L|l|' | tr '[:upper:]' '[:lower:]')
+  TARGETPLATFORM="${OS}/${ARCH}"
 fi
 
 # Set the filenames based on the platform - it's not really a standard...
