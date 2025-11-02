@@ -87,14 +87,6 @@ jobs:
       - name: Install python requirements (ansible-builder)
         run: pip install ansible-builder==3.1.0
 
-      - name: Log in to target registry
-        id: registry-quay
-        uses: redhat-actions/podman-login@v1
-        with:
-          registry: ${{ inputs.REGISTRY_HOSTNAME }}
-          username: ${{ secrets.REGISTRY_USERNAME }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
-
       - name: Log in to registry.redhat.io
         id: registry-redhat
         if: ${{ inputs.ENABLE_REDHAT_REGISTRY == true }}
@@ -129,6 +121,14 @@ jobs:
 #           ANSIBLE_GALAXY_SERVER_AUTOMATION_HUB_TOKEN: ${{ secrets.AH_TOKEN }}
 # Above env var doesn't work yet: https://github.com/ansible/ansible-builder/issues/346
 
+      - name: Log in to target registry
+        id: registry-quay
+        uses: redhat-actions/podman-login@v1
+        with:
+          registry: ${{ inputs.REGISTRY_HOSTNAME }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+          
       - name: Push To Target Registry
         id: push-to-registry
         uses: redhat-actions/push-to-registry@v2
